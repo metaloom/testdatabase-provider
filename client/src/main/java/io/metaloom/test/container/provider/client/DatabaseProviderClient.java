@@ -8,6 +8,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 
 public class DatabaseProviderClient {
@@ -17,10 +18,10 @@ public class DatabaseProviderClient {
   private Vertx vertx;
 
   public DatabaseProviderClient(Vertx vertx, String host, int port) {
+    this.vertx = vertx;
     HttpClientOptions httpOptions = new HttpClientOptions();
     httpOptions.setDefaultHost(host);
     httpOptions.setDefaultPort(port);
-    this.vertx = vertx;
     this.httpClient = vertx.createHttpClient(httpOptions);
   }
 
@@ -36,7 +37,7 @@ public class DatabaseProviderClient {
           log.info("Got provider allocation info:\n{}", json.encodePrettily());
           result.complete(json);
         });
-        // Sending name of the currently executed test to the server. 
+        // Sending name of the currently executed test to the server.
         // It will allocate a database and send us the result.
         socket.writeTextMessage(testcaseName);
         socket.pongHandler(b -> {
@@ -51,6 +52,16 @@ public class DatabaseProviderClient {
         });
       });
       // return Future.succeededFuture(socket);
+    });
+  }
+
+  public Future<JsonObject> stat() {
+    return httpClient.request(HttpMethod.GET, "/stat").compose(req -> {
+      return req.connect().compose(resp -> {
+        return resp.body().compose(buffer -> {
+          return Future.succeededFuture(buffer.toJsonObject());
+        });
+      });
     });
   }
 

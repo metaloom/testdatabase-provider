@@ -17,11 +17,15 @@
     <vertx.version>4.4.0</vertx.version>
     <postgres.driver.version>42.2.2</postgres.driver.version>
     <testcontainer.version>1.17.6</testcontainer.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <modules>
+    <module>common</module>
+    <module>db</module>
     <module>client</module>
     <module>server</module>
+    <module>maven</module>
   </modules>
 
   <dependencies>

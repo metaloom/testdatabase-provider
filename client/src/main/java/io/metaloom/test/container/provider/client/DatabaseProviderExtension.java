@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.common.ClientEnv;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -16,7 +17,11 @@ public class DatabaseProviderExtension implements BeforeEachCallback {
   private DatabaseAllocation allocation;
 
   public DatabaseProviderExtension(String host, int port) {
-    client = new DatabaseProviderClient(Vertx.vertx(), host, port);
+    this.client = new DatabaseProviderClient(Vertx.vertx(), host, port);
+  }
+
+  public DatabaseProviderExtension() {
+    this(ClientEnv.getProviderHost(),ClientEnv.getProviderPort());
   }
 
   @Override

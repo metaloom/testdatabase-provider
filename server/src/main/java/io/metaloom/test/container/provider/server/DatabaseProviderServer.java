@@ -10,6 +10,8 @@ import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpHeaders;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
@@ -27,13 +29,13 @@ public class DatabaseProviderServer {
 
   public DatabaseProviderServer(Vertx vertx) {
     this.vertx = vertx;
-    this.pool = new DatabasePool(vertx, 10, 20, 5);
+    this.pool = new DatabasePool(vertx);
   }
 
   public Future<HttpServer> start() {
     HttpServerOptions options = new HttpServerOptions();
     options.setPort(8080);
-    options.setHost("localhost");
+    options.setHost("0.0.0.0");
     HttpServer server = vertx.createHttpServer(options);
 
     Router router = Router.router(vertx);
@@ -74,6 +76,20 @@ public class DatabaseProviderServer {
       });
     });
     router.route("/connect/*").subRouter(sockRouter);
+    router.route("/stat").method(HttpMethod.GET).handler(rc -> {
+      log.info("Getting stat request");
+      JsonObject stat = new JsonObject();
+      stat.put("level", pool.level());
+      stat.put("allocationLevel", pool.allocationLevel());
+      stat.put("templateName", pool.getTemplateName());
+      rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(stat.toBuffer());
+    });
+    router.route().failureHandler(rc -> {
+      if (rc.failed()) {
+        log.error("Error while handling request for " + rc.normalizedPath(), rc.failure());
+      }
+      rc.next();
+    });
     server.requestHandler(router);
     return server.listen().onSuccess(s -> {
       log.info("Server started. Listening on port {}", s.actualPort());

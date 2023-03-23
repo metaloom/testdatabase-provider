@@ -10,7 +10,15 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
+  <name>PostgreSQL Testdatabase Provider :: Client</name>
+
+
   <dependencies>
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>postgresql-testdatabase-provider-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-client</artifactId>
@@ -21,6 +29,7 @@
       <artifactId>testcontainers</artifactId>
       <version>${testcontainer.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>

@@ -12,6 +12,8 @@
     <testcontainer.version>1.17.6</testcontainer.version>
   </properties>
 
+  <name>PostgreSQL Testdatabase Provider :: Example</name>
+
   <dependencies>
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -21,8 +23,8 @@
 
     <!-- Test -->
     <dependency>
-      <artifactId>postgresql-testdatabase-provider-client</artifactId>
       <groupId>io.metaloom.test</groupId>
+      <artifactId>postgresql-testdatabase-provider-client</artifactId>
       <version>0.0.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
@@ -32,7 +34,46 @@
       <version>5.9.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.10</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>io.metaloom.test</groupId>
+        <artifactId>postgresql-testdatabase-provider-maven-plugin</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>start</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <release>17</release>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
   

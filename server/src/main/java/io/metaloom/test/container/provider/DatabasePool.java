@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.metaloom.test.container.provider.server.container.PostgreSQLPoolContainer;
+import io.metaloom.test.container.provider.common.ServerEnv;
 import io.vertx.core.Vertx;
 
 public class DatabasePool {
@@ -27,8 +27,6 @@ public class DatabasePool {
 
   private int maximum;
 
-  private PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(128, 128);
-
   private AtomicLong databaseIdCounter = new AtomicLong();
 
   private Vertx vertx;
@@ -38,6 +36,8 @@ public class DatabasePool {
   private String templateName;
 
   private int increment;
+
+  private DatabaseSettings settings;
 
   /**
    * Create a new database pool with the specified levels.
@@ -49,16 +49,25 @@ public class DatabasePool {
    *          Maximum amount of databases to allocate
    * @param increment
    *          Incremental for new database being allocated at once
+   * @param host
+   * @param port
+   * @param username
+   * @param password
    */
-  public DatabasePool(Vertx vertx, int minimum, int maximum, int increment) {
+  public DatabasePool(Vertx vertx, int minimum, int maximum, int increment, String host, int port, String username, String password) {
     this.vertx = vertx;
     this.minimum = minimum;
     this.maximum = maximum;
     this.increment = increment;
+    this.settings = new DatabaseSettings(host, port, username, password);
+  }
+
+  public DatabasePool(Vertx vertx) {
+    this(vertx, ServerEnv.getPoolMinimum(), ServerEnv.getPoolMaximum(), ServerEnv.getPoolIncrement(), ServerEnv.getDatabaseHost(),
+      ServerEnv.getDatabasePort(), ServerEnv.getDatabaseUsername(), ServerEnv.getDatabasePassword());
   }
 
   public void start() {
-    container.start();
     this.maintainPoolTimerId = vertx.setPeriodic(1000, th -> {
       try {
         preAllocate();
@@ -69,7 +78,6 @@ public class DatabasePool {
   }
 
   public void stop() {
-    container.stop();
     if (maintainPoolTimerId != null) {
       log.info("Stopping pre-allocation process");
       vertx.cancelTimer(maintainPoolTimerId);
@@ -96,12 +104,12 @@ public class DatabasePool {
     if (size < minimum && !(size > maximum) && templateName != null) {
       log.info("Need more databases. Got {} but need {} / {}", size, minimum, maximum);
       for (int i = 0; i < increment; i++) {
-        try (Connection connection = DriverManager.getConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword())) {
+        try (Connection connection = DriverManager.getConnection(settings.jdbcUrl(), settings.username(), settings.password())) {
           String newName = "test_db_" + databaseIdCounter.incrementAndGet();
           PreparedStatement statement = connection
-            .prepareStatement("CREATE DATABASE " + newName + " WITH TEMPLATE " + templateName + " OWNER " + container.getUsername());
+            .prepareStatement("CREATE DATABASE " + newName + " WITH TEMPLATE " + templateName + " OWNER " + settings.username());
           statement.executeUpdate();
-          databases.push(new Database(newName, container.getUsername(), container.getPassword()));
+          databases.push(new Database(newName, settings.username(), settings.password()));
         }
       }
     }
@@ -111,7 +119,7 @@ public class DatabasePool {
     // Delete the db and re-allocate
     String name = allocation.getName();
     Database alloction = allocations.remove(name);
-    try (Connection connection = DriverManager.getConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword())) {
+    try (Connection connection = DriverManager.getConnection(settings.jdbcUrl(), settings.username(), settings.password())) {
       PreparedStatement statement = connection.prepareStatement("DROP DATABASE " + alloction.name());
       statement.executeUpdate();
     }
@@ -130,11 +138,16 @@ public class DatabasePool {
     return allocations.size();
   }
 
-  public void setTemplate(String databaseName) {
+  public String getTemplateName() {
+    return templateName;
+  }
+
+  public void setTemplateName(String databaseName) {
     this.templateName = databaseName;
   }
 
-  public PostgreSQLPoolContainer getContainer() {
-    return container;
+  public DatabaseSettings settings() {
+    return settings;
   }
+
 }

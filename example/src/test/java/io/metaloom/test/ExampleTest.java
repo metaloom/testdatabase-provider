@@ -2,20 +2,13 @@ package io.metaloom.test;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-import io.metaloom.test.container.provider.client.DatabaseProviderContainer;
 import io.metaloom.test.container.provider.client.DatabaseProviderExtension;
 
-@Testcontainers
 public class ExampleTest {
 
-  @Container
-  public static DatabaseProviderContainer db = new DatabaseProviderContainer();
-
   @RegisterExtension
-  static DatabaseProviderExtension provider = new DatabaseProviderExtension(db.getHost(), db.getPort());
+  static DatabaseProviderExtension provider = new DatabaseProviderExtension();
 
   @Test
   public void testDB() {
@@ -23,7 +16,9 @@ public class ExampleTest {
   }
 
   @Test
-  public void testDB2() {
+  public void testDB2() throws InterruptedException {
+    Thread.sleep(2000);
     System.out.println(provider.db());
+    Thread.sleep(2000);
   }
 }

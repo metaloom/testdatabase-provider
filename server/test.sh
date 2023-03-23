@@ -1,0 +1,11 @@
+#!/bin/bash
+
+IMAGE=metaloom/postgresql-testdatabase-provider
+TAG=0.0.1-SNAPSHOT
+
+docker run --rm \
+ --env "TESTDATABASE_PROVIDER_DATABASE_HOST=localhost" \
+ --env "TESTDATABASE_PROVIDER_DATABASE_PORT=1234" \
+ --env "TESTDATABASE_PROVIDER_DATABASE_USERNAME=sa" \
+ --env "TESTDATABASE_PROVIDER_DATABASE_PASSWORD=sa" \
+ $IMAGE:$TAG 

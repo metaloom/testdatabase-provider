@@ -1,4 +1,4 @@
-package io.metaloom.test.container.provider.server.container;
+package io.metaloom.maven.provider.container;
 
 import java.util.HashMap;
 import java.util.Map;

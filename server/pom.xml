@@ -10,8 +10,14 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <dependencies>
+  <name>PostgreSQL Testdatabase Provider :: Server</name>
 
+  <dependencies>
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>postgresql-testdatabase-provider-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
@@ -21,11 +27,6 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${postgres.driver.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${testcontainer.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -39,12 +40,19 @@
     <!--Test-->
     <dependency>
       <groupId>io.metaloom.test</groupId>
+      <artifactId>postgresql-testdatabase-provider-db</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
       <artifactId>postgresql-testdatabase-provider-client</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
