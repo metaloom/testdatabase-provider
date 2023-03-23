@@ -1,4 +1,4 @@
-package io.metaloom.test.container.provider.server;
+package io.metaloom.test.container.provider;
 
 import io.vertx.core.json.JsonObject;
 

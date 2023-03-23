@@ -6,6 +6,6 @@ public class DatabaseProviderServerRunner {
 
   public static void main(String[] args) {
     Vertx vertx = Vertx.vertx();
-    new DatabaseProviderServer(vertx).start().result();
+    new DatabaseProviderServer(vertx).start();
   }
 }

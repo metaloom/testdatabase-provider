@@ -6,6 +6,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.DatabaseAllocation;
+import io.metaloom.test.container.provider.DatabasePool;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
@@ -25,7 +27,7 @@ public class DatabaseProviderServer {
 
   public DatabaseProviderServer(Vertx vertx) {
     this.vertx = vertx;
-    this.pool = new DatabasePool(vertx, 10, 20);
+    this.pool = new DatabasePool(vertx, 10, 20, 5);
   }
 
   public Future<HttpServer> start() {
@@ -42,19 +44,21 @@ public class DatabaseProviderServer {
     SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sockOptions);
     Router sockRouter = sockJSHandler.socketHandler(sock -> {
       AtomicReference<DatabaseAllocation> allocationRef = new AtomicReference<>();
+
+      // Check the message - currently msgs will only be send from the client to request a new database
       sock.handler(msg -> {
-        String name = msg.toString();
-        log.info("Allocating db for {}", name);
+        String testname = msg.toString();
+        log.info("Allocating db for {}", testname);
         DatabaseAllocation allocation;
         try {
-          allocation = pool.allocate(name);
+          allocation = pool.allocate(testname);
           allocationRef.set(allocation);
           JsonObject json = new JsonObject();
-          json.put("database_for", name);
+          json.put("database_for", testname);
           json.put("db", allocation.json());
           sock.write(json.toBuffer());
         } catch (SQLException e) {
-          log.error("Error while allocating database for test {}", name, e);
+          log.error("Error while allocating database for test {}", testname, e);
         }
       });
       sock.closeHandler(close -> {
@@ -70,16 +74,9 @@ public class DatabaseProviderServer {
       });
     });
     router.route("/connect/*").subRouter(sockRouter);
-
-    // router.route("/acquire").handler(rc -> {
-    // System.out.println("Acquire");
-    // JsonObject resp = new JsonObject();
-    // resp.put("hello", "world");
-    // rc.end(resp.toBuffer());
-    // });
     server.requestHandler(router);
     return server.listen().onSuccess(s -> {
-      System.out.println("Server started " + s.actualPort());
+      log.info("Server started. Listening on port {}", s.actualPort());
     });
   }
 

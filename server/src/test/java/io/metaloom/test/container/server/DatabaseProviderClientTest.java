@@ -13,7 +13,7 @@ public class DatabaseProviderClientTest {
   @BeforeAll
   public static void setup() {
     Vertx vertx = Vertx.vertx();
-    client = new DatabaseProviderClient(vertx);
+    client = new DatabaseProviderClient(vertx, "localhost", 8080);
   }
 
   @Test

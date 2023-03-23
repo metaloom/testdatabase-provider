@@ -1,4 +1,4 @@
-package io.metaloom.test.container.provider.server;
+package io.metaloom.test.container.provider;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.server.container.PostgreSQLPoolContainer;
 import io.vertx.core.Vertx;
 
 public class DatabasePool {
@@ -36,10 +37,24 @@ public class DatabasePool {
 
   private String templateName;
 
-  public DatabasePool(Vertx vertx, int minimum, int maximum) {
+  private int increment;
+
+  /**
+   * Create a new database pool with the specified levels.
+   * 
+   * @param vertx
+   * @param minimum
+   *          Minimum amount of databases to allocate
+   * @param maximum
+   *          Maximum amount of databases to allocate
+   * @param increment
+   *          Incremental for new database being allocated at once
+   */
+  public DatabasePool(Vertx vertx, int minimum, int maximum, int increment) {
     this.vertx = vertx;
     this.minimum = minimum;
     this.maximum = maximum;
+    this.increment = increment;
   }
 
   public void start() {
@@ -80,13 +95,15 @@ public class DatabasePool {
     }
     if (size < minimum && !(size > maximum) && templateName != null) {
       log.info("Need more databases. Got {} but need {} / {}", size, minimum, maximum);
-      String newName = "test_db_" + databaseIdCounter.incrementAndGet();
-      try (Connection connection = DriverManager.getConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword())) {
-        PreparedStatement statement = connection
-          .prepareStatement("CREATE DATABASE " + newName + " WITH TEMPLATE " + templateName + " OWNER " + container.getUsername());
-        statement.executeUpdate();
+      for (int i = 0; i < increment; i++) {
+        try (Connection connection = DriverManager.getConnection(container.getJdbcUrl(), container.getUsername(), container.getPassword())) {
+          String newName = "test_db_" + databaseIdCounter.incrementAndGet();
+          PreparedStatement statement = connection
+            .prepareStatement("CREATE DATABASE " + newName + " WITH TEMPLATE " + templateName + " OWNER " + container.getUsername());
+          statement.executeUpdate();
+          databases.push(new Database(newName, container.getUsername(), container.getPassword()));
+        }
       }
-      databases.push(new Database(newName, container.getUsername(), container.getPassword()));
     }
   }
 
