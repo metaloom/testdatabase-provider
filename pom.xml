@@ -1,0 +1,54 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.metaloom.test</groupId>
+  <artifactId>postgresql-testdatabase-provider</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <packaging>pom</packaging>
+  <parent>
+    <groupId>io.metaloom</groupId>
+    <artifactId>maven-parent</artifactId>
+    <version>2.0.1</version>
+  </parent>
+
+  <properties>
+    <vertx.version>4.4.0</vertx.version>
+    <postgres.driver.version>42.2.2</postgres.driver.version>
+    <testcontainer.version>1.17.6</testcontainer.version>
+  </properties>
+
+  <modules>
+    <module>client</module>
+    <module>server</module>
+  </modules>
+
+  <dependencies>
+    <!-- Test -->
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${testcontainer.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.9.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <release>17</release>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
