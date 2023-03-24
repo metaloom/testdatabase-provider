@@ -10,6 +10,7 @@
   <properties>
     <postgres.driver.version>42.2.2</postgres.driver.version>
     <testcontainer.version>1.17.6</testcontainer.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <name>PostgreSQL Testdatabase Provider :: Example</name>
@@ -93,13 +94,13 @@
               <goal>start-allocation</goal>
             </goals>
           </execution>
-          
+
           <!--
           <execution>
             <id>stop</id>
-            <phase>post-integration-test</phase>
+          <phase>post-integration-test</phase>
             <goals>
-              <goal>stop</goal>
+          <goal>stop</goal>
             </goals>
           </execution>
           -->

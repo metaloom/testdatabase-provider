@@ -25,6 +25,12 @@ public class DatabaseProviderClient {
     this.httpClient = vertx.createHttpClient(httpOptions);
   }
 
+  /**
+   * Connect the test to the database provider. The provider will assign a test database which can be used by the caller.
+   * 
+   * @param testcaseName
+   * @return
+   */
   public Future<JsonObject> link(String testcaseName) {
     return httpClient.webSocket("/connect/websocket").compose(socket -> {
       return Future.future(result -> {
@@ -51,12 +57,11 @@ public class DatabaseProviderClient {
           socket.writePing(Buffer.buffer());
         });
       });
-      // return Future.succeededFuture(socket);
     });
   }
 
-  public Future<JsonObject> stat() {
-    return httpClient.request(HttpMethod.GET, "/stat").compose(req -> {
+  public Future<JsonObject> listPools() {
+    return httpClient.request(HttpMethod.GET, "/pools").compose(req -> {
       return req.connect().compose(resp -> {
         return resp.body().compose(buffer -> {
           return Future.succeededFuture(buffer.toJsonObject());
@@ -65,8 +70,28 @@ public class DatabaseProviderClient {
     });
   }
 
-  public Future<JsonObject> setTemplateName(String name) {
-    return httpClient.request(HttpMethod.POST, "/template").compose(req -> {
+  public Future<JsonObject> loadPool(String name) {
+    return httpClient.request(HttpMethod.GET, "/pools/" + name).compose(req -> {
+      return req.connect().compose(resp -> {
+        return resp.body().compose(buffer -> {
+          return Future.succeededFuture(buffer.toJsonObject());
+        });
+      });
+    });
+  }
+
+  public Future<JsonObject> deletePool(String name) {
+    return httpClient.request(HttpMethod.DELETE, "/pools/" + name).compose(req -> {
+      return req.connect().compose(resp -> {
+        return resp.body().compose(buffer -> {
+          return Future.succeededFuture(buffer.toJsonObject());
+        });
+      });
+    });
+  }
+
+  public Future<JsonObject> createPool(String poolName, String name) {
+    return httpClient.request(HttpMethod.POST, "/pools/" + poolName).compose(req -> {
       JsonObject body = new JsonObject();
       body.put("templateName", name);
       return req.send(body.toBuffer()).compose(resp -> {

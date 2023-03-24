@@ -19,6 +19,8 @@ public final class ServerEnv {
 
   public static final String TESTDATABASE_PROVIDER_DATABASE_PASSWORD_KEY = "TESTDATABASE_PROVIDER_DATABASE_PASSWORD";
 
+  public static final String TESTDATABASE_PROVIDER_DATABASE_ADMIN_DB_KEY = "TESTDATABASE_PROVIDER_DATABASE_ADMIN_DB_KEY";
+
   public static final String TESTDATABASE_PROVIDER_POOL_MINIMUM_KEY = "TESTDATABASE_PROVIDER_POOL_MINIMUM";
 
   public static final String TESTDATABASE_PROVIDER_POOL_MAXIMUM_KEY = "TESTDATABASE_PROVIDER_POOL_MAXIMUM";
@@ -70,6 +72,10 @@ public final class ServerEnv {
 
   public static String getDatabaseUsername() {
     return getMandatoryEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_USERNAME_KEY);
+  }
+
+  public static String getDatabaseAdminDB() {
+    return getMandatoryEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_ADMIN_DB_KEY);
   }
 
   private static String getMandatoryEnv(String key) {

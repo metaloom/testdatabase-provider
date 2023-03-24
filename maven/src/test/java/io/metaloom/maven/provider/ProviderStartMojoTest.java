@@ -25,7 +25,7 @@ public class ProviderStartMojoTest {
     System.out.println(state.toString());
     DatabaseProviderClient client = new DatabaseProviderClient(Vertx.vertx(), state.getProviderHost(), state.getProviderPort());
     try {
-      JsonObject stat = client.stat().toCompletionStage().toCompletableFuture().get();
+      JsonObject stat = client.listPools().toCompletionStage().toCompletableFuture().get();
       System.out.println("Stat:\n" + stat.encodePrettily());
     } catch (Exception e) {
       e.printStackTrace();

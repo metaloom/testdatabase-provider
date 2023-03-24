@@ -1,33 +1,37 @@
 package io.metaloom.test.container.provider;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.metaloom.test.container.provider.common.ServerEnv;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
+/**
+ * A database pool manages the database copies for a specific template database. The pool fulfills allocation requests and creates new databases to be
+ * allocated.
+ */
 public class DatabasePool {
 
   public static final Logger log = LoggerFactory.getLogger(DatabasePool.class);
 
+  private static final String DB_PREFIX = "test_db_";
+
   private Stack<Database> databases = new Stack<>();
 
-  private Map<String, Database> allocations = new HashMap<>();
+  private Map<String, DatabaseAllocation> allocations = new HashMap<>();
+
+  private final String id;
 
   private int minimum;
 
   private int maximum;
-
-  private AtomicLong databaseIdCounter = new AtomicLong();
 
   private Vertx vertx;
 
@@ -43,6 +47,7 @@ public class DatabasePool {
    * Create a new database pool with the specified levels.
    * 
    * @param vertx
+   * @param id
    * @param minimum
    *          Minimum amount of databases to allocate
    * @param maximum
@@ -53,18 +58,20 @@ public class DatabasePool {
    * @param port
    * @param username
    * @param password
+   * @param adminDB
    */
-  public DatabasePool(Vertx vertx, int minimum, int maximum, int increment, String host, int port, String username, String password) {
+  public DatabasePool(Vertx vertx, String id, int minimum, int maximum, int increment, String host, int port, String username, String password, String adminDB) {
     this.vertx = vertx;
+    this.id = id;
     this.minimum = minimum;
     this.maximum = maximum;
     this.increment = increment;
-    this.settings = new DatabaseSettings(host, port, username, password);
+    this.settings = new DatabaseSettings(host, port, username, password, adminDB);
   }
 
-  public DatabasePool(Vertx vertx) {
-    this(vertx, ServerEnv.getPoolMinimum(), ServerEnv.getPoolMaximum(), ServerEnv.getPoolIncrement(), ServerEnv.getDatabaseHost(),
-      ServerEnv.getDatabasePort(), ServerEnv.getDatabaseUsername(), ServerEnv.getDatabasePassword());
+  public DatabasePool(Vertx vertx, String id) {
+    this(vertx, id, ServerEnv.getPoolMinimum(), ServerEnv.getPoolMaximum(), ServerEnv.getPoolIncrement(), ServerEnv.getDatabaseHost(),
+      ServerEnv.getDatabasePort(), ServerEnv.getDatabaseUsername(), ServerEnv.getDatabasePassword(), ServerEnv.getDatabaseAdminDB() );
   }
 
   public void start() {
@@ -76,7 +83,7 @@ public class DatabasePool {
       try {
         preAllocate();
       } catch (SQLException e) {
-        
+
         System.out.println(settings());
         log.error("Error while preallocating database", e);
       }
@@ -91,14 +98,16 @@ public class DatabasePool {
     }
   }
 
-  public DatabaseAllocation allocate(String name) throws SQLException {
+  public DatabaseAllocation allocate(String testName) throws SQLException {
     if (databases.isEmpty()) {
       preAllocate();
     }
     if (!databases.isEmpty()) {
       Database database = databases.pop();
-      allocations.put(name, database);
-      return new DatabaseAllocation(name, database);
+      String id = UUID.randomUUID().toString().substring(0, 4) + "_" + testName;
+      DatabaseAllocation allocation = new DatabaseAllocation(this, id, database);
+      allocations.put(id, allocation);
+      return allocation;
     }
     return null;
   }
@@ -111,24 +120,22 @@ public class DatabasePool {
     if (size < minimum && !(size > maximum) && templateName != null) {
       log.info("Need more databases. Got {} but need {} / {}", size, minimum, maximum);
       for (int i = 0; i < increment; i++) {
-        try (Connection connection = DriverManager.getConnection(settings.jdbcUrl(), settings.username(), settings.password())) {
-          String newName = "test_db_" + databaseIdCounter.incrementAndGet();
-          PreparedStatement statement = connection
-            .prepareStatement("CREATE DATABASE " + newName + " WITH TEMPLATE " + templateName + " OWNER " + settings.username());
-          statement.executeUpdate();
-          databases.push(new Database(newName, settings.username(), settings.password()));
-        }
+        String newName = DB_PREFIX + UUID.randomUUID().toString().substring(0, 4);
+        Database database = SQLUtils.copyDatabase(settings, templateName, newName);
+        databases.push(database);
       }
     }
   }
 
-  public void release(DatabaseAllocation allocation) throws SQLException {
-    // Delete the db and re-allocate
-    String name = allocation.getName();
-    Database alloction = allocations.remove(name);
-    try (Connection connection = DriverManager.getConnection(settings.jdbcUrl(), settings.username(), settings.password())) {
-      PreparedStatement statement = connection.prepareStatement("DROP DATABASE " + alloction.name());
-      statement.executeUpdate();
+  public boolean release(DatabaseAllocation allocation) throws SQLException {
+    String id = allocation.id();
+    log.info("Releasing allocation {}", id);
+    if (allocations.remove(id) == null) {
+      log.error("Allocation {} not found in pool {}", allocation, id());
+      return false;
+    } else {
+      SQLUtils.dropDatabase(allocation.db());
+      return true;
     }
   }
 
@@ -159,5 +166,29 @@ public class DatabasePool {
 
   public boolean isStarted() {
     return maintainPoolTimerId != null;
+  }
+
+  public JsonObject toJson() {
+    JsonObject json = new JsonObject();
+    json.put("id", id);
+    json.put("templateName", templateName);
+    json.put("level", level());
+    json.put("allocationLevel", allocationLevel());
+    return json;
+  }
+
+  public String id() {
+    return id;
+  }
+
+  public void drain() {
+    stop();
+    for (DatabaseAllocation allocation : allocations.values()) {
+      try {
+        SQLUtils.dropDatabase(allocation.db());
+      } catch (Exception e) {
+        log.error("Error while dropping db.", e);
+      }
+    }
   }
 }

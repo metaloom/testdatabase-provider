@@ -23,7 +23,8 @@ public class ProviderStartAllocationMojo extends AbstractProviderMojo {
         String host = state.getProviderHost();
         int port = state.getProviderPort();
         DatabaseProviderClient client = new DatabaseProviderClient(Vertx.vertx(), host, port);
-        client.setTemplateName("postgres");
+        // TODO get settings from pom.xml
+        client.createPool("test", "postgres");
       }
     } catch (Exception e) {
       getLog().error("Error while invoking start of test database allocation.", e);
