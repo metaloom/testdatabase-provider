@@ -65,4 +65,16 @@ public class DatabaseProviderClient {
     });
   }
 
+  public Future<JsonObject> setTemplateName(String name) {
+    return httpClient.request(HttpMethod.POST, "/template").compose(req -> {
+      JsonObject body = new JsonObject();
+      body.put("templateName", name);
+      return req.send(body.toBuffer()).compose(resp -> {
+        return resp.body().compose(buffer -> {
+          return Future.succeededFuture(buffer.toJsonObject());
+        });
+      });
+    });
+  }
+
 }

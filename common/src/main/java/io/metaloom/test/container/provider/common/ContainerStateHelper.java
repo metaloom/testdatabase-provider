@@ -23,7 +23,7 @@ public final class ContainerStateHelper {
 
   public static void writeState(ContainerState state) throws JsonGenerationException, JsonMappingException, IOException {
     ensureTargetFolder();
-    mapper.writeValue(stateFile(), state);
+    mapper.writerWithDefaultPrettyPrinter().writeValue(stateFile(), state);
   }
 
   private static void ensureTargetFolder() {

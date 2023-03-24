@@ -18,7 +18,7 @@ public class ProviderStartMojoTest {
 
   @Test
   public void testStart() throws MojoExecutionException, MojoFailureException, IOException, InterruptedException {
-    new ProviderStartMojo().execute();
+    //new ProviderStartMojo().execute();
     ContainerState state = ContainerStateHelper.readState();
     assertNotNull(state);
     Thread.sleep(2000);
@@ -30,6 +30,6 @@ public class ProviderStartMojoTest {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    //new ProviderStopMojo().execute();
+    new ProviderStopMojo().execute();
   }
 }

@@ -45,17 +45,56 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <version>9.12.0</version>
+        <executions>
+          <execution>
+            <?m2e ignore?>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>migrate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <url>${maven.provider.db.url}</url>
+          <user>${maven.provider.db.username}</user>
+          <password>${maven.provider.db.password}</password>
+          <locations>
+            <location>filesystem:src/main/flyway</location>
+          </locations>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.driver.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+
+      <plugin>
         <groupId>io.metaloom.test</groupId>
         <artifactId>postgresql-testdatabase-provider-maven-plugin</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <executions>
           <execution>
             <id>start</id>
-            <phase>pre-integration-test</phase>
+            <phase>initialize</phase>
             <goals>
               <goal>start</goal>
             </goals>
           </execution>
+          <execution>
+            <id>start-allocation</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>start-allocation</goal>
+            </goals>
+          </execution>
+          
+          <!--
           <execution>
             <id>stop</id>
             <phase>post-integration-test</phase>
@@ -63,6 +102,7 @@
               <goal>stop</goal>
             </goals>
           </execution>
+          -->
         </executions>
       </plugin>
       <plugin>

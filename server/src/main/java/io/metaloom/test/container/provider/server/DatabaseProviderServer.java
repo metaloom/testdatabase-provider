@@ -16,6 +16,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 
@@ -76,6 +77,7 @@ public class DatabaseProviderServer {
       });
     });
     router.route("/connect/*").subRouter(sockRouter);
+    router.route().handler(BodyHandler.create());
     router.route("/stat").method(HttpMethod.GET).handler(rc -> {
       log.info("Getting stat request");
       JsonObject stat = new JsonObject();
@@ -84,6 +86,19 @@ public class DatabaseProviderServer {
       stat.put("templateName", pool.getTemplateName());
       rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(stat.toBuffer());
     });
+
+    router.route("/template").method(HttpMethod.POST).handler(rc -> {
+      JsonObject request = rc.body().asJsonObject();
+      String name = request.getString("templateName");
+      pool.setTemplateName(name);
+      if (!pool.isStarted()) {
+        pool.start();
+      }
+      JsonObject result = new JsonObject();
+      result.put("templateName", pool.getTemplateName());
+      rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(result.toBuffer());
+    });
+
     router.route().failureHandler(rc -> {
       if (rc.failed()) {
         log.error("Error while handling request for " + rc.normalizedPath(), rc.failure());

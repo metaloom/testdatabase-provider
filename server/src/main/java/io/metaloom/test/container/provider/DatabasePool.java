@@ -68,10 +68,16 @@ public class DatabasePool {
   }
 
   public void start() {
+    if (isStarted()) {
+      log.error("Pool already started. Ignoring start request.");
+      return;
+    }
     this.maintainPoolTimerId = vertx.setPeriodic(1000, th -> {
       try {
         preAllocate();
       } catch (SQLException e) {
+        
+        System.out.println(settings());
         log.error("Error while preallocating database", e);
       }
     });
@@ -81,6 +87,7 @@ public class DatabasePool {
     if (maintainPoolTimerId != null) {
       log.info("Stopping pre-allocation process");
       vertx.cancelTimer(maintainPoolTimerId);
+      maintainPoolTimerId = null;
     }
   }
 
@@ -150,4 +157,7 @@ public class DatabasePool {
     return settings;
   }
 
+  public boolean isStarted() {
+    return maintainPoolTimerId != null;
+  }
 }

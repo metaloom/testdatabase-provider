@@ -13,6 +13,25 @@
     <version>2.0.1</version>
   </parent>
 
+  <name>PostgreSQL Testdatabase Provider</name>
+  <inceptionYear>2023</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>jotschi</id>
+      <name>Johannes Schüth</name>
+      <roles>
+        <role>Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
   <properties>
     <vertx.version>4.4.0</vertx.version>
     <postgres.driver.version>42.2.2</postgres.driver.version>

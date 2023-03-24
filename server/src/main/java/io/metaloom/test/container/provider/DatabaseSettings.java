@@ -10,4 +10,7 @@ public record DatabaseSettings(String host, int port, String username, String pa
       "/");
   }
 
+  public String toString() {
+    return "Host: " + host() + ", port: " + port() + ", username: " + username() + ", password: " + password();
+  }
 }
