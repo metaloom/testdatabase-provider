@@ -1,5 +1,6 @@
 package io.metaloom.maven.provider;
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -15,20 +16,40 @@ import io.metaloom.test.container.provider.common.ContainerState;
 import io.metaloom.test.container.provider.common.ContainerStateHelper;
 import io.metaloom.test.container.provider.container.DatabaseProviderContainer;
 
+/**
+ * The start operation will provide the needed testdatabase provider daemon and optionally also a database which will automatically be configured to work in
+ * conjunction with the started daemon.
+ */
 @Mojo(name = "start", defaultPhase = LifecyclePhase.INITIALIZE)
 public class ProviderStartMojo extends AbstractProviderMojo {
 
-  public static final String TEST_DATABASE_ALIAS = "testdb";
+  public static final String TEST_DATABASE_NETWORK_ALIAS = "testdb";
 
+  /**
+   * Whether a postgreSQL server should be started automatically. The properties maven.provider.db.url, maven.provider.db.username and
+   * maven.provider.db.password will automatically be set and can be uses by other plugins after the execution of the plugin goal.
+   */
   @Parameter
   private boolean startPostgreSQL = true;
 
+  /**
+   * Database settings which may be used to provide an external database to the provider daemon.
+   */
   @Parameter
   private PoolDatabase database;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
 
+    try {
+      ContainerState oldState = ContainerStateHelper.readState();
+      if (oldState != null) {
+        getLog().info("Found state file. This means the provider is probably still running. Aborting start");
+        return;
+      }
+    } catch (IOException e) {
+      getLog().error("Failure while reading original state", e);
+    }
     ContainerState state = new ContainerState();
     Network network = Network.builder().build();
 
@@ -42,7 +63,7 @@ public class ProviderStartMojo extends AbstractProviderMojo {
       PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(128, 128)
         .withReuse(true)
         .withNetwork(network)
-        .withNetworkAliases(TEST_DATABASE_ALIAS);
+        .withNetworkAliases(TEST_DATABASE_NETWORK_ALIAS);
       db.start();
       state.setDatabaseContainerId(db.getContainerId());
       getLog().debug("Container JDBCUrl:" + db.getJdbcUrl());
@@ -66,7 +87,7 @@ public class ProviderStartMojo extends AbstractProviderMojo {
     int databasePort = 5432;
 
     if (startPostgreSQL) {
-      databaseHost = TEST_DATABASE_ALIAS;
+      databaseHost = TEST_DATABASE_NETWORK_ALIAS;
       databasePort = PostgreSQLContainer.POSTGRESQL_PORT;
     } else {
       String cleanURI = jdbcURL.substring(5);
@@ -79,7 +100,6 @@ public class ProviderStartMojo extends AbstractProviderMojo {
     DatabaseProviderContainer provider = new DatabaseProviderContainer()
       .withDatabase(databaseHost, databasePort, username, password)
       .withNetwork(network);
-
     provider.start();
 
     try {

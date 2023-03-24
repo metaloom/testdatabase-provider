@@ -12,6 +12,9 @@ import com.github.dockerjava.api.command.StopContainerCmd;
 import io.metaloom.test.container.provider.common.ContainerState;
 import io.metaloom.test.container.provider.common.ContainerStateHelper;
 
+/**
+ * The stop operation will terminate previously started databases and the testdatabase provider daemon container. 
+ */
 @Mojo(name = "stop", defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
 public class ProviderStopMojo extends AbstractProviderMojo {
 

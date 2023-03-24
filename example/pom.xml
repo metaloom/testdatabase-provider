@@ -88,11 +88,23 @@
             </goals>
           </execution>
           <execution>
-            <id>start-allocation</id>
+            <id>setup-pool</id>
             <phase>process-test-classes</phase>
             <goals>
-              <goal>start-allocation</goal>
+              <goal>pool</goal>
             </goals>
+            
+            <configuration>
+              <pools>
+                <pool>
+                  <id>dummy</id>
+                  <templateName>postgres</templateName>
+                  <minimum>10</minimum>
+                  <maximum>20</maximum>
+                  <increment>5</increment>
+                </pool>
+              </pools>
+            </configuration>
           </execution>
 
           <!--

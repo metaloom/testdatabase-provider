@@ -10,19 +10,33 @@ public class PoolConfiguration {
   @Parameter
   private String templateName;
 
+  @Parameter
+  private int minimum;
+
+  @Parameter
+  private int maximum;
+
+  @Parameter
+  private int increment;
+
   public String getId() {
     return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
   }
 
   public String getTemplateName() {
     return templateName;
   }
 
-  public void setTemplateName(String templateName) {
-    this.templateName = templateName;
+  public int getMinimum() {
+    return minimum;
   }
+
+  public int getMaximum() {
+    return maximum;
+  }
+
+  public int getIncrement() {
+    return increment;
+  }
+
 }

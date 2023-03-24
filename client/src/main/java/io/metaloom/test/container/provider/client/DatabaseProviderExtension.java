@@ -21,7 +21,7 @@ public class DatabaseProviderExtension implements BeforeEachCallback {
   }
 
   public DatabaseProviderExtension() {
-    this(ClientEnv.getProviderHost(),ClientEnv.getProviderPort());
+    this(ClientEnv.getProviderHost(), ClientEnv.getProviderPort());
   }
 
   @Override

@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
 import io.metaloom.test.container.provider.DatabasePoolManager;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -59,19 +58,36 @@ public class ServerApi {
 
   public void upsertPoolHandler(RoutingContext rc) {
     String id = rc.pathParam("id");
-
-    DatabasePool pool = manager.getPool(id);
-
-    log.info("Adding pool {}", id);
+    JsonObject result = new JsonObject();
     JsonObject request = rc.body().asJsonObject();
     String name = request.getString("templateName");
-    pool.setTemplateName(name);
-    if (!pool.isStarted()) {
-      pool.start();
+    if (name == null) {
+
     }
-    JsonObject result = new JsonObject();
-    result.put("templateName", pool.getTemplateName());
+
+    DatabasePool pool = manager.getPool(id);
+    if (pool == null) {
+      log.info("Adding pool {}", id);
+      int minimum = request.getInteger("minimum");
+      int maximum = request.getInteger("maximum");
+      int increment = request.getInteger("increment");
+      String host = request.getString("host");
+      int port = request.getInteger("port");
+      String username = request.getString("username");
+      String password = request.getString("password");
+      String adminDB = request.getString("database");
+      pool = manager.createPool(id, minimum, maximum, increment, host, port, username, password, adminDB);
+      result.put("pool", pool.toJson());
+    } else {
+      log.info("Updating pool {}", id);
+      pool.setTemplateName(name);
+      if (!pool.isStarted()) {
+        pool.start();
+      }
+      result.put("templateName", pool.getTemplateName());
+    }
     rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(result.toBuffer());
+
   }
 
   public void failureHandler(RoutingContext rc) {

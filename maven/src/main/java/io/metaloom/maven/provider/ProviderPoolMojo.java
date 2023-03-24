@@ -11,10 +11,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 import io.metaloom.test.container.provider.client.DatabaseProviderClient;
 import io.metaloom.test.container.provider.common.ContainerState;
 import io.metaloom.test.container.provider.common.ContainerStateHelper;
-import io.vertx.core.Vertx;
 
-@Mojo(name = "start-allocation", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES)
-public class ProviderStartAllocationMojo extends AbstractProviderMojo {
+/**
+ * The pool operation will setup a new test database pool. After this step the provider daemon will automatically populate the database with copies from the
+ * template database and allow tests to allocate databases.
+ */
+@Mojo(name = "pool", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES)
+public class ProviderPoolMojo extends AbstractProviderMojo {
 
   @Parameter(property = "pools")
   private List<PoolConfiguration> pools;

@@ -2,6 +2,7 @@ package io.metaloom.test.container.provider;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public class DatabasePoolManager {
   }
 
   public Collection<DatabasePool> getPools() {
-    return pools.values();
+    return Collections.unmodifiableCollection(pools.values());
   }
 
   public boolean contains(String id) {
@@ -30,6 +31,7 @@ public class DatabasePoolManager {
     if (pool == null) {
       return false;
     } else {
+      pool.stop();
       pool.drain();
       return true;
     }
@@ -41,6 +43,14 @@ public class DatabasePoolManager {
 
   public void release(DatabaseAllocation allocation) throws SQLException {
     allocation.release();
+  }
+
+  public DatabasePool createPool(String id, int minimum, int maximum, int increment, String host, int port, String username, String password,
+    String adminDB) {
+    DatabasePool pool = new DatabasePool(vertx, id, minimum, maximum, increment, host, port, username, password, adminDB);
+    pools.put(id, pool);
+    pool.start();
+    return pool;
   }
 
 }

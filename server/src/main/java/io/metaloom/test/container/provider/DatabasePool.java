@@ -182,9 +182,10 @@ public class DatabasePool {
   }
 
   public void drain() {
-    stop();
+    log.info("Draining pool {}", id());
     for (DatabaseAllocation allocation : allocations.values()) {
       try {
+        log.info("Deleting db {} from pool {}", allocation.db().name(), id());
         SQLUtils.dropDatabase(allocation.db());
       } catch (Exception e) {
         log.error("Error while dropping db.", e);
