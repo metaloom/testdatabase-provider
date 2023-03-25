@@ -7,9 +7,12 @@ public class ContainerState {
 
   private String providerHost;
   private int providerPort;
-
   private String providerContainerId;
 
+  private String databaseHost;
+  private int databasePort;
+  private String databaseUsername;
+  private String databasePassword;
   private String databaseContainerId;
 
   public String getProviderContainerId() {
@@ -46,6 +49,22 @@ public class ContainerState {
   public ContainerState setProviderHost(String host) {
     this.providerHost = host;
     return this;
+  }
+
+  public String getDatabaseHost() {
+    return databaseHost;
+  }
+
+  public String getDatabasePassword() {
+    return databasePassword;
+  }
+
+  public int getDatabasePort() {
+    return databasePort;
+  }
+
+  public String getDatabaseUsername() {
+    return databaseUsername;
   }
 
   @Override

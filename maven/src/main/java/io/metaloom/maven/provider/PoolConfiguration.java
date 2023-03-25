@@ -19,6 +19,21 @@ public class PoolConfiguration {
   @Parameter
   private int increment;
 
+  @Parameter
+  private String host;
+
+  @Parameter
+  private int port;
+
+  @Parameter
+  private String username;
+
+  @Parameter
+  private String password;
+
+  @Parameter
+  private String database;
+
   public String getId() {
     return id;
   }
@@ -37,6 +52,26 @@ public class PoolConfiguration {
 
   public int getIncrement() {
     return increment;
+  }
+
+  public String getHost() {
+    return host;
+  }
+
+  public int getPort() {
+    return port;
+  }
+
+  public String getDatabase() {
+    return database;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public String getPassword() {
+    return password;
   }
 
 }

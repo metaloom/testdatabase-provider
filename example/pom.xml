@@ -93,7 +93,7 @@
             <goals>
               <goal>pool</goal>
             </goals>
-            
+
             <configuration>
               <pools>
                 <pool>
@@ -107,15 +107,13 @@
             </configuration>
           </execution>
 
-          <!--
           <execution>
             <id>stop</id>
-          <phase>post-integration-test</phase>
+            <phase>post-integration-test</phase>
             <goals>
-          <goal>stop</goal>
+              <goal>stop</goal>
             </goals>
           </execution>
-          -->
         </executions>
       </plugin>
       <plugin>

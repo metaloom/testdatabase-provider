@@ -11,7 +11,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import io.metaloom.test.container.provider.client.DatabaseProviderClient;
 import io.metaloom.test.container.provider.common.ContainerState;
 import io.metaloom.test.container.provider.common.ContainerStateHelper;
+import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
+import io.metaloom.test.container.provider.model.DatabasePoolSettings;
 
 /**
  * The pool operation will setup a new test database pool. After this step the provider daemon will automatically populate the database with copies from the
@@ -34,12 +36,22 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
         int port = state.getProviderPort();
         DatabaseProviderClient client = new DatabaseProviderClient(vertx, host, port);
         for (PoolConfiguration pool : pools) {
+          DatabasePoolSettings settings = new DatabasePoolSettings();
+          settings.setIncrement(pool.getIncrement());
+          settings.setMaximum(pool.getMaximum());
+          settings.setMinimum(pool.getMinimum());
+
+          DatabasePoolConnection connection = new DatabasePoolConnection();
+          connection.setHost(pool.getHost());
+          connection.setPort(pool.getPort());
+          connection.setUsername(pool.getUsername());
+          connection.setPassword(pool.getPassword());
+          connection.setDatabase(pool.getDatabase());
+
           DatabasePoolRequest request = new DatabasePoolRequest();
           request.setTemplateName(pool.getTemplateName());
-          request.setIncrement(pool.getIncrement());
-          request.setMinimum(pool.getMinimum());
-          request.setMaximum(pool.getMaximum());
-          //TODO add db settings
+          request.setSettings(settings);
+          request.setConnection(connection);
           client.createPool(pool.getId(), request);
         }
       }
