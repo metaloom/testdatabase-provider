@@ -9,6 +9,11 @@ import org.slf4j.LoggerFactory;
 import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
 import io.metaloom.test.container.provider.DatabasePoolManager;
+import io.metaloom.test.container.provider.json.JSON;
+import io.metaloom.test.container.provider.model.DatabasePoolConnection;
+import io.metaloom.test.container.provider.model.DatabasePoolRequest;
+import io.metaloom.test.container.provider.model.DatabasePoolResponse;
+import io.metaloom.test.container.provider.model.DatabasePoolSettings;
 import io.vertx.core.http.HttpHeaders;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -58,42 +63,56 @@ public class ServerApi {
 
   public void upsertPoolHandler(RoutingContext rc) {
     String id = rc.pathParam("id");
-    JsonObject result = new JsonObject();
-    JsonObject request = rc.body().asJsonObject();
-    String name = request.getString("templateName");
-    if (name == null) {
-
-    }
+    DatabasePoolRequest model = rc.body().asPojo(DatabasePoolRequest.class);
+    String templateName = require(model.getTemplateName(), "templateName");
 
     DatabasePool pool = manager.getPool(id);
     if (pool == null) {
+      DatabasePoolConnection connection = model.getConnection();
+      DatabasePoolSettings settings = model.getSettings();
       log.info("Adding pool {}", id);
-      int minimum = request.getInteger("minimum");
-      int maximum = request.getInteger("maximum");
-      int increment = request.getInteger("increment");
-      String host = request.getString("host");
-      int port = request.getInteger("port");
-      String username = request.getString("username");
-      String password = request.getString("password");
-      String adminDB = request.getString("database");
+      require(settings, "settings");
+      Integer minimum = require(settings.getMinimum(), "minimum");
+      Integer maximum = require(settings.getMaximum(), "maximum");
+      Integer increment = require(settings.getIncrement(), "increment");
+
+      require(connection, "connection");
+      String host = require(connection.getHost(), "host");
+      Integer port = require(connection.getPort(), "port");
+      String username = require(connection.getUsername(), "username");
+      String password = require(connection.getPassword(), "password");
+      String adminDB = require(connection.getDatabase(), "database");
       pool = manager.createPool(id, minimum, maximum, increment, host, port, username, password, adminDB);
-      result.put("pool", pool.toJson());
+      pool.setTemplateName(templateName);
+      pool.start();
     } else {
       log.info("Updating pool {}", id);
-      pool.setTemplateName(name);
+      pool.setTemplateName(templateName);
       if (!pool.isStarted()) {
         pool.start();
       }
-      result.put("templateName", pool.getTemplateName());
     }
-    rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(result.toBuffer());
+    DatabasePoolResponse response = ModelHelper.toModel(pool);
+    rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(JSON.toBuffer(response));
 
   }
 
-  public void failureHandler(RoutingContext rc) {
-    if (rc.failed()) {
-      log.error("Error while handling request for " + rc.normalizedPath(), rc.failure());
+  private <T> T require(T value, String key) {
+    if (value == null) {
+      throw new ServerError(String.format("Field %s is missing", key));
     }
+    return value;
+  }
+
+  public void failureHandler(RoutingContext rc) {
+    if (rc.failed() && rc.failure() instanceof ServerError se) {
+      rc.response()
+        .setStatusCode(400)
+        .putHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+        .end(se.toJson().toBuffer());
+      return;
+    }
+    log.error("Error while handling request for " + rc.normalizedPath(), rc.failure());
     rc.next();
   }
 
@@ -104,8 +123,8 @@ public class ServerApi {
       log.info("Pool {} not found", id);
       rc.response().setStatusCode(404).end();
     } else {
-      JsonObject json = pool.toJson();
-      rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(json.toBuffer());
+      DatabasePoolResponse response = ModelHelper.toModel(pool);
+      rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(JSON.toBuffer(response));
     }
   }
 

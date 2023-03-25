@@ -22,6 +22,8 @@ public class DatabaseProviderServer {
 
   private DatabasePoolManager manager;
 
+  private HttpServer server;
+
   public DatabaseProviderServer(Vertx vertx) {
     this.vertx = vertx;
     this.manager = new DatabasePoolManager(vertx);
@@ -31,7 +33,7 @@ public class DatabaseProviderServer {
     HttpServerOptions options = new HttpServerOptions();
     options.setPort(8080);
     options.setHost("0.0.0.0");
-    HttpServer server = vertx.createHttpServer(options);
+    this.server = vertx.createHttpServer(options);
 
     Router router = Router.router(vertx);
     ServerApi api = new ServerApi(manager);
@@ -54,6 +56,12 @@ public class DatabaseProviderServer {
     });
   }
 
+  public Future<Void> stop() {
+    if (server != null) {
+      return server.close();
+    }
+    return Future.succeededFuture();
 
+  }
 
 }

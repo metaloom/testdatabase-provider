@@ -60,7 +60,8 @@ public class DatabasePool {
    * @param password
    * @param adminDB
    */
-  public DatabasePool(Vertx vertx, String id, int minimum, int maximum, int increment, String host, int port, String username, String password, String adminDB) {
+  public DatabasePool(Vertx vertx, String id, int minimum, int maximum, int increment, String host, int port, String username, String password,
+    String adminDB) {
     this.vertx = vertx;
     this.id = id;
     this.minimum = minimum;
@@ -71,7 +72,7 @@ public class DatabasePool {
 
   public DatabasePool(Vertx vertx, String id) {
     this(vertx, id, ServerEnv.getPoolMinimum(), ServerEnv.getPoolMaximum(), ServerEnv.getPoolIncrement(), ServerEnv.getDatabaseHost(),
-      ServerEnv.getDatabasePort(), ServerEnv.getDatabaseUsername(), ServerEnv.getDatabasePassword(), ServerEnv.getDatabaseAdminDB() );
+      ServerEnv.getDatabasePort(), ServerEnv.getDatabaseUsername(), ServerEnv.getDatabasePassword(), ServerEnv.getDatabaseAdminDB());
   }
 
   public void start() {
@@ -166,6 +167,18 @@ public class DatabasePool {
 
   public boolean isStarted() {
     return maintainPoolTimerId != null;
+  }
+
+  public int getIncrement() {
+    return increment;
+  }
+
+  public int getMaximum() {
+    return maximum;
+  }
+
+  public int getMinimum() {
+    return minimum;
   }
 
   public JsonObject toJson() {

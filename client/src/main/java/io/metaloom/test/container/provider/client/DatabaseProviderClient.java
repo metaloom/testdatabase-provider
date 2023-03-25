@@ -3,12 +3,15 @@ package io.metaloom.test.container.provider.client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.model.DatabasePoolRequest;
+import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
 public class DatabaseProviderClient {
@@ -70,11 +73,12 @@ public class DatabaseProviderClient {
     });
   }
 
-  public Future<JsonObject> loadPool(String name) {
+  public Future<DatabasePoolResponse> loadPool(String name) {
     return httpClient.request(HttpMethod.GET, "/pools/" + name).compose(req -> {
       return req.connect().compose(resp -> {
         return resp.body().compose(buffer -> {
-          return Future.succeededFuture(buffer.toJsonObject());
+          DatabasePoolResponse result = buffer.toJsonObject().mapTo(DatabasePoolResponse.class);
+          return Future.succeededFuture(result);
         });
       });
     });
@@ -90,13 +94,13 @@ public class DatabaseProviderClient {
     });
   }
 
-  public Future<JsonObject> createPool(String poolName, String name) {
-    return httpClient.request(HttpMethod.POST, "/pools/" + poolName).compose(req -> {
-      JsonObject body = new JsonObject();
-      body.put("templateName", name);
-      return req.send(body.toBuffer()).compose(resp -> {
+  public Future<DatabasePoolResponse> createPool(String name, DatabasePoolRequest model) {
+    return httpClient.request(HttpMethod.POST, "/pools/" + name).compose(req -> {
+      Buffer jsonBuffer = Json.encodeToBuffer(model);
+      return req.send(jsonBuffer).compose(resp -> {
         return resp.body().compose(buffer -> {
-          return Future.succeededFuture(buffer.toJsonObject());
+          DatabasePoolResponse result = buffer.toJsonObject().mapTo(DatabasePoolResponse.class);
+          return Future.succeededFuture(result);
         });
       });
     });
