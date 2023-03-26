@@ -10,47 +10,66 @@ import io.vertx.core.Vertx;
 
 public class DatabasePoolManager {
 
-  private Vertx vertx;
+	private Vertx vertx;
 
-  private Map<String, DatabasePool> pools = new HashMap<>();
+	private Map<String, DatabasePool> pools = new HashMap<>();
 
-  public DatabasePoolManager(Vertx vertx) {
-    this.vertx = vertx;
-  }
+	private int minimum;
+	private int maximum;
+	private int increment;
 
-  public Collection<DatabasePool> getPools() {
-    return Collections.unmodifiableCollection(pools.values());
-  }
+	public DatabasePoolManager(Vertx vertx) {
+		this.vertx = vertx;
+	}
 
-  public boolean contains(String id) {
-    return pools.containsKey(id);
-  }
+	public Collection<DatabasePool> getPools() {
+		return Collections.unmodifiableCollection(pools.values());
+	}
 
-  public boolean deletePool(String id) {
-    DatabasePool pool = pools.remove(id);
-    if (pool == null) {
-      return false;
-    } else {
-      pool.stop();
-      pool.drain();
-      return true;
-    }
-  }
+	public boolean contains(String id) {
+		return pools.containsKey(id);
+	}
 
-  public DatabasePool getPool(String id) {
-    return pools.get(id);
-  }
+	public boolean deletePool(String id) {
+		DatabasePool pool = pools.remove(id);
+		if (pool == null) {
+			return false;
+		} else {
+			pool.stop();
+			pool.drain();
+			return true;
+		}
+	}
 
-  public void release(DatabaseAllocation allocation) throws SQLException {
-    allocation.release();
-  }
+	public DatabasePool getPool(String id) {
+		return pools.get(id);
+	}
 
-  public DatabasePool createPool(String id, int minimum, int maximum, int increment, String host, int port, String username, String password,
-    String adminDB) {
-    DatabasePool pool = new DatabasePool(vertx, id, minimum, maximum, increment, host, port, username, password, adminDB);
-    pools.put(id, pool);
-    pool.start();
-    return pool;
-  }
+	public void release(DatabaseAllocation allocation) throws SQLException {
+		allocation.release();
+	}
+
+	public DatabasePool createPool(String id,  String host, int port, String username, String password,
+		String adminDB) {
+		DatabasePool pool = new DatabasePool(vertx, id, host, port, username, password, adminDB);
+		pool.setLimits(minimum, maximum, increment);
+		pools.put(id, pool);
+		return pool;
+	}
+
+	public DatabasePool createPool(String id, String host, int port, String username, String password,
+		String adminDB, String templateName) {
+		DatabasePool pool = new DatabasePool(vertx, id, host, port, username, password, adminDB);
+		pool.setLimits(minimum, maximum, increment);
+		pool.setTemplateName(templateName);
+		pools.put(id, pool);
+		return pool;
+	}
+
+	public void setDefaults(int minimum, int maximum, int increment) {
+		this.minimum = minimum;
+		this.maximum = maximum;
+		this.increment = increment;
+	}
 
 }

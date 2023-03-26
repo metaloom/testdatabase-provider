@@ -80,13 +80,27 @@
         <artifactId>testdatabase-provider-maven-plugin</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <executions>
+          <!-- Startup a postgreSQL container and the provider daemon -->
           <execution>
             <id>start</id>
             <phase>initialize</phase>
             <goals>
               <goal>start</goal>
             </goals>
+            <configuration>
+              <postgresql>
+                <startContainer>true</startContainer>
+                <tmpfsSizeMB>256</tmpfsSizeMB>
+                <username>sa</username>
+                <password>sa</password>
+                <database>test</database>
+                <port>5432</port>
+                <host>localhost</host>
+              </postgresql>
+              <startProvider>true</startProvider>
+            </configuration>
           </execution>
+          <!-- Setup a new testdatabase pool now that flyway has setup the tables -->
           <execution>
             <id>setup-pool</id>
             <phase>process-test-classes</phase>
@@ -107,6 +121,7 @@
             </configuration>
           </execution>
 
+          <!-- Stop the previously started containers -->
           <execution>
             <id>stop</id>
             <phase>post-integration-test</phase>

@@ -9,32 +9,32 @@ import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class ContainerStateHelper {
 
-  private ContainerStateHelper() {
-  }
+	private ContainerStateHelper() {
+	}
 
-  private static ObjectMapper mapper = new ObjectMapper();
+	private static ObjectMapper mapper = new ObjectMapper();
 
-  public static ContainerState readState() throws IOException {
-    if (!stateFile().exists()) {
-      return null;
-    }
-    return mapper.readValue(stateFile(), ContainerState.class);
-  }
+	public static ContainerState readState() throws IOException {
+		if (!stateFile().exists()) {
+			return null;
+		}
+		return mapper.readValue(stateFile(), ContainerState.class);
+	}
 
-  public static void writeState(ContainerState state) throws JsonGenerationException, JsonMappingException, IOException {
-    ensureTargetFolder();
-    mapper.writerWithDefaultPrettyPrinter().writeValue(stateFile(), state);
-  }
+	public static void writeState(ContainerState state) throws JsonGenerationException, JsonMappingException, IOException {
+		ensureTargetFolder();
+		mapper.writerWithDefaultPrettyPrinter().writeValue(stateFile(), state);
+	}
 
-  private static void ensureTargetFolder() {
-    File folder = new File("target");
-    if (!folder.exists()) {
-      folder.mkdirs();
-    }
-  }
+	private static void ensureTargetFolder() {
+		File folder = new File("target");
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+	}
 
-  public static File stateFile() {
-    return new File("target", "testdb-provider.json");
-  }
+	public static File stateFile() {
+		return new File("target", "testdb-provider.json");
+	}
 
 }

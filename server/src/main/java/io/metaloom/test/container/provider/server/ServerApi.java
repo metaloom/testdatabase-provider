@@ -82,7 +82,8 @@ public class ServerApi {
       String username = require(connection.getUsername(), "username");
       String password = require(connection.getPassword(), "password");
       String adminDB = require(connection.getDatabase(), "database");
-      pool = manager.createPool(id, minimum, maximum, increment, host, port, username, password, adminDB);
+      pool = manager.createPool(id, host, port, username, password, adminDB);
+      pool.setLimits(minimum, maximum, increment);
       pool.setTemplateName(templateName);
       pool.start();
     } else {

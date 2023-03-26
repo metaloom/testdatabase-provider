@@ -23,7 +23,7 @@ import io.vertx.core.json.JsonObject;
 public class DatabaseProviderClientServerTest {
 
   @Container
-  public static PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(128, 128);
+  public static PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(128);
 
   private static DatabaseProviderClient client;
   private static DatabaseProviderServer server;

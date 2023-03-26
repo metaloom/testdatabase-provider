@@ -21,12 +21,10 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
-      <version>${vertx.version}</version>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>${postgres.driver.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -40,7 +38,7 @@
     <!--Test-->
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>testdatabase-provider-db</artifactId>
+      <artifactId>testdatabase-provider-postgresql-db</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

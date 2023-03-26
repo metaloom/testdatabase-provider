@@ -1,8 +1,5 @@
 package io.metaloom.maven.provider;
 
-import java.io.IOException;
-import java.net.URI;
-
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -13,7 +10,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
 import io.metaloom.test.container.provider.common.ContainerState;
-import io.metaloom.test.container.provider.common.ContainerStateHelper;
 import io.metaloom.test.container.provider.container.DatabaseProviderContainer;
 
 /**
@@ -23,93 +19,197 @@ import io.metaloom.test.container.provider.container.DatabaseProviderContainer;
 @Mojo(name = "start", defaultPhase = LifecyclePhase.INITIALIZE)
 public class ProviderStartMojo extends AbstractProviderMojo {
 
-  public static final String TEST_DATABASE_NETWORK_ALIAS = "testdb";
+	public static final String TEST_DATABASE_NETWORK_ALIAS = "testdb";
 
-  /**
-   * Whether a postgreSQL server should be started automatically. The properties maven.provider.db.url, maven.provider.db.username and
-   * maven.provider.db.password will automatically be set and can be uses by other plugins after the execution of the plugin goal.
-   */
-  @Parameter
-  private boolean startPostgreSQL = true;
+	private static final String POSTGRESQL_PORT_PROP_KEY = "maven.provider.postgresql.port";
+	private static final String POSTGRESQL_USERNAME_PROP_KEY = "maven.provider.postgresql.username";
+	private static final String POSTGRESQL_PASSWORD_PROP_KEY = "maven.provider.postgresql.password";
+	private static final String POSTGRESQL_DB_PROP_KEY = "maven.provider.postgresql.database";
+	private static final String POSTGRESQL_JDBCURL_PROP_KEY = "maven.provider.postgresql.jdbcurl";
+	private static final String POSTGRESQL_HOST_PROP_KEY = "maven.provider.postgresql.host";
 
-  /**
-   * Database settings which may be used to provide an external database to the provider daemon.
-   */
-  @Parameter
-  private PoolDatabase database;
+	@Parameter
+	private PostgresqlSettings postgresql;
 
-  @Override
-  public void execute() throws MojoExecutionException, MojoFailureException {
+	/**
+	 * Default limits to be used for new pools.
+	 */
+	@Parameter
+	private PoolLimits defaultLimits = new PoolLimits();
 
-    try {
-      ContainerState oldState = ContainerStateHelper.readState();
-      if (oldState != null) {
-        getLog().info("Found state file. This means the provider is probably still running. Aborting start");
-        return;
-      }
-    } catch (IOException e) {
-      getLog().error("Failure while reading original state", e);
-    }
-    ContainerState state = new ContainerState();
-    Network network = Network.builder().build();
+	/**
+	 * Whether the testdatabase provider should be started.
+	 */
+	@Parameter
+	private boolean startProvider = true;
 
-    String jdbcURL = database != null ? database.getJdbcUrl() : null;
-    String username = database != null ? database.getDatabaseUsername() : null;
-    String password = database != null ? database.getDatabasePassword() : null;
+	/**
+	 * Whether to directly create a testdatabase pool using the provided settings. Please note that the pool should be first created when the template database
+	 * is ready. You can create defer the pool creation using the "pool" goal.
+	 */
+	@Parameter
+	private boolean createPool = false;
 
-    if (startPostgreSQL) {
-      getLog().info("Starting postgreSQL container");
-      // TODO configure tmpfs
-      PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(128, 128)
-        .withReuse(true)
-        .withNetwork(network)
-        .withNetworkAliases(TEST_DATABASE_NETWORK_ALIAS);
-      db.start();
-      state.setDatabaseContainerId(db.getContainerId());
-      getLog().debug("Container JDBCUrl:" + db.getJdbcUrl());
-      getLog().debug("Container Username:" + db.getUsername());
-      getLog().debug("Container Password:" + db.getPassword());
+	/**
+	 * Whether to re-use the started docker containers. If not enabled the container will be shut down when the maven command terminates. The settings
+	 * `testcontainers.reuse.enable=true` must be added to the .testcontainers.properties file in order to enable re-use of containers. A provider state file in
+	 * the build directory will keep track of containerIds and reuse them when goals are run again (if possible).
+	 */
+	@Parameter
+	private boolean reuseContainers = true;
 
-      project.getProperties().put("maven.provider.db.url", db.getJdbcUrl());
-      project.getProperties().put("maven.provider.db.username", db.getUsername());
-      project.getProperties().put("maven.provider.db.password", db.getPassword());
-      if (database == null) {
-        getLog().info("External database was not configured. Using provided database container instead");
-        jdbcURL = db.getJdbcUrl();
-        username = db.getUsername();
-        password = db.getPassword();
-      }
-    }
+	@Override
+	public void execute() throws MojoExecutionException, MojoFailureException {
 
-    getLog().info("Starting database provider container");
+		ContainerState state = loadState();
+		if (state != null) {
+			getLog().warn("Found state file. This means the provider is probably still running. Aborting start");
+			return;
+		}
 
-    String databaseHost = "localhost";
-    int databasePort = 5432;
+		PostgreSQLPoolContainer dbContainer = null;
+		if (postgresql != null) {
+			if (postgresql.isStartContainer()) {
+				Network network = Network.builder().build();
+				if (postgresql.getPort() != null) {
+					getLog().warn("Ignoring port setting. When starting a container the mapped port will be randomized");
+				}
+				if (postgresql.getHost() != null) {
+					getLog().warn("Ignoring hostname setting. When starting a container the used host can't be selected.");
+				}
+				dbContainer = startPostgreSQLContainer(network);
+			} else {
+				// Provide the properties so those can be used in maven
+				project.getProperties().put(POSTGRESQL_DB_PROP_KEY, postgresql.getDatabase());
+				project.getProperties().put(POSTGRESQL_JDBCURL_PROP_KEY, postgresql.getJdbcUrl());
+				project.getProperties().put(POSTGRESQL_HOST_PROP_KEY, postgresql.getHost());
+				project.getProperties().put(POSTGRESQL_USERNAME_PROP_KEY, postgresql.getUsername());
+				project.getProperties().put(POSTGRESQL_PASSWORD_PROP_KEY, postgresql.getPassword());
+				project.getProperties().put(POSTGRESQL_PORT_PROP_KEY, postgresql.getPort());
+			}
+		}
 
-    if (startPostgreSQL) {
-      databaseHost = TEST_DATABASE_NETWORK_ALIAS;
-      databasePort = PostgreSQLContainer.POSTGRESQL_PORT;
-    } else {
-      String cleanURI = jdbcURL.substring(5);
-      URI uri = URI.create(cleanURI);
-      // String type = uri.getScheme();
-      databaseHost = uri.getHost();
-      databasePort = uri.getPort();
-    }
-    getLog().info("Starting provider with db " + jdbcURL);
-    DatabaseProviderContainer provider = new DatabaseProviderContainer()
-      .withDatabase(databaseHost, databasePort, username, password)
-      .withNetwork(network);
-    provider.start();
+		if (startProvider) {
+			startProvider(dbContainer);
+		}
 
-    try {
-      state.setProviderHost(provider.getHost());
-      state.setProviderPort(provider.getPort());
-      state.setProviderContainerId(provider.getContainerId());
-      ContainerStateHelper.writeState(state);
-    } catch (Exception e) {
-      getLog().error("Error while writing state to " + ContainerStateHelper.stateFile().getAbsolutePath(), e);
-    }
-  }
+	}
+
+	private void startProvider(PostgreSQLPoolContainer db) throws MojoExecutionException {
+		getLog().info("Starting database provider container");
+		String databaseHost = postgresql.getHost();
+		Integer databasePort = postgresql.getPort();
+
+		if (db != null && (databaseHost != null || databasePort != null)) {
+			throw new MojoExecutionException(
+				"It is not valid to configure a database host/port in conjunction with starting a database container. The container will automatically set the port and host for the provider.");
+		}
+
+		// We use the internal connection to the jdbc container if a container was provided.
+		// This connection is only used within docker and will not be used for tests to connect to the db.
+		if (db != null) {
+			databaseHost = TEST_DATABASE_NETWORK_ALIAS;
+			databasePort = PostgreSQLContainer.POSTGRESQL_PORT;
+		}
+
+		getLog().info("Starting test database provider.");
+
+		@SuppressWarnings("resource")
+		DatabaseProviderContainer provider = new DatabaseProviderContainer();
+		if (reuseContainers) {
+			provider.withReuse(true);
+		}
+
+		if (defaultLimits != null) {
+			getLog().info("Setting default maximum level " + defaultLimits.getMaximum());
+			provider.withDefaultMaximum(defaultLimits.getMaximum());
+
+			getLog().info("Setting default minimum level " + defaultLimits.getMinimum());
+			provider.withDefaultMinimum(defaultLimits.getMinimum());
+
+			getLog().info("Setting default level increment " + defaultLimits.getIncrement());
+			provider.withDefaultIncrement(defaultLimits.getIncrement());
+		}
+
+		if (createPool) {
+			if (db == null && postgresql == null) {
+				throw new MojoExecutionException(
+					"Unable to setup default pool. Please either set postgresql settings or enable the startup of the postgreSQL container");
+			}
+
+			if (db == null && postgresql != null && !postgresql.hasConnectionSettings()) {
+				throw new MojoExecutionException(
+					"Unable to setup default pool. Please either set all needed postgresql settings (host, port, username, password, db) or enable the startup of the postgreSQL container");
+			}
+			getLog().info("Setting default pool connection settings. This will create and start a default pool during startup.");
+			String username = postgresql.getUsername() != null ? postgresql.getUsername() : db.getUsername();
+			String password = postgresql.getPassword() != null ? postgresql.getPassword() : db.getPassword();
+			String database = postgresql.getDatabase() != null ? postgresql.getPassword() : db.getPassword();
+			provider.withDefaultPoolDatabase(databaseHost, databasePort, username, password, database);
+		}
+
+		if (db != null) {
+			provider.withNetwork(db.getNetwork());
+		}
+
+		provider.start();
+
+		updateState(state -> {
+			state.setProviderHost(provider.getHost());
+			state.setProviderPort(provider.getPort());
+			state.setProviderContainerId(provider.getContainerId());
+		});
+	}
+
+	private PostgreSQLPoolContainer startPostgreSQLContainer(Network network) {
+		getLog().info("Starting postgreSQL container using network " + network.getId());
+		if (postgresql.getPort() != null) {
+			getLog().error("The port can't be configured when a container should be provided. The mapped port will be randomized and set to the "
+				+ POSTGRESQL_PORT_PROP_KEY + " property.");
+		}
+
+		@SuppressWarnings("resource")
+		PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(postgresql.getTmpfsSizeMB());
+		if (reuseContainers) {
+			db.withReuse(true);
+		}
+		db.withNetwork(network)
+			.withNetworkAliases(TEST_DATABASE_NETWORK_ALIAS);
+		if (postgresql.getPassword() != null) {
+			db.withPassword(postgresql.getPassword());
+		}
+		if (postgresql.getUsername() != null) {
+			db.withPassword(postgresql.getUsername());
+		}
+		if (postgresql.getDatabase() != null) {
+			db.withDatabaseName(postgresql.getDatabase());
+		}
+
+		db.start();
+		updateState(state -> {
+			state.setDatabaseContainerId(db.getContainerId());
+		});
+
+		// Provide the properties so those can be used in maven
+		getLog().debug("Container DB Name:" + db.getJdbcUrl());
+		project.getProperties().put(POSTGRESQL_DB_PROP_KEY, db.getDatabaseName());
+
+		getLog().debug("Container JDBCUrl:" + db.getJdbcUrl());
+		project.getProperties().put(POSTGRESQL_JDBCURL_PROP_KEY, db.getJdbcUrl());
+
+		getLog().debug("Container Host:" + db.getHost());
+		project.getProperties().put(POSTGRESQL_HOST_PROP_KEY, db.getJdbcUrl());
+
+		getLog().debug("Container Username:" + db.getUsername());
+		project.getProperties().put(POSTGRESQL_USERNAME_PROP_KEY, db.getUsername());
+
+		getLog().debug("Container Password:" + db.getPassword());
+		project.getProperties().put(POSTGRESQL_PASSWORD_PROP_KEY, db.getPassword());
+
+		getLog().debug("Container Port:" + db.getPort());
+		project.getProperties().put(POSTGRESQL_PORT_PROP_KEY, db.getPort());
+
+		return db;
+	}
 
 }

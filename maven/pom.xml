@@ -13,7 +13,7 @@
 
   <description>A Maven Plugin to provide test databases via a dedicated provider
     server</description>
-  <name>Testdatabase Provider :: Plugin</name>
+  <name>Testdatabase Provider :: Maven Plugin</name>
 
   <organization>
     <name>Metaloom</name>
@@ -32,7 +32,7 @@
     </dependency>
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>testdatabase-provider-db</artifactId>
+      <artifactId>testdatabase-provider-postgresql-db</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -52,20 +52,6 @@
   </dependencies>
 
   <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.8.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.8.2</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -109,7 +95,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-report-plugin</artifactId>
-        <version>3.8.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

@@ -4,74 +4,60 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 public class PoolConfiguration {
 
-  @Parameter
-  private String id;
+	@Parameter
+	private String id;
 
-  @Parameter
-  private String templateName;
+	@Parameter
+	private String templateName;
 
-  @Parameter
-  private int minimum;
+	@Parameter
+	private PoolLimits limits = new PoolLimits();
 
-  @Parameter
-  private int maximum;
+	@Parameter
+	private String host;
 
-  @Parameter
-  private int increment;
+	@Parameter
+	private int port;
 
-  @Parameter
-  private String host;
+	@Parameter
+	private String username;
 
-  @Parameter
-  private int port;
+	@Parameter
+	private String password;
 
-  @Parameter
-  private String username;
+	@Parameter
+	private String database;
 
-  @Parameter
-  private String password;
+	public String getId() {
+		return id;
+	}
 
-  @Parameter
-  private String database;
+	public String getTemplateName() {
+		return templateName;
+	}
 
-  public String getId() {
-    return id;
-  }
+	public PoolLimits getLimits() {
+		return limits;
+	}
 
-  public String getTemplateName() {
-    return templateName;
-  }
+	public String getHost() {
+		return host;
+	}
 
-  public int getMinimum() {
-    return minimum;
-  }
+	public int getPort() {
+		return port;
+	}
 
-  public int getMaximum() {
-    return maximum;
-  }
+	public String getDatabase() {
+		return database;
+	}
 
-  public int getIncrement() {
-    return increment;
-  }
+	public String getUsername() {
+		return username;
+	}
 
-  public String getHost() {
-    return host;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public String getDatabase() {
-    return database;
-  }
-
-  public String getUsername() {
-    return username;
-  }
-
-  public String getPassword() {
-    return password;
-  }
+	public String getPassword() {
+		return password;
+	}
 
 }

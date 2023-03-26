@@ -16,52 +16,66 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
 
 public class DatabaseProviderServer {
 
-  public static final Logger log = LoggerFactory.getLogger(DatabaseProviderServer.class);
+	public static final Logger log = LoggerFactory.getLogger(DatabaseProviderServer.class);
 
-  private Vertx vertx;
+	private Vertx vertx;
 
-  private DatabasePoolManager manager;
+	private DatabasePoolManager manager;
 
-  private HttpServer server;
+	private HttpServer server;
 
-  public DatabaseProviderServer(Vertx vertx) {
-    this.vertx = vertx;
-    this.manager = new DatabasePoolManager(vertx);
-  }
+	public DatabaseProviderServer(Vertx vertx) {
+		this.vertx = vertx;
+		this.manager = new DatabasePoolManager(vertx);
+	}
 
-  public Future<HttpServer> start() {
-    HttpServerOptions options = new HttpServerOptions();
-    options.setPort(8080);
-    options.setHost("0.0.0.0");
-    this.server = vertx.createHttpServer(options);
+	public Future<HttpServer> start() {
+		HttpServerOptions options = new HttpServerOptions();
+		options.setPort(8080);
+		options.setHost("0.0.0.0");
+		this.server = vertx.createHttpServer(options);
 
-    Router router = Router.router(vertx);
-    ServerApi api = new ServerApi(manager);
+		Router router = Router.router(vertx);
+		ServerApi api = new ServerApi(manager);
 
-    SockJSHandlerOptions sockOptions = new SockJSHandlerOptions()
-      .setHeartbeatInterval(500);
+		SockJSHandlerOptions sockOptions = new SockJSHandlerOptions().setHeartbeatInterval(500);
 
-    SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sockOptions);
-    Router sockRouter = sockJSHandler.socketHandler(api::websocketHandler);
-    router.route("/connect/*").subRouter(sockRouter);
-    router.route().handler(BodyHandler.create());
-    router.route("/pools").method(HttpMethod.GET).handler(api::listPoolsHandler);
-    router.route("/pools/:id").method(HttpMethod.GET).handler(api::loadPoolHandler);
-    router.route("/pools/:id").method(HttpMethod.DELETE).handler(api::poolDeleteHandler);
-    router.route("/pools/:id").method(HttpMethod.POST).handler(api::upsertPoolHandler);
-    router.route().failureHandler(api::failureHandler);
-    server.requestHandler(router);
-    return server.listen().onSuccess(s -> {
-      log.info("Server started. Listening on port {}", s.actualPort());
-    });
-  }
+		SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sockOptions);
+		Router sockRouter = sockJSHandler.socketHandler(api::websocketHandler);
+		router.route("/connect/*")
+				.subRouter(sockRouter);
+		router.route()
+				.handler(BodyHandler.create());
+		router.route("/pools")
+				.method(HttpMethod.GET)
+				.handler(api::listPoolsHandler);
+		router.route("/pools/:id")
+				.method(HttpMethod.GET)
+				.handler(api::loadPoolHandler);
+		router.route("/pools/:id")
+				.method(HttpMethod.DELETE)
+				.handler(api::poolDeleteHandler);
+		router.route("/pools/:id")
+				.method(HttpMethod.POST)
+				.handler(api::upsertPoolHandler);
+		router.route()
+				.failureHandler(api::failureHandler);
+		server.requestHandler(router);
+		return server.listen()
+				.onSuccess(s -> {
+					log.info("Server started. Listening on port {}", s.actualPort());
+				});
+	}
 
-  public Future<Void> stop() {
-    if (server != null) {
-      return server.close();
-    }
-    return Future.succeededFuture();
+	public Future<Void> stop() {
+		if (server != null) {
+			return server.close();
+		}
+		return Future.succeededFuture();
+	}
 
-  }
+	public DatabasePoolManager getManager() {
+		return manager;
+	}
 
 }

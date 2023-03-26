@@ -9,7 +9,7 @@ public class PostgreSQLPoolContainer extends PostgreSQLContainer<PostgreSQLPoolC
 
   public static final String DEFAULT_IMAGE = "postgres:13.2";
 
-  public PostgreSQLPoolContainer(int liveTmpFsSizeInMB, int snapshotTmpFsSizeInMB) {
+  public PostgreSQLPoolContainer(int liveTmpFsSizeInMB) {
     super(DEFAULT_IMAGE);
     withDatabaseName("postgres");
     withUsername("sa");

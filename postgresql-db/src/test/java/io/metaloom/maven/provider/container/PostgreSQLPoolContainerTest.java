@@ -7,13 +7,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 public class PostgreSQLPoolContainerTest {
 
-  @Container
-  private static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(128, 128);
+	@Container
+	private static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(128);
 
-  @Test
-  public void testSetup() {
-    System.out.println(container.getContainerIpAddress());
-    System.out.println(container.getHost());
-    System.out.println(container.getJdbcUrl());
-  }
+	@Test
+	public void testSetup() {
+		System.out.println(container.getContainerIpAddress());
+		System.out.println(container.getHost());
+		System.out.println(container.getJdbcUrl());
+	}
 }

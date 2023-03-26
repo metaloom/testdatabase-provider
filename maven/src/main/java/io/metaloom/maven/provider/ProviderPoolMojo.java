@@ -22,42 +22,46 @@ import io.metaloom.test.container.provider.model.DatabasePoolSettings;
 @Mojo(name = "pool", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES)
 public class ProviderPoolMojo extends AbstractProviderMojo {
 
-  @Parameter(property = "pools")
-  private List<PoolConfiguration> pools;
+	@Parameter(property = "pools")
+	private List<PoolConfiguration> pools;
 
-  @Override
-  public void execute() throws MojoExecutionException, MojoFailureException {
-    try {
-      ContainerState state = ContainerStateHelper.readState();
-      if (state == null) {
-        getLog().warn("Unable to stop containers. Container state file not found " + ContainerStateHelper.stateFile());
-      } else {
-        String host = state.getProviderHost();
-        int port = state.getProviderPort();
-        DatabaseProviderClient client = new DatabaseProviderClient(vertx, host, port);
-        for (PoolConfiguration pool : pools) {
-          DatabasePoolSettings settings = new DatabasePoolSettings();
-          settings.setIncrement(pool.getIncrement());
-          settings.setMaximum(pool.getMaximum());
-          settings.setMinimum(pool.getMinimum());
+	@Override
+	public void execute() throws MojoExecutionException, MojoFailureException {
+		try {
+			ContainerState state = ContainerStateHelper.readState();
+			if (state == null) {
+				getLog().warn("Unable to stop containers. Container state file not found " + ContainerStateHelper.stateFile());
+			} else {
+				String host = state.getProviderHost();
+				int port = state.getProviderPort();
+				DatabaseProviderClient client = new DatabaseProviderClient(vertx, host, port);
+				for (PoolConfiguration pool : pools) {
+					DatabasePoolSettings settings = new DatabasePoolSettings();
 
-          DatabasePoolConnection connection = new DatabasePoolConnection();
-          connection.setHost(pool.getHost());
-          connection.setPort(pool.getPort());
-          connection.setUsername(pool.getUsername());
-          connection.setPassword(pool.getPassword());
-          connection.setDatabase(pool.getDatabase());
+					PoolLimits limits = pool.getLimits();
+					if (limits != null) {
+						settings.setMaximum(limits.getMaximum());
+						settings.setMinimum(limits.getMinimum());
+						settings.setIncrement(limits.getIncrement());
+					}
 
-          DatabasePoolRequest request = new DatabasePoolRequest();
-          request.setTemplateName(pool.getTemplateName());
-          request.setSettings(settings);
-          request.setConnection(connection);
-          client.createPool(pool.getId(), request);
-        }
-      }
-    } catch (Exception e) {
-      getLog().error("Error while invoking start of test database allocation.", e);
-    }
-  }
+					DatabasePoolConnection connection = new DatabasePoolConnection();
+					connection.setHost(pool.getHost());
+					connection.setPort(pool.getPort());
+					connection.setUsername(pool.getUsername());
+					connection.setPassword(pool.getPassword());
+					connection.setDatabase(pool.getDatabase());
+
+					DatabasePoolRequest request = new DatabasePoolRequest();
+					request.setTemplateName(pool.getTemplateName());
+					request.setSettings(settings);
+					request.setConnection(connection);
+					client.createPool(pool.getId(), request);
+				}
+			}
+		} catch (Exception e) {
+			getLog().error("Error while invoking start of test database allocation.", e);
+		}
+	}
 
 }
