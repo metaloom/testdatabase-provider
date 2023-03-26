@@ -2,20 +2,20 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>postgresql-testdatabase-provider-server</artifactId>
+  <artifactId>testdatabase-provider-server</artifactId>
 
   <parent>
     <groupId>io.metaloom.test</groupId>
-    <artifactId>postgresql-testdatabase-provider</artifactId>
+    <artifactId>testdatabase-provider</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <name>PostgreSQL Testdatabase Provider :: Server</name>
+  <name>Testdatabase Provider :: Server</name>
 
   <dependencies>
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>postgresql-testdatabase-provider-common</artifactId>
+      <artifactId>testdatabase-provider-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -40,13 +40,13 @@
     <!--Test-->
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>postgresql-testdatabase-provider-db</artifactId>
+      <artifactId>testdatabase-provider-db</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>postgresql-testdatabase-provider-client</artifactId>
+      <artifactId>testdatabase-provider-client</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

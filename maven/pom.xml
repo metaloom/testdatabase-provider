@@ -2,18 +2,18 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>postgresql-testdatabase-provider-maven-plugin</artifactId>
+  <artifactId>testdatabase-provider-maven-plugin</artifactId>
 
   <parent>
     <groupId>io.metaloom.test</groupId>
-    <artifactId>postgresql-testdatabase-provider</artifactId>
+    <artifactId>testdatabase-provider</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <packaging>maven-plugin</packaging>
 
   <description>A Maven Plugin to provide test databases via a dedicated provider
     server</description>
-  <name>PostgreSQL Testdatabase Provider :: Plugin</name>
+  <name>Testdatabase Provider :: Plugin</name>
 
   <organization>
     <name>Metaloom</name>
@@ -27,12 +27,12 @@
   <dependencies>
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>postgresql-testdatabase-provider-client</artifactId>
+      <artifactId>testdatabase-provider-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>postgresql-testdatabase-provider-db</artifactId>
+      <artifactId>testdatabase-provider-db</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -66,6 +66,42 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <executions>
+          <execution>
+            <?m2e execute?>
+            <id>generated-helpmojo</id>
+            <goals>
+              <goal>helpmojo</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <helpPackageName>io.metaloom.maven.provider</helpPackageName>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources/plugin</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <reporting>

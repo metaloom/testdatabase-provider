@@ -1,4 +1,4 @@
-# PostgreSQL Test Database Provider
+# Test Database Provider
 
 This project provides tools to quickly allocate test databases for Java based projects.
 Depending on the test database size and complexity it may be much faster to not have to prepare a new database for every testcase.

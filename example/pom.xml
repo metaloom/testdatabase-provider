@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.metaloom.test.example</groupId>
-  <artifactId>postgresql-testdatabase-provider-example</artifactId>
+  <artifactId>testdatabase-provider-example</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
 
@@ -13,7 +13,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <name>PostgreSQL Testdatabase Provider :: Example</name>
+  <name>Testdatabase Provider :: Example</name>
 
   <dependencies>
     <dependency>
@@ -25,7 +25,7 @@
     <!-- Test -->
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>postgresql-testdatabase-provider-client</artifactId>
+      <artifactId>testdatabase-provider-client</artifactId>
       <version>0.0.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
@@ -77,7 +77,7 @@
 
       <plugin>
         <groupId>io.metaloom.test</groupId>
-        <artifactId>postgresql-testdatabase-provider-maven-plugin</artifactId>
+        <artifactId>testdatabase-provider-maven-plugin</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <executions>
           <execution>
