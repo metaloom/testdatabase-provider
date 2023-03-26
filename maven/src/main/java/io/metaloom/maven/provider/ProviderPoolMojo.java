@@ -14,6 +14,7 @@ import io.metaloom.test.container.provider.common.ContainerStateHelper;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolSettings;
+import io.vertx.core.Vertx;
 
 /**
  * The pool operation will setup a new test database pool. After this step the provider daemon will automatically populate the database with copies from the
@@ -34,6 +35,7 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 			} else {
 				String host = state.getProviderHost();
 				int port = state.getProviderPort();
+				Vertx vertx = Vertx.vertx();
 				DatabaseProviderClient client = new DatabaseProviderClient(vertx, host, port);
 				for (PoolConfiguration pool : pools) {
 					DatabasePoolSettings settings = new DatabasePoolSettings();
@@ -58,6 +60,7 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 					request.setConnection(connection);
 					client.createPool(pool.getId(), request);
 				}
+				vertx.close();
 			}
 		} catch (Exception e) {
 			getLog().error("Error while invoking start of test database allocation.", e);

@@ -25,6 +25,7 @@ public class ProviderStopMojo extends AbstractProviderMojo {
       ContainerState state = ContainerStateHelper.readState();
       if (state == null) {
         getLog().warn("Unable to stop containers. Container state file not found " + ContainerStateHelper.stateFile());
+        return;
       }
       DockerClient client = DockerClientFactory.lazyClient();
       if (state.getProviderContainerId() != null) {

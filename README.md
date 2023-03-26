@@ -20,6 +20,21 @@ The lifecyle order in this example:
 * **process-test-classes** - Setup of a testdatabase pool
 * **post-integration-test** - Removal of started containers
 
+Maven Commands:
+
+```bash
+# Start the containers
+mvn testdatabase-provider:start
+
+# Setup the configured pool
+mvn testdatabase-provider:pool
+
+# Stop the containers
+mvn testdatabase-provider:stop
+```
+
+Example configuration:
+
 ```xml
 …
 <plugin>

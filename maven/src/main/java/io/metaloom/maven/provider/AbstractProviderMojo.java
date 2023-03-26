@@ -9,11 +9,8 @@ import org.apache.maven.project.MavenProject;
 
 import io.metaloom.test.container.provider.common.ContainerState;
 import io.metaloom.test.container.provider.common.ContainerStateHelper;
-import io.vertx.core.Vertx;
 
 public abstract class AbstractProviderMojo extends AbstractMojo {
-
-	public static final Vertx vertx = Vertx.vertx();
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	MavenProject project;
@@ -21,11 +18,14 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 	public void updateState(Consumer<ContainerState> updateHandler) {
 		try {
 			ContainerState oldState = ContainerStateHelper.readState();
+			if (oldState == null) {
+				oldState = new ContainerState();
+			}
 			updateHandler.accept(oldState);
 			ContainerStateHelper.writeState(oldState);
 		} catch (Exception e) {
 			getLog().error("Error while updating container state file " + ContainerStateHelper.stateFile()
-					.getAbsolutePath(), e);
+				.getAbsolutePath(), e);
 		}
 	}
 
