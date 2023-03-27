@@ -16,7 +16,7 @@ A dedicated provider daemon will constantly maintain a specified level of free d
 
 [Plugin Documentation](https://metaloom.github.io/testdatabase-provider/)
 
-The dedicated `testdatabase-provider-maven-plugin` can be used to startup a postgreSQL and provider server container. The provider server can be queried by tests to provide a database.
+The dedicated `testdatabase-provider-plugin` can be used to startup a postgreSQL and provider server container. The provider server can be queried by tests to provide a database.
 
 The lifecyle order in this example:
 
@@ -56,7 +56,7 @@ Example configuration:
     </execution>
 </executions>
 <configuration>
-    <!-- The flyway plugin uses the properties which have been provided by the provider-maven-plugin. -->
+    <!-- The flyway plugin uses the properties which have been provided by the testdatabase--plugin. -->
     <url>${maven.testdatabase-provider.postgresql.jdbcurl}</url>
     <user>${maven.testdatabase-provider.postgresql.username}</user>
     <password>${maven.testdatabase-provider.postgresql.password}</password>
@@ -75,7 +75,7 @@ Example configuration:
 
 <plugin>
 <groupId>io.metaloom.test</groupId>
-<artifactId>testdatabase-provider-maven-plugin</artifactId>
+<artifactId>testdatabase-provider-plugin</artifactId>
 <version>0.0.1-SNAPSHOT</version>
 <executions>
     <!-- Start the provider daemon and needed database containers -->
