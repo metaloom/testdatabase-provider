@@ -35,4 +35,9 @@ public class PoolLimits {
 	public int getIncrement() {
 		return increment;
 	}
+
+	@Override
+	public String toString() {
+		return "limit: " + minimum + " to " + maximum + " inc: " + increment;
+	}
 }

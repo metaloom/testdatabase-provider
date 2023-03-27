@@ -21,33 +21,36 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 
 	public static final String TEST_DATABASE_NETWORK_ALIAS = "testdb";
 
-	private static final String POSTGRESQL_PORT_PROP_KEY = "maven.provider.postgresql.port";
-	private static final String POSTGRESQL_USERNAME_PROP_KEY = "maven.provider.postgresql.username";
-	private static final String POSTGRESQL_PASSWORD_PROP_KEY = "maven.provider.postgresql.password";
-	private static final String POSTGRESQL_DB_PROP_KEY = "maven.provider.postgresql.database";
-	private static final String POSTGRESQL_JDBCURL_PROP_KEY = "maven.provider.postgresql.jdbcurl";
-	private static final String POSTGRESQL_HOST_PROP_KEY = "maven.provider.postgresql.host";
+	/**
+	 * Whether the plugin execution should be skipped
+	 */
+	@Parameter(property = "maven.testdatabase-provider.skip", defaultValue = "false")
+	private boolean skip;
 
-	@Parameter
+	/**
+	 * Parameters for the database settings. The settings can be used to configure the started postgresql container or for the use of an external database
+	 * connection. The settings will be used when choosing to create a default test database pool during the execution of this goal.
+	 */
+	@Parameter(property = "maven.testdatabase-provider.postgresql")
 	private PostgresqlSettings postgresql;
 
 	/**
 	 * Default limits to be used for new pools.
 	 */
-	@Parameter
+	@Parameter(property = "maven.testdatabase-provider.defaultLimits")
 	private PoolLimits defaultLimits = new PoolLimits();
 
 	/**
-	 * Whether the testdatabase provider should be started.
+	 * Whether the test database provider should be started.
 	 */
-	@Parameter
+	@Parameter(property = "maven.testdatabase-provider.startProvider", defaultValue = "true")
 	private boolean startProvider = true;
 
 	/**
-	 * Whether to directly create a testdatabase pool using the provided settings. Please note that the pool should be first created when the template database
+	 * Whether to directly create a test database pool using the provided settings. Please note that the pool should be first created when the template database
 	 * is ready. You can create defer the pool creation using the "pool" goal.
 	 */
-	@Parameter
+	@Parameter(property = "maven.testdatabase-provider.createPool", defaultValue = "false")
 	private boolean createPool = false;
 
 	/**
@@ -55,11 +58,16 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 	 * `testcontainers.reuse.enable=true` must be added to the .testcontainers.properties file in order to enable re-use of containers. A provider state file in
 	 * the build directory will keep track of containerIds and reuse them when goals are run again (if possible).
 	 */
-	@Parameter
+	@Parameter(property = "maven.testdatabase-provider.reuseContainers", defaultValue = "true")
 	private boolean reuseContainers = true;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+
+		if (skip) {
+			getLog().info("Start is skipped.");
+			return;
+		}
 
 		ContainerState state = loadState();
 		if (state != null) {
@@ -70,35 +78,38 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		PostgreSQLPoolContainer dbContainer = null;
 		if (postgresql != null) {
 			if (postgresql.isStartContainer()) {
-				Network network = Network.builder().build();
 				if (postgresql.getPort() != null) {
 					getLog().warn("Ignoring port setting. When starting a container the mapped port will be randomized");
 				}
 				if (postgresql.getHost() != null) {
 					getLog().warn("Ignoring hostname setting. When starting a container the used host can't be selected.");
 				}
-				dbContainer = startPostgreSQLContainer(network);
+				dbContainer = startPostgreSQLContainer();
 			} else {
 				// Provide the properties so those can be used in maven
-				project.getProperties().put(POSTGRESQL_DB_PROP_KEY, postgresql.getDatabase());
-				project.getProperties().put(POSTGRESQL_JDBCURL_PROP_KEY, postgresql.getJdbcUrl());
-				project.getProperties().put(POSTGRESQL_HOST_PROP_KEY, postgresql.getHost());
-				project.getProperties().put(POSTGRESQL_USERNAME_PROP_KEY, postgresql.getUsername());
-				project.getProperties().put(POSTGRESQL_PASSWORD_PROP_KEY, postgresql.getPassword());
-				project.getProperties().put(POSTGRESQL_PORT_PROP_KEY, postgresql.getPort());
+				setProjectProp(POSTGRESQL_DB_PROP_KEY, postgresql.getDatabase());
+				setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, postgresql.getJdbcUrl());
+				setProjectProp(POSTGRESQL_HOST_PROP_KEY, postgresql.getHost());
+				setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, postgresql.getUsername());
+				setProjectProp(POSTGRESQL_PASSWORD_PROP_KEY, postgresql.getPassword());
+				setProjectProp(POSTGRESQL_PORT_PROP_KEY, postgresql.getPort());
 			}
+		} else {
+			getLog().info("No postgreSQL settings found. Not starting database container.");
 		}
 
 		if (startProvider) {
 			startProvider(dbContainer);
+		} else {
+			getLog().info("Not starting testdatabase provider");
 		}
 
 	}
 
 	private void startProvider(PostgreSQLPoolContainer db) throws MojoExecutionException {
 		getLog().info("Starting database provider container");
-		String databaseHost = postgresql.getHost();
-		Integer databasePort = postgresql.getPort();
+		String databaseHost = postgresql == null ? null : postgresql.getHost();
+		Integer databasePort = postgresql == null ? null : postgresql.getPort();
 
 		if (db != null && (databaseHost != null || databasePort != null)) {
 			throw new MojoExecutionException(
@@ -111,8 +122,6 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 			databaseHost = TEST_DATABASE_NETWORK_ALIAS;
 			databasePort = PostgreSQLContainer.POSTGRESQL_PORT;
 		}
-
-		getLog().info("Starting test database provider.");
 
 		@SuppressWarnings("resource")
 		DatabaseProviderContainer provider = new DatabaseProviderContainer();
@@ -144,7 +153,7 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 			getLog().info("Setting default pool connection settings. This will create and start a default pool during startup.");
 			String username = postgresql.getUsername() != null ? postgresql.getUsername() : db.getUsername();
 			String password = postgresql.getPassword() != null ? postgresql.getPassword() : db.getPassword();
-			String database = postgresql.getDatabase() != null ? postgresql.getPassword() : db.getPassword();
+			String database = postgresql.getDatabase() != null ? postgresql.getDatabase() : db.getDatabaseName();
 			provider.withDefaultPoolDatabase(databaseHost, databasePort, username, password, database);
 		}
 
@@ -161,11 +170,13 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		});
 	}
 
-	private PostgreSQLPoolContainer startPostgreSQLContainer(Network network) {
+	private PostgreSQLPoolContainer startPostgreSQLContainer() throws MojoExecutionException {
+		Network network = Network.builder().build();
 		getLog().info("Starting postgreSQL container using network " + network.getId());
 		if (postgresql.getPort() != null) {
-			getLog().error("The port can't be configured when a container should be provided. The mapped port will be randomized and set to the "
-				+ POSTGRESQL_PORT_PROP_KEY + " property.");
+			throw new MojoExecutionException(
+				"The port can't be configured when a container should be provided. The mapped port will be randomized and set to the "
+					+ POSTGRESQL_PORT_PROP_KEY + " property.");
 		}
 
 		@SuppressWarnings("resource")
@@ -187,27 +198,34 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 
 		db.start();
 		updateState(state -> {
+			state.setInternalDatabaseHost(TEST_DATABASE_NETWORK_ALIAS);
+			state.setInternalDatabasePort(PostgreSQLContainer.POSTGRESQL_PORT);
+			state.setDatabaseHost(db.getHost());
+			state.setDatabasePort(db.getPort());
+			state.setDatabaseUsername(db.getUsername());
+			state.setDatabasePassword(db.getPassword());
+			state.setDatabaseName(db.getDatabaseName());
 			state.setDatabaseContainerId(db.getContainerId());
 		});
 
 		// Provide the properties so those can be used in maven
 		getLog().debug("Container DB Name:" + db.getJdbcUrl());
-		project.getProperties().put(POSTGRESQL_DB_PROP_KEY, db.getDatabaseName());
+		setProjectProp(POSTGRESQL_DB_PROP_KEY, db.getDatabaseName());
 
 		getLog().debug("Container JDBCUrl:" + db.getJdbcUrl());
-		project.getProperties().put(POSTGRESQL_JDBCURL_PROP_KEY, db.getJdbcUrl());
+		setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, db.getJdbcUrl());
 
 		getLog().debug("Container Host:" + db.getHost());
-		project.getProperties().put(POSTGRESQL_HOST_PROP_KEY, db.getJdbcUrl());
+		setProjectProp(POSTGRESQL_HOST_PROP_KEY, db.getJdbcUrl());
 
 		getLog().debug("Container Username:" + db.getUsername());
-		project.getProperties().put(POSTGRESQL_USERNAME_PROP_KEY, db.getUsername());
+		setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, db.getUsername());
 
 		getLog().debug("Container Password:" + db.getPassword());
-		project.getProperties().put(POSTGRESQL_PASSWORD_PROP_KEY, db.getPassword());
+		setProjectProp(POSTGRESQL_PASSWORD_PROP_KEY, db.getPassword());
 
 		getLog().debug("Container Port:" + db.getPort());
-		project.getProperties().put(POSTGRESQL_PORT_PROP_KEY, db.getPort());
+		setProjectProp(POSTGRESQL_PORT_PROP_KEY, db.getPort());
 
 		return db;
 	}

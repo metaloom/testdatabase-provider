@@ -59,9 +59,9 @@
           </execution>
         </executions>
         <configuration>
-          <url>${maven.provider.db.url}</url>
-          <user>${maven.provider.db.username}</user>
-          <password>${maven.provider.db.password}</password>
+          <url>${maven.testdatabase-provider.postgresql.jdbcurl}</url>
+          <user>${maven.testdatabase-provider.postgresql.username}</user>
+          <password>${maven.testdatabase-provider.postgresql.password}</password>
           <locations>
             <location>filesystem:src/main/flyway</location>
           </locations>
@@ -88,21 +88,34 @@
               <goal>start</goal>
             </goals>
             <configuration>
+              <skip>false</skip>
+              <defaultLimits>
+                <minimum>10</minimum>
+                <maximum>20</maximum>
+                <increment>5</increment>
+              </defaultLimits>
               <postgresql>
                 <startContainer>true</startContainer>
                 <tmpfsSizeMB>256</tmpfsSizeMB>
                 <username>sa</username>
                 <password>sa</password>
                 <database>test</database>
+                <!--
+                Port and host are only used when providing
+                an external database
                 <port>5432</port>
                 <host>localhost</host>
+                -->
               </postgresql>
+              <createPool>false</createPool>
               <startProvider>true</startProvider>
+              <reuseContainers>true</reuseContainers>
             </configuration>
           </execution>
-          <!-- Setup a new testdatabase pool now that flyway has setup the tables -->
+          <!-- Setup a new testdatabase pool now that flyway has setup the
+          tables -->
           <execution>
-            <id>setup-pool</id>
+            <id>pool</id>
             <phase>process-test-classes</phase>
             <goals>
               <goal>pool</goal>
@@ -112,10 +125,17 @@
               <pools>
                 <pool>
                   <id>dummy</id>
-                  <templateName>postgres</templateName>
-                  <minimum>10</minimum>
-                  <maximum>20</maximum>
-                  <increment>5</increment>
+                  <host>${maven.testdatabase-provider.postgresql.host}</host>
+                  <port>${maven.testdatabase-provider.postgresql.port}</port>
+                  <username>${maven.testdatabase-provider.postgresql.username}</username>
+                  <password>${maven.testdatabase-provider.postgresql.password}</password>
+                  <database>${maven.testdatabase-provider.postgresql.database}</database>
+                  <templateName>test</templateName>
+                  <limits>
+                    <minimum>10</minimum>
+                    <maximum>30</maximum>
+                    <increment>5</increment>
+                  </limits>
                 </pool>
               </pools>
             </configuration>

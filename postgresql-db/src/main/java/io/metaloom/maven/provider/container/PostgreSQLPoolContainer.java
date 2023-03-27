@@ -7,33 +7,41 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 public class PostgreSQLPoolContainer extends PostgreSQLContainer<PostgreSQLPoolContainer> {
 
-  public static final String DEFAULT_IMAGE = "postgres:13.2";
+	public static final String DEFAULT_IMAGE = "postgres:13.2";
 
-  public PostgreSQLPoolContainer(int liveTmpFsSizeInMB) {
-    super(DEFAULT_IMAGE);
-    withDatabaseName("postgres");
-    withUsername("sa");
-    withPassword("sa");
-    withEnv("PGDATA", "/live/pgdata");
-    withTmpFs(tmpFs(liveTmpFsSizeInMB));
-  }
+	public static final String DEFAULT_USERNAME = "sa";
 
-  private Map<String, String> tmpFs(int liveSizeMB) {
-    Map<String, String> mapping = new HashMap<>();
-    mapping.put("/live", "rw,size=" + liveSizeMB + "m");
-    return mapping;
-  }
+	public static final String DEFAULT_PASSWORD = "sa";
 
-  public String getShortJdbcUrl() {
-    return ("jdbc:postgresql://" +
-      getHost() +
-      ":" +
-      getMappedPort(POSTGRESQL_PORT) +
-      "/");
-  }
+	public static final String DEFAULT_DATABASE_NAME = "postgres";
 
-  public int getPort() {
-    return getFirstMappedPort();
-  }
+	public PostgreSQLPoolContainer(int liveTmpFsSizeInMB) {
+		super(DEFAULT_IMAGE);
+		withDatabaseName(DEFAULT_DATABASE_NAME);
+		withUsername(DEFAULT_USERNAME);
+		withPassword(DEFAULT_PASSWORD);
+		if (liveTmpFsSizeInMB != 0) {
+			withEnv("PGDATA", "/live/pgdata");
+			withTmpFs(tmpFs(liveTmpFsSizeInMB));
+		}
+	}
+
+	private Map<String, String> tmpFs(int liveSizeMB) {
+		Map<String, String> mapping = new HashMap<>();
+		mapping.put("/live", "rw,size=" + liveSizeMB + "m");
+		return mapping;
+	}
+
+	public String getShortJdbcUrl() {
+		return ("jdbc:postgresql://" +
+			getHost() +
+			":" +
+			getMappedPort(POSTGRESQL_PORT) +
+			"/");
+	}
+
+	public int getPort() {
+		return getFirstMappedPort();
+	}
 
 }

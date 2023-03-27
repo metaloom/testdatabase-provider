@@ -23,11 +23,11 @@ The lifecyle order in this example:
 Maven Commands:
 
 ```bash
-# Start the containers
-mvn testdatabase-provider:start
+# Start the containers using the test execution settings from the pom.xml
+mvn testdatabase-provider:start@test
 
-# Setup the configured pool
-mvn testdatabase-provider:pool
+# Setup the configured pool@pool using the pool execution settings from the pom.xml
+mvn testdatabase-provider:pool@pool
 
 # Stop the containers
 mvn testdatabase-provider:stop

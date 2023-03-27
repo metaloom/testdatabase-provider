@@ -1,7 +1,6 @@
 package io.metaloom.test.container.provider.common;
 
-import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonProcessingException;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.json.JsonObject;
 
 public class ContainerState {
 
@@ -10,9 +9,16 @@ public class ContainerState {
 	private String providerContainerId;
 
 	private String databaseHost;
-	private int databasePort;
+	private Integer databasePort;
+
+	/**
+	 * When using docker the provider connects to the database via the internal hostname/port
+	 */
+	private String internalDatabaseHost;
+	private Integer internalDatabasePort;
 	private String databaseUsername;
 	private String databasePassword;
+	private String databaseName;
 	private String databaseContainerId;
 
 	public String getProviderContainerId() {
@@ -55,25 +61,68 @@ public class ContainerState {
 		return databaseHost;
 	}
 
+	public ContainerState setDatabaseHost(String databaseHost) {
+		this.databaseHost = databaseHost;
+		return this;
+	}
+
 	public String getDatabasePassword() {
 		return databasePassword;
 	}
 
-	public int getDatabasePort() {
+	public ContainerState setDatabasePassword(String databasePassword) {
+		this.databasePassword = databasePassword;
+		return this;
+	}
+
+	public Integer getDatabasePort() {
 		return databasePort;
+	}
+
+	public ContainerState setDatabasePort(Integer databasePort) {
+		this.databasePort = databasePort;
+		return this;
 	}
 
 	public String getDatabaseUsername() {
 		return databaseUsername;
 	}
 
+	public ContainerState setDatabaseUsername(String databaseUsername) {
+		this.databaseUsername = databaseUsername;
+		return this;
+	}
+
+	public String getDatabaseName() {
+		return databaseName;
+	}
+
+	public ContainerState setDatabaseName(String databaseName) {
+		this.databaseName = databaseName;
+		return this;
+	}
+
+	public String getInternalDatabaseHost() {
+		return internalDatabaseHost;
+	}
+
+	public ContainerState setInternalDatabaseHost(String internalDatabaseHost) {
+		this.internalDatabaseHost = internalDatabaseHost;
+		return this;
+	}
+
+	public Integer getInternalDatabasePort() {
+		return internalDatabasePort;
+	}
+
+	public ContainerState setInternalDatabasePort(Integer internalDatabasePort) {
+		this.internalDatabasePort = internalDatabasePort;
+		return this;
+	}
+
 	@Override
 	public String toString() {
-		try {
-			return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			return null;
-		}
+		return JsonObject.mapFrom(this).encodePrettily();
 	}
+
 }

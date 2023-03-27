@@ -4,6 +4,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.testcontainers.DockerClientFactory;
 
 import com.github.dockerjava.api.DockerClient;
@@ -13,53 +14,63 @@ import io.metaloom.test.container.provider.common.ContainerState;
 import io.metaloom.test.container.provider.common.ContainerStateHelper;
 
 /**
- * The stop operation will terminate previously started databases and the testdatabase provider daemon container. 
+ * The stop operation will terminate previously started databases and the testdatabase provider daemon container.
  */
 @Mojo(name = "stop", defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
 public class ProviderStopMojo extends AbstractProviderMojo {
 
-  @Override
-  public void execute() throws MojoExecutionException, MojoFailureException {
+	/**
+	 * Whether the plugin execution should be skipped
+	 */
+	@Parameter(property = "maven.testdatabase-provider.skip", defaultValue = "false")
+	private boolean skip;
 
-    try {
-      ContainerState state = ContainerStateHelper.readState();
-      if (state == null) {
-        getLog().warn("Unable to stop containers. Container state file not found " + ContainerStateHelper.stateFile());
-        return;
-      }
-      DockerClient client = DockerClientFactory.lazyClient();
-      if (state.getProviderContainerId() != null) {
-        stopProvider(client, state);
-      }
-      if (state.getDatabaseContainerId() != null) {
-        stopDatabase(client, state);
-      }
-      ContainerStateHelper.stateFile().delete();
-      client.close();
-    } catch (Exception e) {
-      getLog().error("Error while stopping containers", e);
-    }
-  }
+	@Override
+	public void execute() throws MojoExecutionException, MojoFailureException {
 
-  private void stopDatabase(DockerClient client, ContainerState state) {
-    try {
-      getLog().info("Stopping postgreSQL container");
-      try (StopContainerCmd cmd = client.stopContainerCmd(state.getDatabaseContainerId())) {
-        cmd.exec();
-      }
-    } catch (Exception e) {
-      getLog().error("Error while stopping database ", e);
-    }
-  }
+		if (skip) {
+			getLog().info("Stop is skipped.");
+			return;
+		}
 
-  private void stopProvider(DockerClient client, ContainerState state) {
-    try {
-      getLog().info("Stopping database provider container");
-      try (StopContainerCmd cmd = client.stopContainerCmd(state.getProviderContainerId())) {
-        cmd.exec();
-      }
-    } catch (Exception e) {
-      getLog().error("Error while stopping database provider", e);
-    }
-  }
+		try {
+			ContainerState state = ContainerStateHelper.readState();
+			if (state == null) {
+				getLog().warn("Unable to stop containers. Container state file not found " + ContainerStateHelper.stateFile());
+				return;
+			}
+			DockerClient client = DockerClientFactory.lazyClient();
+			if (state.getProviderContainerId() != null) {
+				stopProvider(client, state);
+			}
+			if (state.getDatabaseContainerId() != null) {
+				stopDatabase(client, state);
+			}
+			ContainerStateHelper.stateFile().delete();
+		} catch (Exception e) {
+			throw new MojoExecutionException("Error while stopping containers", e);
+		}
+	}
+
+	private void stopDatabase(DockerClient client, ContainerState state) {
+		try {
+			getLog().info("Stopping postgreSQL container");
+			try (StopContainerCmd cmd = client.stopContainerCmd(state.getDatabaseContainerId())) {
+				cmd.exec();
+			}
+		} catch (Exception e) {
+			getLog().error("Error while stopping database ", e);
+		}
+	}
+
+	private void stopProvider(DockerClient client, ContainerState state) {
+		try {
+			getLog().info("Stopping database provider container");
+			try (StopContainerCmd cmd = client.stopContainerCmd(state.getProviderContainerId())) {
+				cmd.exec();
+			}
+		} catch (Exception e) {
+			getLog().error("Error while stopping database provider", e);
+		}
+	}
 }
