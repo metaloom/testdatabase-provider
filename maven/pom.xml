@@ -15,11 +15,6 @@
     server</description>
   <name>Testdatabase Provider :: Maven Plugin</name>
 
-  <organization>
-    <name>Metaloom</name>
-    <url>https://metaloom.io/</url>
-  </organization>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -49,6 +44,14 @@
       <version>3.8.1</version>
       <scope>provided</scope>
     </dependency>
+
+    <!--Test -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>

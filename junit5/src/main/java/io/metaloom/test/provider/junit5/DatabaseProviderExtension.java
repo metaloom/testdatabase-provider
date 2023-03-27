@@ -1,10 +1,12 @@
-package io.metaloom.test.container.provider.client;
+package io.metaloom.test.provider.junit5;
 
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.client.DatabaseAllocation;
+import io.metaloom.test.container.provider.client.DatabaseProviderClient;
 import io.metaloom.test.container.provider.common.ClientEnv;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -32,7 +34,6 @@ public class DatabaseProviderExtension implements BeforeEachCallback {
 
   public DatabaseAllocation db() {
     return allocation;
-
   }
 
 }

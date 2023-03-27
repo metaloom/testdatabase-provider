@@ -3,7 +3,7 @@ package io.metaloom.test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.metaloom.test.container.provider.client.DatabaseProviderExtension;
+import io.metaloom.test.provider.junit5.DatabaseProviderExtension;
 
 public class ExampleTest {
 

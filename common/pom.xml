@@ -26,5 +26,12 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
+
+    <!--Test-->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

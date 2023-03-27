@@ -1,11 +1,11 @@
-package io.metaloom.test.container.server;
+package io.metaloom.test.provider.junit5;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.metaloom.test.container.provider.client.DatabaseProviderExtension;
+import io.metaloom.test.provider.junit5.DatabaseProviderExtension;
 
-public class ExampleUsecaseTest {
+public class DatabaseProviderExtensionTest {
 
   @RegisterExtension
   static DatabaseProviderExtension ext = new DatabaseProviderExtension("localhost", 8080);

@@ -25,14 +25,8 @@
     <!-- Test -->
     <dependency>
       <groupId>io.metaloom.test</groupId>
-      <artifactId>testdatabase-provider-client</artifactId>
+      <artifactId>testdatabase-provider-junit5</artifactId>
       <version>0.0.1-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.9.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
