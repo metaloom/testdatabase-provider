@@ -1,4 +1,4 @@
-package io.metaloom.test.provider.junit4;
+package io.metaloom.test.container.server;
 
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
 import io.metaloom.test.container.provider.DatabasePool;
