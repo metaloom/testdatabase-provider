@@ -22,15 +22,24 @@ public class DatabaseProviderContainer extends GenericContainer<DatabaseProvider
 	 * Set the parameters that are needed to directly setup a testdatabase pool for the provided database.
 	 * 
 	 * @param host
+	 *            Host which will be exposed to tests
 	 * @param port
+	 *            Port which will be exposed to tests
+	 * @param internalHost
+	 *            Host which will only be used by the provider to handle allocation and cleanup
+	 * @param internalPort
+	 *            Port which will only be used by the provider to handle allocation and cleanup
 	 * @param username
 	 * @param password
 	 * @param database
 	 * @return
 	 */
-	public DatabaseProviderContainer withDefaultPoolDatabase(String host, int port, String username, String password, String database) {
+	public DatabaseProviderContainer withDefaultPoolDatabase(String host, int port, String internalHost, int internalPort, String username,
+		String password, String database) {
 		withEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_HOST_KEY, host);
 		withEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_PORT_KEY, String.valueOf(port));
+		withEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_INTERNAL_HOST_KEY, internalHost);
+		withEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_INTERNAL_PORT_KEY, String.valueOf(internalPort));
 		withEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_USERNAME_KEY, username);
 		withEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_PASSWORD_KEY, password);
 		withEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_DBNAME_KEY, database);

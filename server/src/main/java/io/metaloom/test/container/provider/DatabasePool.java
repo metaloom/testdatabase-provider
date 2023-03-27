@@ -49,15 +49,17 @@ public class DatabasePool {
 	 * @param id
 	 * @param host
 	 * @param port
+	 * @param internalHost
+	 * @param internalPort
 	 * @param username
 	 * @param password
 	 * @param adminDB
 	 */
-	public DatabasePool(Vertx vertx, String id, String host, int port, String username, String password,
+	public DatabasePool(Vertx vertx, String id, String host, int port, String internalHost, int internalPort, String username, String password,
 		String adminDB) {
 		this.vertx = vertx;
 		this.id = id;
-		this.settings = new DatabaseSettings(host, port, username, password, adminDB);
+		this.settings = new DatabaseSettings(host, port, internalHost, internalPort, username, password, adminDB);
 	}
 
 	public void start() {

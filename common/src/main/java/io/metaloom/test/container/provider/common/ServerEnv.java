@@ -15,6 +15,10 @@ public final class ServerEnv {
 
 	public static final String TESTDATABASE_PROVIDER_DATABASE_PORT_KEY = "TESTDATABASE_PROVIDER_DATABASE_PORT";
 
+	public static final String TESTDATABASE_PROVIDER_DATABASE_INTERNAL_HOST_KEY = "TESTDATABASE_PROVIDER_DATABASE_INTERNAL_HOST";
+
+	public static final String TESTDATABASE_PROVIDER_DATABASE_INTERNAL_PORT_KEY = "TESTDATABASE_PROVIDER_DATABASE_INTERNAL_PORT";
+
 	public static final String TESTDATABASE_PROVIDER_DATABASE_USERNAME_KEY = "TESTDATABASE_PROVIDER_DATABASE_USERNAME";
 
 	public static final String TESTDATABASE_PROVIDER_DATABASE_PASSWORD_KEY = "TESTDATABASE_PROVIDER_DATABASE_PASSWORD";
@@ -59,13 +63,28 @@ public final class ServerEnv {
 		}
 	}
 
-	public static int getDatabasePort() {
+	public static Integer getDatabasePort() {
 		String portStr = getEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_PORT_KEY);
+		if (portStr == null) {
+			return null;
+		}
 		return Integer.parseInt(portStr);
 	}
 
 	public static String getDatabaseHost() {
 		return getEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_HOST_KEY);
+	}
+
+	public static String getInternalDatabaseHost() {
+		return getEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_INTERNAL_HOST_KEY);
+	}
+
+	public static Integer getInternalDatabasePort() {
+		String portStr = getEnv(ServerEnv.TESTDATABASE_PROVIDER_DATABASE_INTERNAL_PORT_KEY);
+		if (portStr == null) {
+			return null;
+		}
+		return Integer.parseInt(portStr);
 	}
 
 	public static String getDatabasePassword() {

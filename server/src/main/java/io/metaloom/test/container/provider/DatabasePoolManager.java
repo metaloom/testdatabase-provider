@@ -49,17 +49,17 @@ public class DatabasePoolManager {
 		allocation.release();
 	}
 
-	public DatabasePool createPool(String id,  String host, int port, String username, String password,
+	public DatabasePool createPool(String id, String host, int port, String internalHost, int internalPort, String username, String password,
 		String adminDB) {
-		DatabasePool pool = new DatabasePool(vertx, id, host, port, username, password, adminDB);
+		DatabasePool pool = new DatabasePool(vertx, id, host, port, internalHost, internalPort, username, password, adminDB);
 		pool.setLimits(minimum, maximum, increment);
 		pools.put(id, pool);
 		return pool;
 	}
 
-	public DatabasePool createPool(String id, String host, int port, String username, String password,
+	public DatabasePool createPool(String id, String host, int port, String internalHost, int internalPort, String username, String password,
 		String adminDB, String templateName) {
-		DatabasePool pool = new DatabasePool(vertx, id, host, port, username, password, adminDB);
+		DatabasePool pool = new DatabasePool(vertx, id, host, port, internalHost, internalPort, username, password, adminDB);
 		pool.setLimits(minimum, maximum, increment);
 		pool.setTemplateName(templateName);
 		pools.put(id, pool);

@@ -23,16 +23,28 @@ public class PoolConfiguration {
 	private PoolLimits limits = new PoolLimits();
 
 	/**
-	 * Database host setting to be used by the pool.
+	 * Database host setting to be used by the pool which will be exposed to tests.
 	 */
 	@Parameter
 	private String host;
 
 	/**
-	 * Database port setting to be used by the pool.
+	 * Database port setting to be used by the pool which will be exposed to tests.
 	 */
 	@Parameter
 	private Integer port;
+
+	/**
+	 * Internal database host setting to be used by the pool for internal connections of the provider.
+	 */
+	@Parameter
+	private String internalHost;
+
+	/**
+	 * Internal database port setting to be used by the pool for internal connections of the provider.
+	 */
+	@Parameter
+	private Integer internalPort;
 
 	/**
 	 * Username for the database connection.
@@ -84,9 +96,18 @@ public class PoolConfiguration {
 		return password;
 	}
 
+	public String getInternalHost() {
+		return internalHost;
+	}
+
+	public Integer getInternalPort() {
+		return internalPort;
+	}
+
 	@Override
 	public String toString() {
-		return "pool: " + getId() + " @ " + getHost() + ":" + getPort() + "/" + getDatabase() + " => " + getTemplateName();
+		return "pool: " + getId() + " @ " + getHost() + ":" + getPort() + "/" + getDatabase() + " => " + getTemplateName() + "(Internal: "
+			+ getInternalHost() + ":" + getInternalPort() + "/" + getDatabase() + ")";
 	}
 
 }

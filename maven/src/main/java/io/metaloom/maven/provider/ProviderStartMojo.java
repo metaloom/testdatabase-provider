@@ -110,6 +110,16 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		getLog().info("Starting database provider container");
 		String databaseHost = postgresql == null ? null : postgresql.getHost();
 		Integer databasePort = postgresql == null ? null : postgresql.getPort();
+		String internalDatabaseHost = postgresql == null ? null : postgresql.getInternalHost();
+		if (internalDatabaseHost == null) {
+			getLog().debug("Using regular database host for internal connections since no internal host has been specified.");
+			internalDatabaseHost = databaseHost;
+		}
+		Integer internalDatabasePort = postgresql == null ? null : postgresql.getInternalPort();
+		if (internalDatabasePort == null) {
+			getLog().debug("Using regular database port for internal connections since no internal port has been specified.");
+			internalDatabasePort = databasePort;
+		}
 
 		if (db != null && (databaseHost != null || databasePort != null)) {
 			throw new MojoExecutionException(
@@ -119,8 +129,8 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		// We use the internal connection to the jdbc container if a container was provided.
 		// This connection is only used within docker and will not be used for tests to connect to the db.
 		if (db != null) {
-			databaseHost = TEST_DATABASE_NETWORK_ALIAS;
-			databasePort = PostgreSQLContainer.POSTGRESQL_PORT;
+			internalDatabaseHost = TEST_DATABASE_NETWORK_ALIAS;
+			internalDatabasePort = PostgreSQLContainer.POSTGRESQL_PORT;
 		}
 
 		@SuppressWarnings("resource")
@@ -154,7 +164,7 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 			String username = postgresql.getUsername() != null ? postgresql.getUsername() : db.getUsername();
 			String password = postgresql.getPassword() != null ? postgresql.getPassword() : db.getPassword();
 			String database = postgresql.getDatabase() != null ? postgresql.getDatabase() : db.getDatabaseName();
-			provider.withDefaultPoolDatabase(databaseHost, databasePort, username, password, database);
+			provider.withDefaultPoolDatabase(databaseHost, databasePort, internalDatabaseHost, internalDatabasePort, username, password, database);
 		}
 
 		if (db != null) {
@@ -163,9 +173,13 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 
 		provider.start();
 
+		final String intHost = internalDatabaseHost;
+		final Integer intPort = internalDatabasePort;
 		updateState(state -> {
 			state.setProviderHost(provider.getHost());
 			state.setProviderPort(provider.getPort());
+			state.setInternalDatabaseHost(intHost);
+			state.setInternalDatabasePort(intPort);
 			state.setProviderContainerId(provider.getContainerId());
 		});
 	}

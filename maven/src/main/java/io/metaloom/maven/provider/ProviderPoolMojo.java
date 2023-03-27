@@ -52,13 +52,6 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 				String host = state.getProviderHost();
 				int port = state.getProviderPort();
 
-				String stateHost = state.getDatabaseHost();
-				Integer statePort = state.getDatabasePort();
-				String stateUsername = state.getDatabaseUsername();
-				String statePassword = state.getDatabasePassword();
-				String stateDatabase = state.getDatabaseName();
-				String stateInternalHost = state.getInternalDatabaseHost();
-				Integer stateInternalPort = state.getInternalDatabasePort();
 				DatabaseProviderClient client = new DatabaseProviderClient(vertx, host, port);
 				for (PoolConfiguration pool : pools) {
 					if (pool.getId() == null) {
@@ -74,13 +67,13 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 						settings.setIncrement(limits.getIncrement());
 					}
 					DatabasePoolConnection connection = new DatabasePoolConnection();
-
-					connection.setHost(merge("host", pool.getHost(), state.getInternalDatabaseHost(), state.getDatabaseHost()));
-					connection.setPort(merge("port", pool.getPort(), state.getInternalDatabasePort(), state.getDatabasePort()));
-					connection.setUsername(merge("username", pool.getUsername(), state.getDatabaseUsername(), null));
-					connection.setPassword(merge("password", pool.getPassword(), state.getDatabasePassword(), null));
-					connection.setDatabase(merge("database", pool.getDatabase(), state.getDatabaseName(), null));
-
+					connection.setHost(merge("host", pool.getHost(), state.getDatabaseHost()));
+					connection.setPort(merge("port", pool.getPort(), state.getDatabasePort()));
+					connection.setUsername(merge("username", pool.getUsername(), state.getDatabaseUsername()));
+					connection.setPassword(merge("password", pool.getPassword(), state.getDatabasePassword()));
+					connection.setDatabase(merge("database", pool.getDatabase(), state.getDatabaseName()));
+					connection.setInternalHost(merge("internalHost", pool.getInternalHost(), state.getInternalDatabaseHost()));
+					connection.setInternalPort(merge("internalPort", pool.getInternalPort(), state.getInternalDatabasePort()));
 					DatabasePoolRequest request = new DatabasePoolRequest();
 					if (pool.getTemplateName() == null) {
 						throw new MojoExecutionException("Database template name is missing in pool configuration for " + pool);
@@ -110,22 +103,17 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 	 *
 	 * @param key
 	 * @param poolValue
-	 * @param statePrimaryValue
-	 * @param stateSecondryValue
+	 * @param stateValue
 	 * @return
 	 * @throws MojoExecutionException
 	 */
-	private <T> T merge(String key, T poolValue, T statePrimaryValue, T stateSecondryValue) throws MojoExecutionException {
+	private <T> T merge(String key, T poolValue, T stateValue) throws MojoExecutionException {
 		if (poolValue != null) {
 			return poolValue;
 		}
-		if (statePrimaryValue != null) {
-			getLog().debug("Using primary state value for " + key);
-			return statePrimaryValue;
-		}
-		if (stateSecondryValue != null) {
-			getLog().debug("Using secondary state value for " + key);
-			return stateSecondryValue;
+		if (stateValue != null) {
+			getLog().debug("Using state value for " + key);
+			return stateValue;
 		}
 
 		throw new MojoExecutionException(

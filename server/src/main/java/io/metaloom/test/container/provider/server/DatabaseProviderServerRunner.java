@@ -30,7 +30,7 @@ public class DatabaseProviderServerRunner {
 			String password = ServerEnv.getDatabasePassword();
 			log.info("Creating default pool for database " + host + ":" + port + "/" + databaseName);
 			DatabasePool pool = provider.getManager()
-				.createPool("default", host, port, username, password, databaseName, databaseName);
+				.createPool("default", host, port, host, port, username, password, databaseName, databaseName);
 			pool.setLimits(minimum, maximum, increment);
 			pool.setTemplateName(databaseName);
 			pool.start();

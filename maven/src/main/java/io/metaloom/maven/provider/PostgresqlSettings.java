@@ -14,21 +14,33 @@ public class PostgresqlSettings {
 	boolean startContainer;
 
 	/**
-	 * Host to be used for the provider to connect to the database. This setting will not affect the started db container.
+	 * Host to be used for the provider to send to tests. This setting will not affect the started db container.
 	 */
 	@Parameter(property = "maven.testdatabase-provider.postgresql.host", required = false)
 	private String host;
 
 	/**
-	 * Port to be used for the provider to connect to the database. This setting will not affect the started db container.
+	 * Port to be used for the provider to send to tests. This setting will not affect the started db container.
 	 */
 	@Parameter(property = "maven.testdatabase-provider.postgresql.port", required = false)
 	private Integer port;
 
 	/**
+	 * Internal host to be used for the provider to connect to the database. This setting will not affect the started db container.
+	 */
+	@Parameter(property = "maven.testdatabase-provider.postgresql.internalHost", required = false)
+	private String internalHost;
+
+	/**
+	 * Internal port to be used for the provider to connect to the database. This setting will not affect the started db container.
+	 */
+	@Parameter(property = "maven.testdatabase-provider.postgresql.internalPort", required = false)
+	private Integer internalPort;
+
+	/**
 	 * Username to be used for the provider to connect to the database. Additionally this username will be used when {@link #startContainer} is enabled.
 	 */
-	@Parameter(property = "maven.testdatabase-provider.postgresql.username", required = false,  defaultValue = PostgreSQLPoolContainer.DEFAULT_USERNAME)
+	@Parameter(property = "maven.testdatabase-provider.postgresql.username", required = false, defaultValue = PostgreSQLPoolContainer.DEFAULT_USERNAME)
 	private String username;
 
 	/**
@@ -59,6 +71,14 @@ public class PostgresqlSettings {
 
 	public Integer getPort() {
 		return port;
+	}
+
+	public String getInternalHost() {
+		return internalHost;
+	}
+
+	public Integer getInternalPort() {
+		return internalPort;
 	}
 
 	public String getUsername() {

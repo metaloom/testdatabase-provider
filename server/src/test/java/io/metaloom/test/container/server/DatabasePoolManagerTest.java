@@ -22,7 +22,7 @@ public class DatabasePoolManagerTest {
 		DatabasePoolManager manager = new DatabasePoolManager(Vertx.vertx());
 		assertEquals(0, manager.getPools()
 			.size());
-		DatabasePool pool = manager.createPool("dummy", container.getHost(), container.getPort(), container.getUsername(),
+		DatabasePool pool = manager.createPool("dummy", container.getHost(), container.getPort(),  container.getHost(), container.getPort(), container.getUsername(),
 			container.getPassword(), container.getDatabaseName());
 		pool.setLimits(10, 20, 5);
 		pool.start();

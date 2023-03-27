@@ -32,7 +32,8 @@ public class DatabasePoolTest {
 
 	@BeforeEach
 	public void setup() throws SQLException {
-		this.pool = new DatabasePool(vertx, "dummy", container.getHost(), container.getPort(), container.getUsername(), container.getPassword(),
+		this.pool = new DatabasePool(vertx, "dummy", container.getHost(), container.getPort(), container.getHost(), container.getPort(),
+			container.getUsername(), container.getPassword(),
 			container.getDatabaseName());
 		pool.setLimits(10, 20, 5);
 		String databaseName = TestHelper.setupTable(pool.settings().jdbcUrl(), pool.settings().username(), pool.settings().password());
