@@ -14,8 +14,10 @@ import io.metaloom.test.container.provider.common.ContainerState;
 import io.metaloom.test.container.provider.common.ContainerStateHelper;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
+import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolSettings;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 /**
  * The pool operation will setup a new test database pool. After this step the provider daemon will automatically populate the database with copies from the
@@ -82,11 +84,12 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 
 					request.setSettings(settings);
 					request.setConnection(connection);
-					client.createPool(pool.getId(), request);
+					DatabasePoolResponse response = client.createPool(pool.getId(), request).toCompletionStage().toCompletableFuture().get();
+					getLog().info("Response:\n" + JsonObject.mapFrom(response).encodePrettily());
 				}
 			}
 		} catch (Exception e) {
-			getLog().error("Error while invoking start of test database allocation.", e);
+			throw new MojoExecutionException("Unexpected error while invoking pool setup.", e);
 		} finally {
 			if (vertx != null) {
 				try {

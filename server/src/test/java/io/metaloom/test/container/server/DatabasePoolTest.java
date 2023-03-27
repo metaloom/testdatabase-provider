@@ -26,7 +26,7 @@ public class DatabasePoolTest {
 	public static final Vertx vertx = Vertx.vertx();
 
 	@Container
-	public static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(128);
+	public static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(512);
 
 	DatabasePool pool;
 
@@ -35,7 +35,7 @@ public class DatabasePoolTest {
 		this.pool = new DatabasePool(vertx, "dummy", container.getHost(), container.getPort(), container.getHost(), container.getPort(),
 			container.getUsername(), container.getPassword(),
 			container.getDatabaseName());
-		pool.setLimits(10, 20, 5);
+		pool.setLimits(40, 200, 15);
 		String databaseName = TestHelper.setupTable(pool.settings().jdbcUrl(), pool.settings().username(), pool.settings().password());
 		pool.setTemplateName(databaseName);
 	}
@@ -56,7 +56,7 @@ public class DatabasePoolTest {
 		assertFalse("The pool should still be not started.", pool.isStarted());
 
 		pool.start();
-		Thread.sleep(2000);
+		Thread.sleep(4000);
 		assertTrue("The pool should have been started.", pool.isStarted());
 		assertTrue("The pool should already started preparing databases.", pool.level() != 0);
 		assertEquals("There should be no databases allocated yet.", 0, pool.allocationLevel());

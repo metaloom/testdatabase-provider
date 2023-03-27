@@ -11,7 +11,13 @@ public class PostgresqlSettings {
 	 * maven.provider.db.password will automatically be set and can be uses by other plugins after the execution of the plugin goal.
 	 */
 	@Parameter(property = "maven.testdatabase-provider.postgresql.startContainer", required = false, defaultValue = "true")
-	boolean startContainer;
+	private boolean startContainer;
+
+	/**
+	 * Container image to be used to startup the postgreSQL.
+	 */
+	@Parameter(property = "maven.testdatabase-provider.postgresql.containerImage", required = false, defaultValue = PostgreSQLPoolContainer.DEFAULT_IMAGE)
+	private String containerImage;
 
 	/**
 	 * Host to be used for the provider to send to tests. This setting will not affect the started db container.
@@ -63,6 +69,10 @@ public class PostgresqlSettings {
 
 	public boolean isStartContainer() {
 		return startContainer;
+	}
+
+	public String getContainerImage() {
+		return containerImage;
 	}
 
 	public String getHost() {

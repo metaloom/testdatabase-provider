@@ -194,7 +194,7 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		}
 
 		@SuppressWarnings("resource")
-		PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(postgresql.getTmpfsSizeMB());
+		PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(postgresql.getContainerImage(), postgresql.getTmpfsSizeMB());
 		if (reuseContainers) {
 			db.withReuse(true);
 		}

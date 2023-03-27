@@ -77,7 +77,7 @@
 
       <plugin>
         <groupId>io.metaloom.test</groupId>
-        <artifactId>testdatabase-provider-maven-plugin</artifactId>
+        <artifactId>testdatabase-provider-plugin</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <executions>
           <!-- Startup a postgreSQL container and the provider daemon -->
@@ -95,6 +95,7 @@
                 <increment>5</increment>
               </defaultLimits>
               <postgresql>
+                <containerImage>postgres:13.2</containerImage>
                 <startContainer>true</startContainer>
                 <tmpfsSizeMB>256</tmpfsSizeMB>
                 <username>sa</username>

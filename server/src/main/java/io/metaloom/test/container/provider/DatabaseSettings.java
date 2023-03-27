@@ -19,7 +19,7 @@ public record DatabaseSettings(String host, int port, String internalHost, int i
 	}
 
 	public String toString() {
-		return "Host: " + host() + ":" + port() + "IntHost:" + internalHost() + ":" + internalPort() + " , username: " + username() + ", password: "
+		return "Host: " + host() + ":" + port() + " IntHost:" + internalHost() + ":" + internalPort() + " , username: " + username() + ", password: "
 			+ password() + ", adminDB: " + adminDB();
 	}
 

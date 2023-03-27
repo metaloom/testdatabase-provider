@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class PostgreSQLPoolContainer extends PostgreSQLContainer<PostgreSQLPoolContainer> {
 
@@ -15,8 +16,16 @@ public class PostgreSQLPoolContainer extends PostgreSQLContainer<PostgreSQLPoolC
 
 	public static final String DEFAULT_DATABASE_NAME = "postgres";
 
+	public PostgreSQLPoolContainer() {
+		this(0);
+	}
+
 	public PostgreSQLPoolContainer(int liveTmpFsSizeInMB) {
-		super(DEFAULT_IMAGE);
+		this(DEFAULT_IMAGE, liveTmpFsSizeInMB);
+	}
+
+	public PostgreSQLPoolContainer(String imageName, int liveTmpFsSizeInMB) {
+		super(DockerImageName.parse(imageName).asCompatibleSubstituteFor(DEFAULT_IMAGE));
 		withDatabaseName(DEFAULT_DATABASE_NAME);
 		withUsername(DEFAULT_USERNAME);
 		withPassword(DEFAULT_PASSWORD);

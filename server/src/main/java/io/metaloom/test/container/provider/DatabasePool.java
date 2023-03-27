@@ -67,13 +67,12 @@ public class DatabasePool {
 			log.error("Pool already started. Ignoring start request.");
 			return;
 		}
-		this.maintainPoolTimerId = vertx.setPeriodic(1000, th -> {
+		// TODO configure interval?
+		this.maintainPoolTimerId = vertx.setPeriodic(2_000, th -> {
 			try {
 				preAllocate();
 			} catch (SQLException e) {
-
-				System.out.println(settings());
-				log.error("Error while preallocating database", e);
+				log.error("Error while preallocating database.", e);
 			}
 		});
 	}
@@ -103,9 +102,10 @@ public class DatabasePool {
 	}
 
 	public void preAllocate() throws SQLException {
-		int size = databases.size();
+		int size = level();
 		if (templateName == null) {
 			log.warn("Unable to preallocate database. No template name set.");
+			return;
 		}
 		if (size < minimum && !(size > maximum) && templateName != null) {
 			log.info("Need more databases. Got {} but need {} / {}", size, minimum, maximum);
@@ -113,6 +113,7 @@ public class DatabasePool {
 				String newName = DB_PREFIX + UUID.randomUUID()
 					.toString()
 					.substring(0, 4);
+				log.debug("Creating " + newName + " from " + templateName);
 				Database database = SQLUtils.copyDatabase(settings, templateName, newName);
 				databases.push(database);
 			}

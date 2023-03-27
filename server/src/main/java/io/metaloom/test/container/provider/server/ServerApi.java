@@ -29,19 +29,6 @@ public class ServerApi {
 		this.manager = manager;
 	}
 
-	public void listPoolsHandler(RoutingContext rc) {
-		log.info("Getting stat request");
-		JsonObject json = new JsonObject();
-		JsonArray poolArray = new JsonArray();
-		json.put("pools", poolArray);
-
-		for (DatabasePool pool : manager.getPools()) {
-			poolArray.add(pool.toJson());
-		}
-
-		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(json.toBuffer());
-	}
-
 	public void poolDeleteHandler(RoutingContext rc) {
 		String id = rc.pathParam("id");
 		log.info("Deleting pool {}", id);
@@ -129,6 +116,19 @@ public class ServerApi {
 			DatabasePoolResponse response = ModelHelper.toModel(pool);
 			rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(JSON.toBuffer(response));
 		}
+	}
+
+	public void listPoolsHandler(RoutingContext rc) {
+		log.info("Getting stat request");
+		JsonObject json = new JsonObject();
+		JsonArray poolArray = new JsonArray();
+		json.put("pools", poolArray);
+
+		for (DatabasePool pool : manager.getPools()) {
+			poolArray.add(JsonObject.mapFrom(ModelHelper.toModel(pool)));
+		}
+
+		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(json.toBuffer());
 	}
 
 	public void websocketHandler(SockJSSocket sock) {
