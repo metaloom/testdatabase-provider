@@ -8,10 +8,15 @@ Instead the provider can be queried to allocate a fresh database.
 
 A dedicated provider daemon will constantly maintain a specified level of free databases. Databases which have been consumed by tests will be dropped and fresh ones will be created.
 
+## Supported Databases
+
+> Currently **only** PostgreSQL is supported.
 
 ## Maven
 
-The dedicated `postgresql-testdatabase-provider-maven-plugin` can be used to startup a postgreSQL and provider server container. The provider server can be queried by tests to provide a database.
+[Plugin Documentation](https://metaloom.github.io/testdatabase-provider/)
+
+The dedicated `testdatabase-provider-maven-plugin` can be used to startup a postgreSQL and provider server container. The provider server can be queried by tests to provide a database.
 
 The lifecyle order in this example:
 
@@ -24,7 +29,7 @@ Maven Commands:
 
 ```bash
 # Start the containers using the test execution settings from the pom.xml
-mvn testdatabase-provider:start@test
+mvn testdatabase-provider:start@start
 
 # Setup the configured pool@pool using the pool execution settings from the pom.xml
 mvn testdatabase-provider:pool@pool
@@ -52,9 +57,9 @@ Example configuration:
 </executions>
 <configuration>
     <!-- The flyway plugin uses the properties which have been provided by the provider-maven-plugin. -->
-    <url>${maven.provider.db.url}</url>
-    <user>${maven.provider.db.username}</user>
-    <password>${maven.provider.db.password}</password>
+    <url>${maven.testdatabase-provider.postgresql.jdbcurl}</url>
+    <user>${maven.testdatabase-provider.postgresql.username}</user>
+    <password>${maven.testdatabase-provider.postgresql.password}</password>
     <locations>
     <location>filesystem:src/main/flyway</location>
     </locations>
@@ -70,49 +75,90 @@ Example configuration:
 
 <plugin>
 <groupId>io.metaloom.test</groupId>
-<artifactId>postgresql-testdatabase-provider-maven-plugin</artifactId>
+<artifactId>testdatabase-provider-maven-plugin</artifactId>
 <version>0.0.1-SNAPSHOT</version>
 <executions>
     <!-- Start the provider daemon and needed database containers -->
     <execution>
-    <id>start</id>
-    <phase>initialize</phase>
-    <goals>
-        <goal>start</goal>
-    </goals>
+        <id>start</id>
+        <phase>initialize</phase>
+        <goals>
+            <goal>start</goal>
+            <configuration>
+                <skip>false</skip>
+                <defaultLimits>
+                <minimum>10</minimum>
+                <maximum>20</maximum>
+                <increment>5</increment>
+                </defaultLimits>
+                <postgresql>
+                    <containerImage>postgres:13.2</containerImage>
+                    <startContainer>true</startContainer>
+                    <tmpfsSizeMB>256</tmpfsSizeMB>
+                    <username>sa</username>
+                    <password>sa</password>
+                    <database>test</database>
+                    <!--
+                    Port and host are only used when providing
+                    an external database
+                    <port>5432</port>
+                    <host>localhost</host>
+                    -->
+                </postgresql>
+                <createPool>false</createPool>
+                <startProvider>true</startProvider>
+                <reuseContainers>true</reuseContainers>
+            </configuration>
+        </goals>
     </execution>
     <!-- Now flyway has populated the database and we can setup our test database pool -->
     <execution>
-    <id>setup-pool</id>
-    <phase>process-test-classes</phase>
-    <goals>
-        <goal>pool</goal>
-    </goals>
-    <configuration>
-        <pools>
-        <pool>
-            <id>dummy</id>
-            <templateName>postgres</templateName>
-            <minimum>10</minimum>
-            <maximum>20</maximum>
-            <increment>5</increment>
-        </pool>
-        </pools>
-    </configuration>
+        <id>pool</id>
+        <phase>process-test-classes</phase>
+        <goals>
+            <goal>pool</goal>
+        </goals>
+        <configuration>
+            <pools>
+                <pool>
+                    <id>dummy</id>
+                    <!-- The connection details can be omitted when the start goal provides a database container -->
+                    <!--
+                    <host>${maven.testdatabase-provider.postgresql.host}</host>
+                    <port>${maven.testdatabase-provider.postgresql.port}</port>
+                    <username>${maven.testdatabase-provider.postgresql.username}</username>
+                    <password>${maven.testdatabase-provider.postgresql.password}</password>
+                    <database>${maven.testdatabase-provider.postgresql.database}</database>
+                    -->
+                    <templateName>test</templateName>
+                    <limits>
+                    <minimum>10</minimum>
+                    <maximum>30</maximum>
+                    <increment>5</increment>
+                    </limits>
+                </pool>
+            </pools>
+        </configuration>
     </execution>
 
     <!-- Finally we stop the started containers -->
     <execution>
-    <id>stop</id>
-    <phase>post-integration-test</phase>
-    <goals>
-        <goal>stop</goal>
-    </goals>
+        <id>stop</id>
+        <phase>post-integration-test</phase>
+        <goals>
+            <goal>stop</goal>
+        </goals>
     </execution>
 </executions>
 </plugin>
 …
 ```
+
+## Pitfalls
+
+The `reuseContainers` setting will ensure that the started containers are not being removed once the maven process terminates. This is especially useful when providing test databases for your IDE test execution.
+
+This feature requires the file `~/.testcontainers.properties` to contain the line `testcontainers.reuse.enable=true`. See [reusable containers](https://www.testcontainers.org/features/reuse/) for more information.
 
 ## Standalone
 
@@ -120,12 +166,26 @@ The provider server container can also be setup as a standlone container.
 
 ```bash
 docker run --rm \
- --env "TESTDATABASE_PROVIDER_DATABASE_HOST=localhost" \
- --env "TESTDATABASE_PROVIDER_DATABASE_PORT=5432" \
- --env "TESTDATABASE_PROVIDER_DATABASE_USERNAME=sa" \
- --env "TESTDATABASE_PROVIDER_DATABASE_PASSWORD=sa" \
- metaloom/postgresql-testdatabase-provider:0.0.1-SNAPSHOT
+  metaloom/testdatabase-provider:0.0.1-SNAPSHOT
 ```
+
+## Provider Server Environment variables
+
+Various variables may be specified during startup that reference the testdatabase being used. When the `TESTDATABASE_PROVIDER_POOL_TEMPLATE_NAME` variable has been specified a `default`database pool will be setup during startup of the provider container. Please note that this is not mandatory as the REST API can be called after startup to CRUD new test database pools.
+
+* `TESTDATABASE_PROVIDER_DATABASE_HOST` -  Host setting which will be passed along to tests that requested a database.
+* `TESTDATABASE_PROVIDER_DATABASE_PORT` - Port setting which will be passed along to tests that requested a database.
+* `TESTDATABASE_PROVIDER_DATABASE_INTERNAL_HOST` - Host setting which will be used by the provider server to manage the pooled databases.
+* `TESTDATABASE_PROVIDER_DATABASE_INTERNAL_PORT` - Port setting which will be used by the provider server to managed the pooled databases.
+* `TESTDATABASE_PROVIDER_DATABASE_USERNAME` - Connection details for database.
+* `TESTDATABASE_PROVIDER_DATABASE_PASSWORD` - Connection details for database.
+* `TESTDATABASE_PROVIDER_DATABASE_DBNAME_KEY` - Name of the database which will be selected when invoking admin operations (e.g. DROP DATABASE, CREATE DATABASE)
+* `TESTDATABASE_PROVIDER_POOL_TEMPLATE_NAME` - Name of the database which should be used by the `default` pool. When omitted no `default` pool will be created.
+
+* `TESTDATABASE_PROVIDER_POOL_MINIMUM` - Default minimum for newly created pools.
+* `TESTDATABASE_PROVIDER_POOL_MAXIMUM` - Default maximum for newly created pools.
+* `TESTDATABASE_PROVIDER_POOL_INCREMENT` - Default increment for newly created pools. The server will create new databases whenever the minium threshold is hot. The increment setting can be used to create multiple new databases in one step.
+
 
 ## Test - Junit 5
 
@@ -140,3 +200,11 @@ public void testDB() {
     System.out.println(provider.db());
 }
 ```
+
+## Test - Junit 4 
+
+TBD
+
+## Releasing 
+
+TBD
