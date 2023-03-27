@@ -10,6 +10,7 @@ import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
 import io.metaloom.test.container.provider.DatabasePoolManager;
 import io.metaloom.test.container.provider.json.JSON;
+import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
@@ -144,16 +145,17 @@ public class ServerApi {
 				DatabasePool pool = manager.getPool(providerRequest.poolId());
 				if (pool == null) {
 					log.error("Unable to fullfil request. Provided pool for id {} not found", providerRequest.poolId());
-					error(sock, "Pool not found " + providerRequest.poolId());
+					error(sock, "Pool not found {" + providerRequest.poolId() + "}");
 					return;
 				}
 				DatabaseAllocation allocation = pool.allocate(providerRequest.testName());
 				if (allocation == null) {
-					error(sock, "Pool not found " + providerRequest.poolId());
+					error(sock, "Unable to allocate database from pool {" + providerRequest.poolId() + "}");
 					return;
 				}
 				allocationRef.set(allocation);
-				sock.write(allocation.json().toBuffer());
+				DatabaseAllocationResponse response = ModelHelper.toModel(allocation);
+				sock.write(JsonObject.mapFrom(response).toBuffer());
 			} catch (SQLException e) {
 				log.error("Error while allocating database for test {}", providerRequest, e);
 				error(sock, "Unknown error");

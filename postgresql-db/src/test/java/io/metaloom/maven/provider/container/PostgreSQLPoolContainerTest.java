@@ -1,5 +1,7 @@
 package io.metaloom.maven.provider.container;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -12,8 +14,8 @@ public class PostgreSQLPoolContainerTest {
 
 	@Test
 	public void testSetup() {
-		System.out.println(container.getContainerIpAddress());
-		System.out.println(container.getHost());
-		System.out.println(container.getJdbcUrl());
+		assertNotNull(container.getContainerIpAddress());
+		assertNotNull(container.getHost());
+		assertNotNull(container.getJdbcUrl());
 	}
 }

@@ -1,6 +1,8 @@
 package io.metaloom.test.container.provider.server;
 
+import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
+import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolSettings;
@@ -33,6 +35,19 @@ public final class ModelHelper {
 		response.setLevel(pool.level());
 		response.setTemplateName(pool.getTemplateName());
 		response.setStarted(pool.isStarted());
+		return response;
+	}
+
+	public static DatabaseAllocationResponse toModel(DatabaseAllocation allocation) {
+		DatabaseAllocationResponse response = new DatabaseAllocationResponse();
+		response.setPoolId(allocation.getPool().id());
+		response.setId(allocation.id());
+		response.setHost(allocation.db().settings().host());
+		response.setPort(allocation.db().settings().port());
+		response.setJdbcUrl(allocation.db().jdbcUrl());
+		response.setUsername(allocation.db().settings().username());
+		response.setPassword(allocation.db().settings().password());
+		response.setDatabaseName(allocation.db().name());
 		return response;
 	}
 }

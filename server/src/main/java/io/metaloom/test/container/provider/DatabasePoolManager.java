@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.metaloom.test.container.provider.common.ServerEnv;
 import io.vertx.core.Vertx;
 
 public class DatabasePoolManager {
@@ -14,9 +15,9 @@ public class DatabasePoolManager {
 
 	private Map<String, DatabasePool> pools = new HashMap<>();
 
-	private int minimum;
-	private int maximum;
-	private int increment;
+	private int minimum = ServerEnv.DEFAULT_POOL_MINIMUM;
+	private int maximum = ServerEnv.DEFAULT_POOL_MAXIMUM;
+	private int increment = ServerEnv.DEFAULT_POOL_INCREMENT;
 
 	public DatabasePoolManager(Vertx vertx) {
 		this.vertx = vertx;

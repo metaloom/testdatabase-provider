@@ -26,5 +26,19 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
     </dependency>
+
+    <!--Test -->
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>testdatabase-provider-postgresql-db</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>testdatabase-provider-server</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

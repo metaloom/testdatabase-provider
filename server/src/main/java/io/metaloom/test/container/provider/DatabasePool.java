@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.common.ServerEnv;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -28,17 +29,17 @@ public class DatabasePool {
 
 	private final String id;
 
-	private int minimum;
+	private int minimum = ServerEnv.DEFAULT_POOL_MINIMUM;
 
-	private int maximum;
+	private int maximum = ServerEnv.DEFAULT_POOL_MAXIMUM;
+
+	private int increment = ServerEnv.DEFAULT_POOL_INCREMENT;
 
 	private Vertx vertx;
 
 	private Long maintainPoolTimerId;
 
 	private String templateName;
-
-	private int increment;
 
 	private DatabaseSettings settings;
 
@@ -93,7 +94,7 @@ public class DatabasePool {
 			Database database = databases.pop();
 			String id = UUID.randomUUID()
 				.toString()
-				.substring(0, 4) + "_" + testName;
+				.substring(0, 4) + "#" + testName;
 			DatabaseAllocation allocation = new DatabaseAllocation(this, id, database);
 			allocations.put(id, allocation);
 			return allocation;
