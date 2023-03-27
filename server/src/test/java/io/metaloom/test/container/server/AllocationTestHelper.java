@@ -2,7 +2,7 @@ package io.metaloom.test.container.server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 

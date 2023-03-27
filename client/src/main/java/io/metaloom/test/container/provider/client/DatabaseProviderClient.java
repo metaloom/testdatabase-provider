@@ -35,7 +35,7 @@ public class DatabaseProviderClient {
 	 * @param testcaseName
 	 * @return
 	 */
-	public Future<DatabaseAllocationResponse> link(String testcaseName) {
+	public Future<ClientAllocation> link(String testcaseName) {
 		return httpClient.webSocket("/connect/websocket").compose(socket -> {
 			return Future.future(result -> {
 				socket.exceptionHandler(error -> {
@@ -45,7 +45,9 @@ public class DatabaseProviderClient {
 				socket.binaryMessageHandler(buffer -> {
 					JsonObject json = buffer.toJsonObject();
 					log.info("Got provider allocation info:\n{}", json.encodePrettily());
-					result.complete(json.mapTo(DatabaseAllocationResponse.class));
+					DatabaseAllocationResponse response = json.mapTo(DatabaseAllocationResponse.class);
+					ClientAllocation allocation = new ClientAllocation(socket, response);
+					result.complete(allocation);
 				});
 				// Sending name of the currently executed test to the server.
 				// It will allocate a database and send us the result.

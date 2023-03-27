@@ -7,20 +7,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import io.metaloom.test.container.server.AllocationTestHelper;
-import io.metaloom.test.container.server.DatabaseProviderTestServer;
+import io.metaloom.test.container.server.AbstractProviderServerTest;
 
 @Testcontainers
-public class DatabaseProviderExtensionTest implements AllocationTestHelper {
-
-	public static DatabaseProviderTestServer server = new DatabaseProviderTestServer();
+public class DatabaseProviderExtensionTest extends AbstractProviderServerTest {
 
 	@RegisterExtension
 	public static DatabaseProviderExtension ext = new DatabaseProviderExtension("localhost", server.getPort());
 
 	@Test
 	public void testDB() throws Exception {
-		Thread.sleep(2000);
+		Thread.sleep(2_000);
 		assertEquals("There should only be one allocation.", 1, server.getPool().allocationLevel());
 		assertTrue(server.getPool().isStarted());
 		assertTrue(server.getPool().level() != 0);

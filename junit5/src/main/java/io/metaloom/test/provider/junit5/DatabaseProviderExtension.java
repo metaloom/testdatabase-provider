@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.client.ClientAllocation;
 import io.metaloom.test.container.provider.client.DatabaseProviderClient;
 import io.metaloom.test.container.provider.common.ClientEnv;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
@@ -16,7 +17,7 @@ public class DatabaseProviderExtension implements BeforeEachCallback, AfterEachC
 	public static final Logger log = LoggerFactory.getLogger(DatabaseProviderExtension.class);
 
 	private DatabaseProviderClient client;
-	private DatabaseAllocationResponse allocation;
+	private ClientAllocation allocation;
 
 	public DatabaseProviderExtension(String host, int port) {
 		this.client = new DatabaseProviderClient(Vertx.vertx(), host, port);
@@ -36,11 +37,13 @@ public class DatabaseProviderExtension implements BeforeEachCallback, AfterEachC
 
 	@Override
 	public void afterEach(ExtensionContext context) throws Exception {
-
+		if (allocation != null) {
+			allocation.release();
+		}
 	}
 
 	public DatabaseAllocationResponse db() {
-		return allocation;
+		return allocation == null ? null : allocation.response();
 	}
 
 }

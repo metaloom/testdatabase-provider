@@ -5,12 +5,9 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Rule;
 import org.junit.Test;
 
-import io.metaloom.test.container.server.AllocationTestHelper;
-import io.metaloom.test.container.server.DatabaseProviderTestServer;
+import io.metaloom.test.container.server.AbstractProviderServerTest;
 
-public class DatabaseProviderRuleTest implements AllocationTestHelper {
-
-	private static DatabaseProviderTestServer server = new DatabaseProviderTestServer();
+public class DatabaseProviderRuleTest extends AbstractProviderServerTest {
 
 	@Rule
 	public DatabaseProviderRule provider = new DatabaseProviderRule("localhost", server.getPort());

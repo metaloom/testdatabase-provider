@@ -1,26 +1,23 @@
 package io.metaloom.test.provider.junit4;
 
-import java.util.concurrent.ExecutionException;
-
-import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.metaloom.test.container.provider.client.ClientAllocation;
 import io.metaloom.test.container.provider.client.DatabaseProviderClient;
 import io.metaloom.test.container.provider.common.ClientEnv;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 
 public class DatabaseProviderRule implements TestRule {
 
 	public static final Logger log = LoggerFactory.getLogger(DatabaseProviderRule.class);
 
 	private DatabaseProviderClient client;
-	private DatabaseAllocationResponse allocation;
+	private ClientAllocation allocation;
 
 	public DatabaseProviderRule(String host, int port) {
 		this.client = new DatabaseProviderClient(Vertx.vertx(), host, port);
@@ -46,7 +43,10 @@ public class DatabaseProviderRule implements TestRule {
 	}
 
 	protected void finished(Description description) {
-
+		if (allocation != null) {
+			allocation.release();
+			allocation = null;
+		}
 	}
 
 	protected void starting(Description description) {
@@ -62,7 +62,7 @@ public class DatabaseProviderRule implements TestRule {
 	}
 
 	public DatabaseAllocationResponse db() {
-		return allocation;
+		return allocation == null ? null : allocation.response();
 	}
 
 }
