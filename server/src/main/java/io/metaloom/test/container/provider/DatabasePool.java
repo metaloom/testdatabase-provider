@@ -1,6 +1,7 @@
 package io.metaloom.test.container.provider;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -10,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.metaloom.test.container.provider.common.ServerEnv;
+import io.metaloom.test.container.provider.server.ServerError;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 
 /**
  * A database pool manages the database copies for a specific template database. The pool fulfills allocation requests and creates new databases to be
@@ -28,6 +29,8 @@ public class DatabasePool {
 	private Map<String, DatabaseAllocation> allocations = new HashMap<>();
 
 	private final String id;
+
+	private LocalDateTime creationDate;
 
 	private int minimum = ServerEnv.DEFAULT_POOL_MINIMUM;
 
@@ -61,6 +64,7 @@ public class DatabasePool {
 		this.vertx = vertx;
 		this.id = id;
 		this.settings = new DatabaseSettings(host, port, internalHost, internalPort, username, password, adminDB);
+		this.creationDate = LocalDateTime.now();
 	}
 
 	public void start() {
@@ -133,6 +137,14 @@ public class DatabasePool {
 		}
 	}
 
+	public String id() {
+		return id;
+	}
+
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+
 	/**
 	 * Return the count of database that the pool is ready to provide.
 	 * 
@@ -174,31 +186,28 @@ public class DatabasePool {
 		return minimum;
 	}
 
-	public JsonObject toJson() {
-		JsonObject json = new JsonObject();
-		json.put("id", id);
-		json.put("minimum", minimum);
-		json.put("maximum", maximum);
-		json.put("increment", increment);
-		json.put("templateName", templateName);
-		json.put("level", level());
-		json.put("allocationLevel", allocationLevel());
-		return json;
-	}
-
-	public String id() {
-		return id;
-	}
-
+	/**
+	 * Removes all databases that are managed by the pool (free and allocated). Does not touch the template database.
+	 */
 	public void drain() {
-		log.info("Draining pool {}", id());
+		if (isStarted()) {
+			throw new ServerError("Can't drain a running pool. Please ensure that the pool is stopped first.");
+		}
+		log.info("Draining allocations from pool {}", id());
 		for (DatabaseAllocation allocation : allocations.values()) {
 			try {
-				log.info("Deleting db {} from pool {}", allocation.db()
-					.name(), id());
-				SQLUtils.dropDatabase(allocation.db());
+				log.info("Releasing allocation db {} from pool {}", allocation.db(), id());
+				allocation.release();
 			} catch (Exception e) {
-				log.error("Error while dropping db.", e);
+				log.error("Error while dropping allocated db.", e);
+			}
+		}
+		log.info("Draining free databases from pool {}", id());
+		for (Database db : databases) {
+			try {
+				SQLUtils.dropDatabase(db);
+			} catch (Exception e) {
+				log.error("Error while dropping free db.", e);
 			}
 		}
 	}
@@ -215,10 +224,22 @@ public class DatabasePool {
 	 * @return
 	 */
 	public DatabasePool setLimits(int minimum, int maximum, int increment) {
-		this.minimum = minimum;
-		this.maximum = maximum;
-		this.increment = increment;
+		setMinimum(minimum);
+		setMaximum(maximum);
+		setIncrement(increment);
 		return this;
+	}
+
+	public void setMinimum(int minimum) {
+		this.minimum = minimum;
+	}
+
+	public void setMaximum(int maximum) {
+		this.maximum = maximum;
+	}
+
+	public void setIncrement(int increment) {
+		this.increment = increment;
 	}
 
 }

@@ -15,7 +15,7 @@ public class PoolSetupAction {
 
 		// 3. Setup your tables (e.g. run flyway here)
 		ProviderConfig config = TestDatabaseProvider.config();
-		TestSQLHelper.setupTable(config.getPostgresql().jdbcUrl(), config.getPostgresql().getUsername(), config.getPostgresql().getPassword());
+		TestSQLHelper.setupTable(config.getPostgresql().adminJdbcUrl(), config.getPostgresql().getUsername(), config.getPostgresql().getPassword());
 
 		// 4. Create pool to be used in tests
 		TestDatabaseProvider.createPool("default", "test2");

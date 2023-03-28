@@ -15,9 +15,9 @@ public class DatabasePoolManager {
 
 	private Map<String, DatabasePool> pools = new HashMap<>();
 
-	private int minimum = ServerEnv.DEFAULT_POOL_MINIMUM;
-	private int maximum = ServerEnv.DEFAULT_POOL_MAXIMUM;
-	private int increment = ServerEnv.DEFAULT_POOL_INCREMENT;
+	private int defaultMinimum = ServerEnv.DEFAULT_POOL_MINIMUM;
+	private int defaultMaximum = ServerEnv.DEFAULT_POOL_MAXIMUM;
+	private int defaultIncrement = ServerEnv.DEFAULT_POOL_INCREMENT;
 
 	public DatabasePoolManager(Vertx vertx) {
 		this.vertx = vertx;
@@ -31,6 +31,12 @@ public class DatabasePoolManager {
 		return pools.containsKey(id);
 	}
 
+	/**
+	 * Removes the pool from the list of pools, stops and drains it.
+	 * 
+	 * @param id
+	 * @return
+	 */
 	public boolean deletePool(String id) {
 		DatabasePool pool = pools.remove(id);
 		if (pool == null) {
@@ -53,7 +59,7 @@ public class DatabasePoolManager {
 	public DatabasePool createPool(String id, String host, int port, String internalHost, int internalPort, String username, String password,
 		String adminDB) {
 		DatabasePool pool = new DatabasePool(vertx, id, host, port, internalHost, internalPort, username, password, adminDB);
-		pool.setLimits(minimum, maximum, increment);
+		pool.setLimits(defaultMinimum, defaultMaximum, defaultIncrement);
 		pools.put(id, pool);
 		return pool;
 	}
@@ -61,16 +67,16 @@ public class DatabasePoolManager {
 	public DatabasePool createPool(String id, String host, int port, String internalHost, int internalPort, String username, String password,
 		String adminDB, String templateName) {
 		DatabasePool pool = new DatabasePool(vertx, id, host, port, internalHost, internalPort, username, password, adminDB);
-		pool.setLimits(minimum, maximum, increment);
+		pool.setLimits(defaultMinimum, defaultMaximum, defaultIncrement);
 		pool.setTemplateDatabaseName(templateName);
 		pools.put(id, pool);
 		return pool;
 	}
 
 	public void setDefaults(int minimum, int maximum, int increment) {
-		this.minimum = minimum;
-		this.maximum = maximum;
-		this.increment = increment;
+		this.defaultMinimum = minimum;
+		this.defaultMaximum = maximum;
+		this.defaultIncrement = increment;
 	}
 
 }

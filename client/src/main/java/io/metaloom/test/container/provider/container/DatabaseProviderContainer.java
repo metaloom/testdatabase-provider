@@ -5,6 +5,9 @@ import org.testcontainers.utility.DockerImageName;
 
 import io.metaloom.test.container.provider.common.ServerEnv;
 
+/**
+ * Provider testcontainer which can be used for tests.
+ */
 public class DatabaseProviderContainer extends GenericContainer<DatabaseProviderContainer> {
 
 	private static final DockerImageName DEFAULT_IMAGE = DockerImageName.parse("metaloom/testdatabase-provider:0.0.1-SNAPSHOT");

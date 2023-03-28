@@ -19,14 +19,27 @@ public interface TestDatabaseProvider {
 
 	static Vertx vertx = Vertx.vertx();
 
+	/**
+	 * Return the REST client for the given host and port.
+	 * 
+	 * @param host
+	 * @param port
+	 * @return
+	 */
 	static ProviderClient client(String host, int port) {
 		return new ProviderClient(vertx, host, port);
 	}
 
+	/**
+	 * Return the REST client which can be used to communicate with the provider server that manages the database pooling.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	static ProviderClient client() throws IOException {
 		ProviderConfig config = config();
 		if (config == null) {
-			throw new FileNotFoundException("Could not locate provider state configuration file " +
+			throw new FileNotFoundException("Could not locate provider configuration file " +
 				ProviderConfigHelper.PROVIDER_CONFIG_FILENAME);
 		}
 		String host = config.getProviderHost();
@@ -38,9 +51,8 @@ public interface TestDatabaseProvider {
 	 * Locate the config which was written by the testdatabase-provider-plugin
 	 * 
 	 * @return
-	 * @throws IOException
 	 */
-	static ProviderConfig config() throws IOException {
+	static ProviderConfig config() {
 		return ProviderConfigHelper.readConfig();
 	}
 
@@ -68,15 +80,34 @@ public interface TestDatabaseProvider {
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	static void createPostgreSQLDatabase(String name) throws SQLException, IOException {
+	static void createPostgreSQLDatabase(String name) throws SQLException {
 		ProviderConfig config = config();
 		PostgresqlConfig postgresConfig = config.getPostgresql();
 		String sql = "CREATE DATABASE " + name;
-		try (Connection connection = DriverManager.getConnection(config.getPostgresql().jdbcUrl(), postgresConfig.getUsername(),
+		try (Connection connection = DriverManager.getConnection(config.getPostgresql().adminJdbcUrl(), postgresConfig.getUsername(),
 			postgresConfig.getPassword())) {
 			Statement statement1 = connection.createStatement();
 			statement1.execute(sql);
 		}
+	}
+
+	/**
+	 * Drop and create create the database with the given name.
+	 * 
+	 * @param name
+	 * @throws SQLException
+	 */
+	static void dropCreatePostgreSQLDatabase(String name) throws SQLException {
+		ProviderConfig config = config();
+		PostgresqlConfig postgresConfig = config.getPostgresql();
+		String dropSQL = "DROP DATABASE IF EXISTS " + name;
+		String createSQL = "CREATE DATABASE " + name;
+		try (Connection connection = DriverManager.getConnection(config.getPostgresql().adminJdbcUrl(), postgresConfig.getUsername(),
+			postgresConfig.getPassword())) {
+			connection.createStatement().execute(dropSQL);
+			connection.createStatement().execute(createSQL);
+		}
+
 	}
 
 }

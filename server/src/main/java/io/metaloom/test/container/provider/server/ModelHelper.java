@@ -29,6 +29,8 @@ public final class ModelHelper {
 		settings.setMinimum(pool.getMinimum());
 
 		DatabasePoolResponse response = new DatabasePoolResponse();
+		response.setCreated(pool.getCreationDate());
+		response.setId(pool.id());
 		response.setConnection(connection);
 		response.setSettings(settings);
 		response.setAllocationLevel(pool.allocationLevel());

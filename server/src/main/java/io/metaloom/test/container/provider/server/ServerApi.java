@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
 import io.metaloom.test.container.provider.DatabasePoolManager;
+import io.metaloom.test.container.provider.DatabaseSettings;
 import io.metaloom.test.container.provider.json.JSON;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
@@ -52,17 +53,13 @@ public class ServerApi {
 	public void upsertPoolHandler(RoutingContext rc) {
 		String id = rc.pathParam("id");
 		DatabasePoolRequest model = rc.body().asPojo(DatabasePoolRequest.class);
-		String templateDatabaseName = require(model.getTemplateDatabaseName(), "templateName");
+		String templateDatabaseName = require(model.getTemplateDatabaseName(), "templateDatabaseName");
 
 		DatabasePool pool = manager.getPool(id);
 		if (pool == null) {
 			DatabasePoolConnection connection = model.getConnection();
 			DatabasePoolSettings settings = model.getSettings();
 			log.info("Adding pool {}", id);
-			require(settings, "settings");
-			Integer minimum = require(settings.getMinimum(), "minimum");
-			Integer maximum = require(settings.getMaximum(), "maximum");
-			Integer increment = require(settings.getIncrement(), "increment");
 
 			require(connection, "connection");
 			String host = require(connection.getHost(), "host");
@@ -73,16 +70,36 @@ public class ServerApi {
 			String password = require(connection.getPassword(), "password");
 			String adminDB = require(connection.getDatabase(), "database");
 			pool = manager.createPool(id, host, port, internalHost, internalPort, username, password, adminDB);
-			pool.setLimits(minimum, maximum, increment);
+
+			// Apply the custom setting if those were provided. Otherwise the manager will use the default values.
+			if (settings != null) {
+				Integer minimum = settings.getMinimum();
+				if (minimum != null) {
+					pool.setMinimum(minimum);
+				}
+				Integer maximum = settings.getMaximum();
+				if (maximum != null) {
+					pool.setMaximum(maximum);
+				}
+				Integer increment = settings.getIncrement();
+				if (increment != null) {
+					pool.setIncrement(increment);
+				}
+			}
 			pool.setTemplateDatabaseName(templateDatabaseName);
 			pool.start();
 		} else {
-			log.info("Updating pool {}", id);
-			pool.setTemplateDatabaseName(templateDatabaseName);
-			if (!pool.isStarted()) {
-				pool.start();
+			log.info("Recreating pool {}", id);
+			DatabaseSettings settings = pool.settings();
+			manager.deletePool(id);
+			DatabasePool newPool = manager.createPool(id, settings.host(), settings.port(), settings.internalHost(), settings.internalPort(),
+				settings.username(), settings.password(), settings.adminDB(), templateDatabaseName);
+			if (!newPool.isStarted()) {
+				newPool.start();
 			}
+			pool = newPool;
 		}
+
 		DatabasePoolResponse response = ModelHelper.toModel(pool);
 		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(JSON.toBuffer(response));
 

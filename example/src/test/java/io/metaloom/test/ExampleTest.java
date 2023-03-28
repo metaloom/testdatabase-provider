@@ -7,18 +7,18 @@ import io.metaloom.test.provider.junit5.DatabaseProviderExtension;
 
 public class ExampleTest {
 
-  @RegisterExtension
-  static DatabaseProviderExtension provider = new DatabaseProviderExtension();
+	@RegisterExtension
+	static DatabaseProviderExtension provider = new DatabaseProviderExtension();
 
-  @Test
-  public void testDB() {
-    System.out.println(provider.db());
-  }
+	@Test
+	public void testDB() {
+		System.out.println(provider.db());
+	}
 
-  @Test
-  public void testDB2() throws InterruptedException {
-    Thread.sleep(2000);
-    System.out.println(provider.db());
-    Thread.sleep(2000);
-  }
+	@Test
+	public void testDB2() throws InterruptedException {
+		Thread.sleep(2000);
+		System.out.println(provider.db());
+		Thread.sleep(2000);
+	}
 }

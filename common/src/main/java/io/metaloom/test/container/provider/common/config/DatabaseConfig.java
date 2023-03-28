@@ -34,6 +34,8 @@ public interface DatabaseConfig {
 
 	void setDatabaseName(String databaseName);
 
-	String jdbcUrl();
+	String adminJdbcUrl();
+
+	String jdbcUrl(String databaseName);
 
 }

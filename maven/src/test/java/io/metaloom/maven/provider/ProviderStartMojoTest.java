@@ -16,20 +16,20 @@ import io.vertx.core.json.JsonObject;
 
 public class ProviderStartMojoTest {
 
-  @Test
-  public void testStart() throws MojoExecutionException, MojoFailureException, IOException, InterruptedException {
-    new ProviderStartMojo().execute();
-    ProviderConfig config = ProviderConfigHelper.readConfig();
-    assertNotNull(config);
-    Thread.sleep(2000);
-    System.out.println(config.toString());
-    ProviderClient client = new ProviderClient(Vertx.vertx(), config.getProviderHost(), config.getProviderPort());
-    try {
-      JsonObject stat = client.listPools().toCompletionStage().toCompletableFuture().get();
-      System.out.println("Stat:\n" + stat.encodePrettily());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    new ProviderStopMojo().execute();
-  }
+	@Test
+	public void testStart() throws MojoExecutionException, MojoFailureException, IOException, InterruptedException {
+		new ProviderStartMojo().execute();
+		ProviderConfig config = ProviderConfigHelper.readConfig();
+		assertNotNull(config);
+		Thread.sleep(2000);
+		System.out.println(config.toString());
+		ProviderClient client = new ProviderClient(Vertx.vertx(), config.getProviderHost(), config.getProviderPort());
+		try {
+			JsonObject stat = client.listPools().toCompletionStage().toCompletableFuture().get();
+			System.out.println("Stat:\n" + stat.encodePrettily());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		new ProviderStopMojo().execute();
+	}
 }
