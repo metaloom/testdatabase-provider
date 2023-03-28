@@ -15,13 +15,13 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 
-public class DatabaseProviderClient {
+public class ProviderClient {
 
-	public static final Logger log = LoggerFactory.getLogger(DatabaseProviderClient.class);
+	public static final Logger log = LoggerFactory.getLogger(ProviderClient.class);
 	private HttpClient httpClient;
 	private Vertx vertx;
 
-	public DatabaseProviderClient(Vertx vertx, String host, int port) {
+	public ProviderClient(Vertx vertx, String host, int port) {
 		this.vertx = vertx;
 		HttpClientOptions httpOptions = new HttpClientOptions();
 		httpOptions.setDefaultHost(host);
@@ -97,9 +97,9 @@ public class DatabaseProviderClient {
 		});
 	}
 
-	public Future<DatabasePoolResponse> createPool(String name, DatabasePoolRequest model) {
+	public Future<DatabasePoolResponse> createPool(String name, DatabasePoolRequest request) {
 		return httpClient.request(HttpMethod.POST, "/pools/" + name).compose(req -> {
-			Buffer jsonBuffer = Json.encodeToBuffer(model);
+			Buffer jsonBuffer = Json.encodeToBuffer(request);
 			return req.send(jsonBuffer).compose(resp -> {
 				return resp.body().compose(buffer -> {
 					DatabasePoolResponse result = buffer.toJsonObject().mapTo(DatabasePoolResponse.class);

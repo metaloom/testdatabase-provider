@@ -52,7 +52,7 @@ public class ServerApi {
 	public void upsertPoolHandler(RoutingContext rc) {
 		String id = rc.pathParam("id");
 		DatabasePoolRequest model = rc.body().asPojo(DatabasePoolRequest.class);
-		String templateName = require(model.getTemplateName(), "templateName");
+		String templateDatabaseName = require(model.getTemplateDatabaseName(), "templateName");
 
 		DatabasePool pool = manager.getPool(id);
 		if (pool == null) {
@@ -74,11 +74,11 @@ public class ServerApi {
 			String adminDB = require(connection.getDatabase(), "database");
 			pool = manager.createPool(id, host, port, internalHost, internalPort, username, password, adminDB);
 			pool.setLimits(minimum, maximum, increment);
-			pool.setTemplateName(templateName);
+			pool.setTemplateDatabaseName(templateDatabaseName);
 			pool.start();
 		} else {
 			log.info("Updating pool {}", id);
-			pool.setTemplateName(templateName);
+			pool.setTemplateDatabaseName(templateDatabaseName);
 			if (!pool.isStarted()) {
 				pool.start();
 			}

@@ -33,7 +33,7 @@ public final class ModelHelper {
 		response.setSettings(settings);
 		response.setAllocationLevel(pool.allocationLevel());
 		response.setLevel(pool.level());
-		response.setTemplateName(pool.getTemplateName());
+		response.setTemplateDatabaseName(pool.getTemplateName());
 		response.setStarted(pool.isStarted());
 		return response;
 	}

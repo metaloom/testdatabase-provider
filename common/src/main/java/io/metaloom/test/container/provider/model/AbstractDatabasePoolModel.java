@@ -2,36 +2,36 @@ package io.metaloom.test.container.provider.model;
 
 public abstract class AbstractDatabasePoolModel {
 
-  private DatabasePoolConnection connection;
+	private DatabasePoolConnection connection;
 
-  private DatabasePoolSettings settings;
+	private DatabasePoolSettings settings;
 
-  public DatabasePoolConnection getConnection() {
-    return connection;
-  }
+	private String templateDatabaseName;
 
-  public AbstractDatabasePoolModel setConnection(DatabasePoolConnection connection) {
-    this.connection = connection;
-    return this;
-  }
+	public DatabasePoolConnection getConnection() {
+		return connection;
+	}
 
-  private String templateName;
+	public AbstractDatabasePoolModel setConnection(DatabasePoolConnection connection) {
+		this.connection = connection;
+		return this;
+	}
 
-  public String getTemplateName() {
-    return templateName;
-  }
+	public String getTemplateDatabaseName() {
+		return templateDatabaseName;
+	}
 
-  public AbstractDatabasePoolModel setTemplateName(String templateName) {
-    this.templateName = templateName;
-    return this;
-  }
+	public AbstractDatabasePoolModel setTemplateDatabaseName(String templateDatabaseName) {
+		this.templateDatabaseName = templateDatabaseName;
+		return this;
+	}
 
-  public DatabasePoolSettings getSettings() {
-    return settings;
-  }
+	public DatabasePoolSettings getSettings() {
+		return settings;
+	}
 
-  public AbstractDatabasePoolModel setSettings(DatabasePoolSettings settings) {
-    this.settings = settings;
-    return this;
-  }
+	public AbstractDatabasePoolModel setSettings(DatabasePoolSettings settings) {
+		this.settings = settings;
+		return this;
+	}
 }

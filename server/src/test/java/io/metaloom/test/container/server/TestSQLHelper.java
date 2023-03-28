@@ -10,9 +10,9 @@ import java.sql.Statement;
 
 import org.testcontainers.containers.PostgreSQLContainer;
 
-public final class TestHelper {
+public final class TestSQLHelper {
 
-  private TestHelper() {
+  private TestSQLHelper() {
   }
 
   private static final String CREATE_TABLE = """

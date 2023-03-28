@@ -32,7 +32,7 @@ public class DatabaseAllocation {
 
 	@Override
 	public String toString() {
-		return "Allocation: " + getPool().id() + " / " + id();
+		return "allocation: " + getPool().id() + " / " + id();
 	}
 
 }

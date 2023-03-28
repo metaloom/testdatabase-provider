@@ -1,5 +1,7 @@
 package io.metaloom.maven.provider;
 
+import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.readConfig;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -9,7 +11,8 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
-import io.metaloom.test.container.provider.common.ContainerState;
+import io.metaloom.test.container.provider.common.config.PostgresqlConfig;
+import io.metaloom.test.container.provider.common.config.ProviderConfig;
 import io.metaloom.test.container.provider.container.DatabaseProviderContainer;
 
 /**
@@ -69,8 +72,8 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 			return;
 		}
 
-		ContainerState state = loadState();
-		if (state != null) {
+		ProviderConfig config = readConfig();
+		if (config != null) {
 			getLog().warn("Found state file. This means the provider is probably still running. Aborting start");
 			return;
 		}
@@ -175,11 +178,11 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 
 		final String intHost = internalDatabaseHost;
 		final Integer intPort = internalDatabasePort;
-		updateState(state -> {
+		updateConfig(state -> {
 			state.setProviderHost(provider.getHost());
 			state.setProviderPort(provider.getPort());
-			state.setInternalDatabaseHost(intHost);
-			state.setInternalDatabasePort(intPort);
+			state.getPostgresql().setInternalHost(intHost);
+			state.getPostgresql().setInternalPort(intPort);
 			state.setProviderContainerId(provider.getContainerId());
 		});
 	}
@@ -211,15 +214,16 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		}
 
 		db.start();
-		updateState(state -> {
-			state.setInternalDatabaseHost(TEST_DATABASE_NETWORK_ALIAS);
-			state.setInternalDatabasePort(PostgreSQLContainer.POSTGRESQL_PORT);
-			state.setDatabaseHost(db.getHost());
-			state.setDatabasePort(db.getPort());
-			state.setDatabaseUsername(db.getUsername());
-			state.setDatabasePassword(db.getPassword());
-			state.setDatabaseName(db.getDatabaseName());
-			state.setDatabaseContainerId(db.getContainerId());
+		updateConfig(state -> {
+			PostgresqlConfig postgresqlState = state.getPostgresql();
+			postgresqlState.setInternalHost(TEST_DATABASE_NETWORK_ALIAS);
+			postgresqlState.setInternalPort(PostgreSQLContainer.POSTGRESQL_PORT);
+			postgresqlState.setHost(db.getHost());
+			postgresqlState.setPort(db.getPort());
+			postgresqlState.setUsername(db.getUsername());
+			postgresqlState.setPassword(db.getPassword());
+			postgresqlState.setDatabaseName(db.getDatabaseName());
+			postgresqlState.setContainerId(db.getContainerId());
 		});
 
 		// Provide the properties so those can be used in maven

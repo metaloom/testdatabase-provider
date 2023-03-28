@@ -32,7 +32,7 @@ public class DatabaseProviderServerRunner {
 			DatabasePool pool = provider.getManager()
 				.createPool("default", host, port, host, port, username, password, databaseName, databaseName);
 			pool.setLimits(minimum, maximum, increment);
-			pool.setTemplateName(databaseName);
+			pool.setTemplateDatabaseName(databaseName);
 			pool.start();
 		}
 

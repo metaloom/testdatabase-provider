@@ -150,7 +150,7 @@ public class DatabasePool {
 		return templateName;
 	}
 
-	public void setTemplateName(String databaseName) {
+	public void setTemplateDatabaseName(String databaseName) {
 		this.templateName = databaseName;
 	}
 

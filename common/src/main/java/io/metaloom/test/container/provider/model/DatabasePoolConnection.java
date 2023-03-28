@@ -1,5 +1,7 @@
 package io.metaloom.test.container.provider.model;
 
+import io.metaloom.test.container.provider.common.config.PostgresqlConfig;
+
 public class DatabasePoolConnection {
 
 	private Integer port;
@@ -11,6 +13,24 @@ public class DatabasePoolConnection {
 	private String username;
 	private String password;
 	private String database;
+
+	public DatabasePoolConnection() {
+	}
+
+	/**
+	 * Construct a new pool connection using the provided config
+	 * 
+	 * @param config
+	 */
+	public DatabasePoolConnection(PostgresqlConfig config) {
+		this.host = config.getHost();
+		this.port = config.getPort();
+		this.internalHost = config.getInternalHost();
+		this.internalPort = config.getInternalPort();
+		this.username = config.getUsername();
+		this.password = config.getPassword();
+		this.database = config.getDatabaseName();
+	}
 
 	public String getHost() {
 		return host;

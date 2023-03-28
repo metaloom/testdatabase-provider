@@ -7,7 +7,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
-import io.metaloom.test.container.provider.client.DatabaseProviderClient;
+import io.metaloom.test.container.provider.client.ProviderClient;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
@@ -25,7 +25,7 @@ public class DatabaseProviderClientServerTest {
   @Container
   public static PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(128);
 
-  private static DatabaseProviderClient client;
+  private static ProviderClient client;
   private static DatabaseProviderServer server;
 
   @BeforeAll
@@ -33,7 +33,7 @@ public class DatabaseProviderClientServerTest {
     Vertx vertx = Vertx.vertx();
     server = new DatabaseProviderServer(vertx);
     HttpServer httpServer = server.start().toCompletionStage().toCompletableFuture().get();
-    client = new DatabaseProviderClient(vertx, "localhost", httpServer.actualPort());
+    client = new ProviderClient(vertx, "localhost", httpServer.actualPort());
   }
 
   @AfterAll
@@ -58,7 +58,7 @@ public class DatabaseProviderClientServerTest {
 
     model.setConnection(connection)
       .setSettings(settings)
-      .setTemplateName("postgres");
+      .setTemplateDatabaseName("postgres");
     Future<DatabasePoolResponse> result = client.createPool("dummy", model);
     DatabasePoolResponse response = result.toCompletionStage().toCompletableFuture().get();
     System.out.println(Json.encodePrettily(response));

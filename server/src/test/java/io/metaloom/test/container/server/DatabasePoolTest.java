@@ -36,8 +36,8 @@ public class DatabasePoolTest {
 			container.getUsername(), container.getPassword(),
 			container.getDatabaseName());
 		pool.setLimits(40, 200, 15);
-		String databaseName = TestHelper.setupTable(pool.settings().jdbcUrl(), pool.settings().username(), pool.settings().password());
-		pool.setTemplateName(databaseName);
+		String databaseName = TestSQLHelper.setupTable(pool.settings().jdbcUrl(), pool.settings().username(), pool.settings().password());
+		pool.setTemplateDatabaseName(databaseName);
 	}
 
 	@AfterEach

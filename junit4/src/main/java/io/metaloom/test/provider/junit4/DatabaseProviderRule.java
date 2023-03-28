@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.metaloom.test.container.provider.client.ClientAllocation;
-import io.metaloom.test.container.provider.client.DatabaseProviderClient;
+import io.metaloom.test.container.provider.client.ProviderClient;
 import io.metaloom.test.container.provider.common.ClientEnv;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 import io.vertx.core.Vertx;
@@ -16,11 +16,11 @@ public class DatabaseProviderRule implements TestRule {
 
 	public static final Logger log = LoggerFactory.getLogger(DatabaseProviderRule.class);
 
-	private DatabaseProviderClient client;
+	private ProviderClient client;
 	private ClientAllocation allocation;
 
 	public DatabaseProviderRule(String host, int port) {
-		this.client = new DatabaseProviderClient(Vertx.vertx(), host, port);
+		this.client = new ProviderClient(Vertx.vertx(), host, port);
 	}
 
 	public DatabaseProviderRule() {

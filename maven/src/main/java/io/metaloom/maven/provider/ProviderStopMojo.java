@@ -1,5 +1,8 @@
 package io.metaloom.maven.provider;
 
+import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.deleteConfig;
+import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.readConfig;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -10,8 +13,8 @@ import org.testcontainers.DockerClientFactory;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.StopContainerCmd;
 
-import io.metaloom.test.container.provider.common.ContainerState;
-import io.metaloom.test.container.provider.common.ContainerStateHelper;
+import io.metaloom.test.container.provider.common.config.ProviderConfig;
+import io.metaloom.test.container.provider.common.config.ProviderConfigHelper;
 
 /**
  * The stop operation will terminate previously started databases and the testdatabase provider daemon container.
@@ -34,28 +37,28 @@ public class ProviderStopMojo extends AbstractProviderMojo {
 		}
 
 		try {
-			ContainerState state = ContainerStateHelper.readState();
-			if (state == null) {
-				getLog().warn("Unable to stop containers. Container state file not found " + ContainerStateHelper.stateFile());
+			ProviderConfig config = readConfig();
+			if (config == null) {
+				getLog().warn("Unable to stop containers. Provider config file not found " + ProviderConfigHelper.currentConfigPath());
 				return;
 			}
 			DockerClient client = DockerClientFactory.lazyClient();
-			if (state.getProviderContainerId() != null) {
-				stopProvider(client, state);
+			if (config.getProviderContainerId() != null) {
+				stopProvider(client, config);
 			}
-			if (state.getDatabaseContainerId() != null) {
-				stopDatabase(client, state);
+			if (config.getPostgresql().getContainerId() != null) {
+				stopDatabase(client, config);
 			}
-			ContainerStateHelper.stateFile().delete();
+			deleteConfig();
 		} catch (Exception e) {
 			throw new MojoExecutionException("Error while stopping containers", e);
 		}
 	}
 
-	private void stopDatabase(DockerClient client, ContainerState state) {
+	private void stopDatabase(DockerClient client, ProviderConfig state) {
 		try {
 			getLog().info("Stopping postgreSQL container");
-			try (StopContainerCmd cmd = client.stopContainerCmd(state.getDatabaseContainerId())) {
+			try (StopContainerCmd cmd = client.stopContainerCmd(state.getPostgresql().getContainerId())) {
 				cmd.exec();
 			}
 		} catch (Exception e) {
@@ -63,7 +66,7 @@ public class ProviderStopMojo extends AbstractProviderMojo {
 		}
 	}
 
-	private void stopProvider(DockerClient client, ContainerState state) {
+	private void stopProvider(DockerClient client, ProviderConfig state) {
 		try {
 			getLog().info("Stopping database provider container");
 			try (StopContainerCmd cmd = client.stopContainerCmd(state.getProviderContainerId())) {

@@ -1,5 +1,7 @@
 package io.metaloom.maven.provider;
 
+import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.readConfig;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -9,9 +11,9 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import io.metaloom.test.container.provider.client.DatabaseProviderClient;
-import io.metaloom.test.container.provider.common.ContainerState;
-import io.metaloom.test.container.provider.common.ContainerStateHelper;
+import io.metaloom.test.container.provider.client.ProviderClient;
+import io.metaloom.test.container.provider.common.config.ProviderConfig;
+import io.metaloom.test.container.provider.common.config.ProviderConfigHelper;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
@@ -45,16 +47,16 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 		Vertx vertx = null;
 		try {
 			vertx = Vertx.vertx();
-			ContainerState state = ContainerStateHelper.readState();
-			if (state == null) {
-				getLog().warn("Unable to stop containers. Container state file not found " + ContainerStateHelper.stateFile());
+			ProviderConfig config = readConfig();
+			if (config == null) {
+				getLog().warn("Unable to stop containers. Provider config file not found " + ProviderConfigHelper.currentConfigPath());
 			} else {
 
 				getLog().info("Applying pool configuration");
-				String host = state.getProviderHost();
-				int port = state.getProviderPort();
+				String host = config.getProviderHost();
+				int port = config.getProviderPort();
 
-				DatabaseProviderClient client = new DatabaseProviderClient(vertx, host, port);
+				ProviderClient client = new ProviderClient(vertx, host, port);
 				for (PoolConfiguration pool : pools) {
 					if (pool.getId() == null) {
 						throw new MojoExecutionException("Pool id is missing for " + pool);
@@ -69,18 +71,18 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 						settings.setIncrement(limits.getIncrement());
 					}
 					DatabasePoolConnection connection = new DatabasePoolConnection();
-					connection.setHost(merge("host", pool.getHost(), state.getDatabaseHost()));
-					connection.setPort(merge("port", pool.getPort(), state.getDatabasePort()));
-					connection.setUsername(merge("username", pool.getUsername(), state.getDatabaseUsername()));
-					connection.setPassword(merge("password", pool.getPassword(), state.getDatabasePassword()));
-					connection.setDatabase(merge("database", pool.getDatabase(), state.getDatabaseName()));
-					connection.setInternalHost(merge("internalHost", pool.getInternalHost(), state.getInternalDatabaseHost()));
-					connection.setInternalPort(merge("internalPort", pool.getInternalPort(), state.getInternalDatabasePort()));
+					connection.setHost(merge("host", pool.getHost(), config.getPostgresql().getHost()));
+					connection.setPort(merge("port", pool.getPort(), config.getPostgresql().getPort()));
+					connection.setUsername(merge("username", pool.getUsername(), config.getPostgresql().getUsername()));
+					connection.setPassword(merge("password", pool.getPassword(), config.getPostgresql().getPassword()));
+					connection.setDatabase(merge("database", pool.getDatabase(), config.getPostgresql().getDatabaseName()));
+					connection.setInternalHost(merge("internalHost", pool.getInternalHost(), config.getPostgresql().getInternalHost()));
+					connection.setInternalPort(merge("internalPort", pool.getInternalPort(), config.getPostgresql().getInternalPort()));
 					DatabasePoolRequest request = new DatabasePoolRequest();
 					if (pool.getTemplateName() == null) {
 						throw new MojoExecutionException("Database template name is missing in pool configuration for " + pool);
 					}
-					request.setTemplateName(pool.getTemplateName());
+					request.setTemplateDatabaseName(pool.getTemplateName());
 
 					request.setSettings(settings);
 					request.setConnection(connection);

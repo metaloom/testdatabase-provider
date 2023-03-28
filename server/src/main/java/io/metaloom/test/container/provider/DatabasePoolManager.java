@@ -62,7 +62,7 @@ public class DatabasePoolManager {
 		String adminDB, String templateName) {
 		DatabasePool pool = new DatabasePool(vertx, id, host, port, internalHost, internalPort, username, password, adminDB);
 		pool.setLimits(minimum, maximum, increment);
-		pool.setTemplateName(templateName);
+		pool.setTemplateDatabaseName(templateName);
 		pools.put(id, pool);
 		return pool;
 	}

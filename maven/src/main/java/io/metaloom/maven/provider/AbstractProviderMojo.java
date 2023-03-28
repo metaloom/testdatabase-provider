@@ -1,14 +1,15 @@
 package io.metaloom.maven.provider;
 
-import java.io.IOException;
+import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.readConfig;
+import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.writeConfig;
+
 import java.util.function.Consumer;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
-import io.metaloom.test.container.provider.common.ContainerState;
-import io.metaloom.test.container.provider.common.ContainerStateHelper;
+import io.metaloom.test.container.provider.common.config.ProviderConfig;
 
 public abstract class AbstractProviderMojo extends AbstractMojo {
 
@@ -20,28 +21,18 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 	public static final String POSTGRESQL_HOST_PROP_KEY = "maven.testdatabase-provider.postgresql.host";
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
-	public MavenProject project;
+	protected MavenProject project;
 
-	public void updateState(Consumer<ContainerState> updateHandler) {
+	public void updateConfig(Consumer<ProviderConfig> updateHandler) {
 		try {
-			ContainerState oldState = ContainerStateHelper.readState();
-			if (oldState == null) {
-				oldState = new ContainerState();
+			ProviderConfig oldConfig = readConfig();
+			if (oldConfig == null) {
+				oldConfig = new ProviderConfig();
 			}
-			updateHandler.accept(oldState);
-			ContainerStateHelper.writeState(oldState);
+			updateHandler.accept(oldConfig);
+			writeConfig(oldConfig);
 		} catch (Exception e) {
-			getLog().error("Error while updating container state file " + ContainerStateHelper.stateFile()
-				.getAbsolutePath(), e);
-		}
-	}
-
-	public ContainerState loadState() {
-		try {
-			return ContainerStateHelper.readState();
-		} catch (IOException e) {
-			getLog().error("Failure while reading original state", e);
-			return null;
+			getLog().error("Error while updating provider config file.", e);
 		}
 	}
 
