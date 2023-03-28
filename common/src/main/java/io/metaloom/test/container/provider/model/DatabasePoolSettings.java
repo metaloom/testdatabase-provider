@@ -1,6 +1,6 @@
 package io.metaloom.test.container.provider.model;
 
-public class DatabasePoolSettings {
+public class DatabasePoolSettings implements RestModel {
 
 	private Integer increment;
 	private Integer minimum;

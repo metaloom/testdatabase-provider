@@ -1,6 +1,6 @@
 package io.metaloom.test.container.provider.model;
 
-public abstract class AbstractDatabasePoolModel {
+public abstract class AbstractDatabasePoolModel implements RestModel {
 
 	private DatabasePoolConnection connection;
 

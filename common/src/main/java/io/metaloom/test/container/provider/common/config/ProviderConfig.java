@@ -1,7 +1,5 @@
 package io.metaloom.test.container.provider.common.config;
 
-import io.vertx.core.json.JsonObject;
-
 public class ProviderConfig {
 
 	private String providerHost;
@@ -48,7 +46,7 @@ public class ProviderConfig {
 
 	@Override
 	public String toString() {
-		return JsonObject.mapFrom(this).encodePrettily();
+		return "provider: " + getProviderContainerId() + " " + getProviderHost() + ":" + getProviderPort();
 	}
 
 }

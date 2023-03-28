@@ -1,10 +1,11 @@
 package io.metaloom.test.container.provider.client;
 
+import java.net.http.WebSocket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
-import io.vertx.core.http.WebSocket;
 
 /**
  * Allocation that was returned by the {@link ProviderClient}.
@@ -29,7 +30,7 @@ public class ClientAllocation {
 			String id = response == null ? "unknown" : response.getId();
 			log.debug("Releasing allocation {}", id);
 		}
-		socket.close();
+		socket.abort();
 	}
 
 	/**

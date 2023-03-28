@@ -10,7 +10,6 @@ import io.metaloom.test.container.provider.client.ClientAllocation;
 import io.metaloom.test.container.provider.client.ProviderClient;
 import io.metaloom.test.container.provider.common.ClientEnv;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
-import io.vertx.core.Vertx;
 
 public class DatabaseProviderRule implements TestRule {
 
@@ -20,7 +19,7 @@ public class DatabaseProviderRule implements TestRule {
 	private ClientAllocation allocation;
 
 	public DatabaseProviderRule(String host, int port) {
-		this.client = new ProviderClient(Vertx.vertx(), host, port);
+		this.client = new ProviderClient(host, port);
 	}
 
 	public DatabaseProviderRule() {
@@ -54,7 +53,7 @@ public class DatabaseProviderRule implements TestRule {
 		String testClass = description.getClassName();
 		String id = "default" + "/" + testClass + "_" + testName;
 		try {
-			allocation = client.link(id).toCompletionStage().toCompletableFuture().get();
+			allocation = client.link(id).get();
 		} catch (Exception e) {
 			log.error("Error while linking test {}", id, e);
 			throw new RuntimeException(e);

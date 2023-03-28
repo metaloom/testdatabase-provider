@@ -1,5 +1,6 @@
 package io.metaloom.test.container.server;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
@@ -14,9 +15,10 @@ public class DatabaseProviderTest {
 
 	@Test
 	public void testAcquire() throws InterruptedException, ExecutionException {
-		Vertx vertx = Vertx.vertx();
-		Future<ClientAllocation> future = new DatabaseProviderServer(vertx).start().compose(server -> {
-			return new ProviderClient(vertx, "localhost", server.actualPort()).link("test");
+		Future<ClientAllocation> future = new DatabaseProviderServer(Vertx.vertx()).start().compose(server -> {
+			ProviderClient client = new ProviderClient("localhost", server.actualPort());
+			CompletableFuture<ClientAllocation> fut = client.link("test");
+			return Future.fromCompletionStage(fut);
 		});
 
 		future.toCompletionStage().toCompletableFuture().get();

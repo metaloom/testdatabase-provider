@@ -11,6 +11,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import io.metaloom.test.container.provider.client.JSON;
 import io.metaloom.test.container.provider.client.ProviderClient;
 import io.metaloom.test.container.provider.common.config.ProviderConfig;
 import io.metaloom.test.container.provider.common.config.ProviderConfigHelper;
@@ -18,8 +19,6 @@ import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolSettings;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 
 /**
  * The pool operation will setup a new test database pool. After this step the provider daemon will automatically populate the database with copies from the
@@ -44,9 +43,7 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 			getLog().info("Pool is skipped.");
 			return;
 		}
-		Vertx vertx = null;
 		try {
-			vertx = Vertx.vertx();
 			ProviderConfig config = readConfig();
 			if (config == null) {
 				getLog().warn("Unable to stop containers. Provider config file not found " + ProviderConfigHelper.currentConfigPath());
@@ -56,7 +53,7 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 				String host = config.getProviderHost();
 				int port = config.getProviderPort();
 
-				ProviderClient client = new ProviderClient(vertx, host, port);
+				ProviderClient client = new ProviderClient(host, port);
 				for (PoolConfiguration pool : pools) {
 					if (pool.getId() == null) {
 						throw new MojoExecutionException("Pool id is missing for " + pool);
@@ -86,20 +83,12 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 
 					request.setSettings(settings);
 					request.setConnection(connection);
-					DatabasePoolResponse response = client.createPool(pool.getId(), request).toCompletionStage().toCompletableFuture().get();
-					getLog().info("Response:\n" + JsonObject.mapFrom(response).encodePrettily());
+					DatabasePoolResponse response = client.createPool(pool.getId(), request).get();
+					getLog().info("Response:\n" + JSON.toString(response));
 				}
 			}
 		} catch (Exception e) {
 			throw new MojoExecutionException("Unexpected error while invoking pool setup.", e);
-		} finally {
-			if (vertx != null) {
-				try {
-					vertx.close().toCompletionStage().toCompletableFuture().get();
-				} catch (InterruptedException | ExecutionException e) {
-					getLog().error("Error while closing vert.x", e);
-				}
-			}
 		}
 	}
 

@@ -13,11 +13,8 @@ import io.metaloom.test.container.provider.common.config.ProviderConfigHelper;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
-import io.vertx.core.Vertx;
 
-public interface TestDatabaseProvider {
-
-	static Vertx vertx = Vertx.vertx();
+public class TestDatabaseProvider {
 
 	/**
 	 * Return the REST client for the given host and port.
@@ -26,8 +23,8 @@ public interface TestDatabaseProvider {
 	 * @param port
 	 * @return
 	 */
-	static ProviderClient client(String host, int port) {
-		return new ProviderClient(vertx, host, port);
+	public static ProviderClient client(String host, int port) {
+		return new ProviderClient(host, port);
 	}
 
 	/**
@@ -36,7 +33,7 @@ public interface TestDatabaseProvider {
 	 * @return
 	 * @throws IOException
 	 */
-	static ProviderClient client() throws IOException {
+	public static ProviderClient client() throws IOException {
 		ProviderConfig config = config();
 		if (config == null) {
 			throw new FileNotFoundException("Could not locate provider configuration file " +
@@ -52,7 +49,7 @@ public interface TestDatabaseProvider {
 	 * 
 	 * @return
 	 */
-	static ProviderConfig config() {
+	public static ProviderConfig config() {
 		return ProviderConfigHelper.readConfig();
 	}
 
@@ -64,13 +61,15 @@ public interface TestDatabaseProvider {
 	 * @return
 	 * @throws Exception
 	 */
-	static DatabasePoolResponse createPool(String poolName, String templateDatabaseName) throws Exception {
+	public static DatabasePoolResponse createPool(String poolName, String templateDatabaseName) throws Exception {
 		ProviderConfig config = config();
 		DatabasePoolRequest request = new DatabasePoolRequest();
 		request.setTemplateDatabaseName(templateDatabaseName);
 		DatabasePoolConnection connection = new DatabasePoolConnection(config.getPostgresql());
 		request.setConnection(connection);
-		return client().createPool(poolName, request).toCompletionStage().toCompletableFuture().get();
+		ProviderClient client = client();
+		DatabasePoolResponse response = client.createPool(poolName, request).get();
+		return response;
 	}
 
 	/**
@@ -80,7 +79,7 @@ public interface TestDatabaseProvider {
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	static void createPostgreSQLDatabase(String name) throws SQLException {
+	public static void createPostgreSQLDatabase(String name) throws SQLException {
 		ProviderConfig config = config();
 		PostgresqlConfig postgresConfig = config.getPostgresql();
 		String sql = "CREATE DATABASE " + name;
@@ -97,7 +96,7 @@ public interface TestDatabaseProvider {
 	 * @param name
 	 * @throws SQLException
 	 */
-	static void dropCreatePostgreSQLDatabase(String name) throws SQLException {
+	public static void dropCreatePostgreSQLDatabase(String name) throws SQLException {
 		ProviderConfig config = config();
 		PostgresqlConfig postgresConfig = config.getPostgresql();
 		String dropSQL = "DROP DATABASE IF EXISTS " + name;

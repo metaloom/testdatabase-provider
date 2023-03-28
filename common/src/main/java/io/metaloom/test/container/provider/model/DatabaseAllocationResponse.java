@@ -1,6 +1,6 @@
 package io.metaloom.test.container.provider.model;
 
-public class DatabaseAllocationResponse {
+public class DatabaseAllocationResponse implements RestModel {
 
 	private String id;
 	private String poolId;

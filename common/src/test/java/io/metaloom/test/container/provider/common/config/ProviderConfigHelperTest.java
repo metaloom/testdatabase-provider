@@ -11,8 +11,6 @@ import java.nio.charset.Charset;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
-import io.vertx.core.json.JsonObject;
-
 public class ProviderConfigHelperTest {
 
 	@Test
@@ -45,12 +43,18 @@ public class ProviderConfigHelperTest {
 	private File writeConfigIntoParentFolder() throws IOException {
 		ProviderConfigHelper.PROVIDER_CONFIG_FILENAME = "test-testdb-provider.json";
 		File testFile = new File("../target/", ProviderConfigHelper.PROVIDER_CONFIG_FILENAME);
-		JsonObject json = new JsonObject();
-		json.put("postgresql", new JsonObject().put("host", "test1234"));
 		if (testFile.exists()) {
 			testFile.delete();
 		}
-		FileUtils.writeStringToFile(testFile, json.encodePrettily(), Charset.defaultCharset());
+		String json = """
+			{
+				"postgresql": {
+					"host": "test1234"
+				}
+			
+			}
+			""";
+		FileUtils.writeStringToFile(testFile, json, Charset.defaultCharset());
 		return testFile;
 	}
 }

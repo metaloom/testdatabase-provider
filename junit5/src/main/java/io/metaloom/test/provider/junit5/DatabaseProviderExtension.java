@@ -10,7 +10,6 @@ import io.metaloom.test.container.provider.client.ClientAllocation;
 import io.metaloom.test.container.provider.client.ProviderClient;
 import io.metaloom.test.container.provider.common.ClientEnv;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
-import io.vertx.core.Vertx;
 
 public class DatabaseProviderExtension implements BeforeEachCallback, AfterEachCallback {
 
@@ -20,7 +19,7 @@ public class DatabaseProviderExtension implements BeforeEachCallback, AfterEachC
 	private ClientAllocation allocation;
 
 	public DatabaseProviderExtension(String host, int port) {
-		this.client = new ProviderClient(Vertx.vertx(), host, port);
+		this.client = new ProviderClient(host, port);
 	}
 
 	public DatabaseProviderExtension() {
@@ -32,7 +31,7 @@ public class DatabaseProviderExtension implements BeforeEachCallback, AfterEachC
 		String testName = context.getRequiredTestMethod().getName();
 		String testClass = context.getRequiredTestClass().getSimpleName();
 		String id = "default" + "/" + testClass + "_" + testName;
-		allocation = client.link(id).toCompletionStage().toCompletableFuture().get();
+		allocation = client.link(id).get();
 	}
 
 	@Override

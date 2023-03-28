@@ -2,7 +2,7 @@ package io.metaloom.test.container.provider.model;
 
 import io.metaloom.test.container.provider.common.config.PostgresqlConfig;
 
-public class DatabasePoolConnection {
+public class DatabasePoolConnection implements RestModel {
 
 	private Integer port;
 	private String host;

@@ -20,10 +20,11 @@ public class PoolSetupAction {
 
 	public static void main(String[] args) throws Exception {
 		String DB_NAME = "test8";
-		// 1. Setup a new database - the settings will be taken from the database settings which were defined in the testprovider-plugin section of your pom.xml
+		// 1. Setup a new database - the settings will be taken from the database settings 
+		// which were defined in the testprovider-plugin section of your pom.xml
 		TestDatabaseProvider.dropCreatePostgreSQLDatabase(DB_NAME);
 
-		// 3. Setup your tables (e.g. run flyway here)
+		// 2. Setup your tables (e.g. run flyway here)
 		ProviderConfig config = TestDatabaseProvider.config();
 		PostgresqlConfig postgresConfig = config.getPostgresql();
 		try (Connection connection = DriverManager.getConnection(postgresConfig.jdbcUrl(DB_NAME), postgresConfig.getUsername(),
@@ -31,11 +32,8 @@ public class PoolSetupAction {
 			connection.createStatement().execute(CREATE_TABLE);
 		}
 
-		// 4. Create pool to be used in tests
+		// 3. Create pool to be used in tests
 		DatabasePoolResponse response = TestDatabaseProvider.createPool("default", DB_NAME);
 		System.out.println(response.getId());
-
-		// 5. Now run your unit tests and happy testing
-		TestDatabaseProvider.vertx.close();
 	}
 }

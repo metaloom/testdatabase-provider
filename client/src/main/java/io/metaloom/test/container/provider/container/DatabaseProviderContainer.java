@@ -10,10 +10,14 @@ import io.metaloom.test.container.provider.common.ServerEnv;
  */
 public class DatabaseProviderContainer extends GenericContainer<DatabaseProviderContainer> {
 
-	private static final DockerImageName DEFAULT_IMAGE = DockerImageName.parse("metaloom/testdatabase-provider:0.0.1-SNAPSHOT");
+	private static final String DEFAULT_IMAGE = "metaloom/testdatabase-provider:0.0.1-SNAPSHOT";
 
 	public DatabaseProviderContainer() {
-		super(DEFAULT_IMAGE);
+		this(DEFAULT_IMAGE);
+	}
+
+	public DatabaseProviderContainer(String imageName) {
+		super(DockerImageName.parse(imageName));
 		withExposedPorts(8080);
 	}
 

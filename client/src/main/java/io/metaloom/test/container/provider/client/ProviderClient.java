@@ -1,32 +1,33 @@
 package io.metaloom.test.container.provider.client;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.net.http.WebSocket;
+import java.util.concurrent.CompletableFuture;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
+import io.metaloom.test.container.provider.model.DatabasePoolListResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
 
 public class ProviderClient {
 
 	public static final Logger log = LoggerFactory.getLogger(ProviderClient.class);
-	private HttpClient httpClient;
-	private Vertx vertx;
+	private String host;
+	private int port;
+	private HttpClient client;
 
-	public ProviderClient(Vertx vertx, String host, int port) {
-		this.vertx = vertx;
-		HttpClientOptions httpOptions = new HttpClientOptions();
-		httpOptions.setDefaultHost(host);
-		httpOptions.setDefaultPort(port);
-		this.httpClient = vertx.createHttpClient(httpOptions);
+	public ProviderClient(String host, int port) {
+		this.host = host;
+		this.port = port;
+		this.client = HttpClient.newBuilder().build();
 	}
 
 	/**
@@ -35,78 +36,88 @@ public class ProviderClient {
 	 * @param testcaseName
 	 * @return
 	 */
-	public Future<ClientAllocation> link(String testcaseName) {
-		return httpClient.webSocket("/connect/websocket").compose(socket -> {
-			return Future.future(result -> {
-				socket.exceptionHandler(error -> {
-					log.error("Error occured while handling the connection to the provider", error);
-					result.fail(error);
-				});
-				socket.binaryMessageHandler(buffer -> {
-					JsonObject json = buffer.toJsonObject();
-					log.info("Got provider allocation info:\n{}", json.encodePrettily());
-					DatabaseAllocationResponse response = json.mapTo(DatabaseAllocationResponse.class);
-					ClientAllocation allocation = new ClientAllocation(socket, response);
-					result.complete(allocation);
-				});
-				// Sending name of the currently executed test to the server.
-				// It will allocate a database and send us the result.
-				socket.writeTextMessage(testcaseName);
-				socket.pongHandler(b -> {
-					log.debug("Got pong");
-				}).exceptionHandler(error -> {
-					log.error("Connection to provider lost", error);
-					result.fail(error);
-				});
-				// Keep sending pings to keep the connection alive
-				vertx.setPeriodic(500, ph -> {
-					socket.writePing(Buffer.buffer());
-				});
-			});
-		});
+	public CompletableFuture<ClientAllocation> link(String testcaseName) {
+		WebsocketLinkListener listener = new WebsocketLinkListener();
+		WebSocket ws = HttpClient
+			.newHttpClient()
+			.newWebSocketBuilder()
+			.buildAsync(URI.create("ws://" + host + ":" + port + "/connect/websocket"), listener)
+			.join();
+
+		// Sending name of the currently executed test to the server.
+		// It will allocate a database and send us the result.
+		ws.sendText(testcaseName, false);
+		
+		return  null;
+
 	}
 
-	public Future<JsonObject> listPools() {
-		return httpClient.request(HttpMethod.GET, "/pools").compose(req -> {
-			return req.connect().compose(resp -> {
-				return resp.body().compose(buffer -> {
-					return Future.succeededFuture(buffer.toJsonObject());
-				});
+	public CompletableFuture<DatabasePoolListResponse> listPools() throws URISyntaxException {
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(uri("/pools"))
+			.version(HttpClient.Version.HTTP_2)
+			.GET()
+			.build();
+
+		CompletableFuture<HttpResponse<String>> response = client.sendAsync(request, BodyHandlers.ofString());
+
+		return response.thenApply(resp -> resp.body())
+			.thenApply(body -> {
+				return JSON.fromString(body, DatabasePoolListResponse.class);
 			});
-		});
+
 	}
 
-	public Future<DatabasePoolResponse> loadPool(String name) {
-		return httpClient.request(HttpMethod.GET, "/pools/" + name).compose(req -> {
-			return req.connect().compose(resp -> {
-				return resp.body().compose(buffer -> {
-					DatabasePoolResponse result = buffer.toJsonObject().mapTo(DatabasePoolResponse.class);
-					return Future.succeededFuture(result);
-				});
+	public CompletableFuture<DatabasePoolResponse> loadPool(String name) throws IOException, InterruptedException, URISyntaxException {
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(uri("/pools/" + name))
+			.version(HttpClient.Version.HTTP_2)
+			.GET()
+			.build();
+
+		// HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+
+		CompletableFuture<HttpResponse<String>> asyncResp = client.sendAsync(request, BodyHandlers.ofString());
+		return asyncResp
+			.thenApply(resp -> resp.body())
+			.thenApply(body -> {
+				return JSON.fromString(body, DatabasePoolResponse.class);
 			});
-		});
 	}
 
-	public Future<JsonObject> deletePool(String name) {
-		return httpClient.request(HttpMethod.DELETE, "/pools/" + name).compose(req -> {
-			return req.connect().compose(resp -> {
-				return resp.body().compose(buffer -> {
-					return Future.succeededFuture(buffer.toJsonObject());
-				});
-			});
+	public CompletableFuture<Void> deletePool(String name) throws URISyntaxException {
+		HttpRequest request = HttpRequest.newBuilder()
+			.uri(uri("/pools/" + name))
+			.version(HttpClient.Version.HTTP_2)
+			.DELETE()
+			.build();
+
+		CompletableFuture<HttpResponse<Void>> response = client.sendAsync(request, BodyHandlers.discarding());
+		return response.thenApply(body -> {
+			return body.body();
 		});
+
 	}
 
-	public Future<DatabasePoolResponse> createPool(String name, DatabasePoolRequest request) {
-		return httpClient.request(HttpMethod.POST, "/pools/" + name).compose(req -> {
-			Buffer jsonBuffer = Json.encodeToBuffer(request);
-			return req.send(jsonBuffer).compose(resp -> {
-				return resp.body().compose(buffer -> {
-					DatabasePoolResponse result = buffer.toJsonObject().mapTo(DatabasePoolResponse.class);
-					return Future.succeededFuture(result);
-				});
+	public CompletableFuture<DatabasePoolResponse> createPool(String name, DatabasePoolRequest request) throws URISyntaxException {
+
+		String json = JSON.toString(request);
+		HttpRequest httpRequest = HttpRequest.newBuilder()
+			.uri(uri("/pools/" + name))
+			.version(HttpClient.Version.HTTP_2)
+			.POST(HttpRequest.BodyPublishers.ofString(json))
+			.build();
+
+		CompletableFuture<HttpResponse<String>> response = client.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+		return response.thenApply(resp -> resp.body())
+			.thenApply(body -> {
+				return JSON.fromString(body, DatabasePoolResponse.class);
 			});
-		});
+	}
+
+	private URI uri(String path) throws URISyntaxException {
+		return new URI("http", null, host, port, path, null, null);
 	}
 
 }

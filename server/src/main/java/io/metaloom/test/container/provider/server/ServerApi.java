@@ -10,7 +10,6 @@ import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
 import io.metaloom.test.container.provider.DatabasePoolManager;
 import io.metaloom.test.container.provider.DatabaseSettings;
-import io.metaloom.test.container.provider.json.JSON;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
