@@ -7,7 +7,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.net.http.WebSocket;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -36,20 +35,14 @@ public class ProviderClient {
 	 * @param testcaseName
 	 * @return
 	 */
-	public CompletableFuture<ClientAllocation> link(String testcaseName) {
-		WebsocketLinkListener listener = new WebsocketLinkListener();
-		WebSocket ws = HttpClient
+	public CompletableFuture<ClientAllocation> link(String poolName, String testRef) {
+		WebsocketLinkListener listener = new WebsocketLinkListener(poolName, testRef);
+		HttpClient
 			.newHttpClient()
 			.newWebSocketBuilder()
 			.buildAsync(URI.create("ws://" + host + ":" + port + "/connect/websocket"), listener)
 			.join();
-
-		// Sending name of the currently executed test to the server.
-		// It will allocate a database and send us the result.
-		ws.sendText(testcaseName, false);
-		
-		return  null;
-
+		return listener.allocation();
 	}
 
 	public CompletableFuture<DatabasePoolListResponse> listPools() throws URISyntaxException {
@@ -68,9 +61,9 @@ public class ProviderClient {
 
 	}
 
-	public CompletableFuture<DatabasePoolResponse> loadPool(String name) throws IOException, InterruptedException, URISyntaxException {
+	public CompletableFuture<DatabasePoolResponse> loadPool(String id) throws IOException, InterruptedException, URISyntaxException {
 		HttpRequest request = HttpRequest.newBuilder()
-			.uri(uri("/pools/" + name))
+			.uri(uri("/pools/" + id))
 			.version(HttpClient.Version.HTTP_2)
 			.GET()
 			.build();
@@ -85,9 +78,9 @@ public class ProviderClient {
 			});
 	}
 
-	public CompletableFuture<Void> deletePool(String name) throws URISyntaxException {
+	public CompletableFuture<Void> deletePool(String id) throws URISyntaxException {
 		HttpRequest request = HttpRequest.newBuilder()
-			.uri(uri("/pools/" + name))
+			.uri(uri("/pools/" + id))
 			.version(HttpClient.Version.HTTP_2)
 			.DELETE()
 			.build();
@@ -99,11 +92,11 @@ public class ProviderClient {
 
 	}
 
-	public CompletableFuture<DatabasePoolResponse> createPool(String name, DatabasePoolRequest request) throws URISyntaxException {
+	public CompletableFuture<DatabasePoolResponse> createPool(String id, DatabasePoolRequest request) throws URISyntaxException {
 
 		String json = JSON.toString(request);
 		HttpRequest httpRequest = HttpRequest.newBuilder()
-			.uri(uri("/pools/" + name))
+			.uri(uri("/pools/" + id))
 			.version(HttpClient.Version.HTTP_2)
 			.POST(HttpRequest.BodyPublishers.ofString(json))
 			.build();

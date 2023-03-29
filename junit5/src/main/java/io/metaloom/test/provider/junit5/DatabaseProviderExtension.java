@@ -30,8 +30,8 @@ public class DatabaseProviderExtension implements BeforeEachCallback, AfterEachC
 	public void beforeEach(ExtensionContext context) throws Exception {
 		String testName = context.getRequiredTestMethod().getName();
 		String testClass = context.getRequiredTestClass().getSimpleName();
-		String id = "default" + "/" + testClass + "_" + testName;
-		allocation = client.link(id).get();
+		String testRef = testClass + "_" + testName;
+		allocation = client.link("default", testRef).get();
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package io.metaloom.test.container.provider.client;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,10 +34,7 @@ public class TestDatabaseProvider {
 	 */
 	public static ProviderClient client() throws IOException {
 		ProviderConfig config = config();
-		if (config == null) {
-			throw new FileNotFoundException("Could not locate provider configuration file " +
-				ProviderConfigHelper.PROVIDER_CONFIG_FILENAME);
-		}
+		requireConfig(config);
 		String host = config.getProviderHost();
 		int port = config.getProviderPort();
 		return client(host, port);
@@ -63,6 +59,7 @@ public class TestDatabaseProvider {
 	 */
 	public static DatabasePoolResponse createPool(String poolName, String templateDatabaseName) throws Exception {
 		ProviderConfig config = config();
+		requireConfig(config);
 		DatabasePoolRequest request = new DatabasePoolRequest();
 		request.setTemplateDatabaseName(templateDatabaseName);
 		DatabasePoolConnection connection = new DatabasePoolConnection(config.getPostgresql());
@@ -81,6 +78,7 @@ public class TestDatabaseProvider {
 	 */
 	public static void createPostgreSQLDatabase(String name) throws SQLException {
 		ProviderConfig config = config();
+		requireConfig(config);
 		PostgresqlConfig postgresConfig = config.getPostgresql();
 		String sql = "CREATE DATABASE " + name;
 		try (Connection connection = DriverManager.getConnection(config.getPostgresql().adminJdbcUrl(), postgresConfig.getUsername(),
@@ -98,6 +96,7 @@ public class TestDatabaseProvider {
 	 */
 	public static void dropCreatePostgreSQLDatabase(String name) throws SQLException {
 		ProviderConfig config = config();
+		requireConfig(config);
 		PostgresqlConfig postgresConfig = config.getPostgresql();
 		String dropSQL = "DROP DATABASE IF EXISTS " + name;
 		String createSQL = "CREATE DATABASE " + name;
@@ -105,6 +104,14 @@ public class TestDatabaseProvider {
 			postgresConfig.getPassword())) {
 			connection.createStatement().execute(dropSQL);
 			connection.createStatement().execute(createSQL);
+		}
+
+	}
+
+	private static void requireConfig(ProviderConfig config) {
+		if (config == null) {
+			throw new RuntimeException(
+				"Unable to locate provider configuration file in filesystem. Started search here: " + ProviderConfigHelper.currentConfigPath());
 		}
 
 	}

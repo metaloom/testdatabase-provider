@@ -51,11 +51,11 @@ public class DatabaseProviderRule implements TestRule {
 	protected void starting(Description description) {
 		String testName = description.getMethodName();
 		String testClass = description.getClassName();
-		String id = "default" + "/" + testClass + "_" + testName;
+		String testRef = testClass + "_" + testName;
 		try {
-			allocation = client.link(id).get();
+			allocation = client.link("default", testRef).get();
 		} catch (Exception e) {
-			log.error("Error while linking test {}", id, e);
+			log.error("Error while linking test {}", testRef, e);
 			throw new RuntimeException(e);
 		}
 	}

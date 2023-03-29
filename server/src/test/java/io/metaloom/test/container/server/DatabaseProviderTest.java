@@ -17,7 +17,7 @@ public class DatabaseProviderTest {
 	public void testAcquire() throws InterruptedException, ExecutionException {
 		Future<ClientAllocation> future = new DatabaseProviderServer(Vertx.vertx()).start().compose(server -> {
 			ProviderClient client = new ProviderClient("localhost", server.actualPort());
-			CompletableFuture<ClientAllocation> fut = client.link("test");
+			CompletableFuture<ClientAllocation> fut = client.link("dummy", "test");
 			return Future.fromCompletionStage(fut);
 		});
 

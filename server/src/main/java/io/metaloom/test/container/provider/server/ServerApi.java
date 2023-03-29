@@ -12,11 +12,12 @@ import io.metaloom.test.container.provider.DatabasePoolManager;
 import io.metaloom.test.container.provider.DatabaseSettings;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
+import io.metaloom.test.container.provider.model.DatabasePoolListResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolSettings;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpHeaders;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
@@ -137,15 +138,14 @@ public class ServerApi {
 
 	public void listPoolsHandler(RoutingContext rc) {
 		log.info("Getting stat request");
-		JsonObject json = new JsonObject();
-		JsonArray poolArray = new JsonArray();
-		json.put("pools", poolArray);
 
+		DatabasePoolListResponse response = new DatabasePoolListResponse();
 		for (DatabasePool pool : manager.getPools()) {
-			poolArray.add(JsonObject.mapFrom(ModelHelper.toModel(pool)));
+			response.add(ModelHelper.toModel(pool));
 		}
 
-		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(json.toBuffer());
+		Buffer buffer = JSON.toBuffer(response);
+		rc.response().putHeader(HttpHeaders.CONTENT_TYPE, "application/json").end(buffer);
 	}
 
 	public void websocketHandler(SockJSSocket sock) {
