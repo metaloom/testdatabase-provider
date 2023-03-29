@@ -1,15 +1,14 @@
 package io.metaloom.test.container.provider.common.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 import org.junit.jupiter.api.Test;
-import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 public class ProviderConfigHelperTest {
 
@@ -54,7 +53,7 @@ public class ProviderConfigHelperTest {
 			
 			}
 			""";
-		FileUtils.writeStringToFile(testFile, json, Charset.defaultCharset());
+		Files.writeString(testFile.toPath(), json);
 		return testFile;
 	}
 }

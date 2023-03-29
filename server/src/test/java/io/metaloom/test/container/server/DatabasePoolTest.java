@@ -63,7 +63,7 @@ public class DatabasePoolTest {
 
 		DatabaseAllocation allocation = pool.allocate("test123");
 		assertTrue("The id was wrong. Got: " + allocation.id(), allocation.id()
-			.endsWith("_test123"));
+			.endsWith("#test123"));
 		assertEquals("One allocation should be listed", 1, pool.allocationLevel());
 		assertTrue("The allocation could not be released", pool.release(allocation));
 		List<String> dbs = SQLUtils.listDatabases(pool.settings());
