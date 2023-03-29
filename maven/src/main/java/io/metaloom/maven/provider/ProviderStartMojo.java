@@ -50,6 +50,12 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 	private boolean startProvider = true;
 
 	/**
+	 * Configure the used container image to be used when starting the provider container.
+	 */
+	@Parameter(property = "maven.testdatabase-provider.providerContainerImage", defaultValue = DatabaseProviderContainer.DEFAULT_IMAGE)
+	private String providerContainerImage;
+
+	/**
 	 * Whether to directly create a test database pool using the provided settings. Please note that the pool should be first created when the template database
 	 * is ready. You can create defer the pool creation using the "pool" goal.
 	 */
@@ -137,7 +143,7 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		}
 
 		@SuppressWarnings("resource")
-		DatabaseProviderContainer provider = new DatabaseProviderContainer();
+		DatabaseProviderContainer provider = new DatabaseProviderContainer(providerContainerImage);
 		if (reuseContainers) {
 			provider.withReuse(true);
 		}

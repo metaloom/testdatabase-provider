@@ -10,7 +10,7 @@ import io.metaloom.test.container.provider.common.ServerEnv;
  */
 public class DatabaseProviderContainer extends GenericContainer<DatabaseProviderContainer> {
 
-	private static final String DEFAULT_IMAGE = "metaloom/testdatabase-provider:0.0.1-SNAPSHOT";
+	public static final String DEFAULT_IMAGE = "metaloom/testdatabase-provider:0.0.1-SNAPSHOT";
 
 	public DatabaseProviderContainer() {
 		this(DEFAULT_IMAGE);
