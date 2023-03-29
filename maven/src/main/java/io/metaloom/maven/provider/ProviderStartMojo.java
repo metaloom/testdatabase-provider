@@ -52,8 +52,8 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 	/**
 	 * Configure the used container image to be used when starting the provider container.
 	 */
-	@Parameter(property = "maven.testdatabase-provider.providerContainerImage", defaultValue = DatabaseProviderContainer.DEFAULT_IMAGE)
-	private String providerContainerImage;
+	@Parameter(property = "maven.testdatabase-provider.providerContainerImage")
+	private String providerContainerImage = DatabaseProviderContainer.DEFAULT_IMAGE;
 
 	/**
 	 * Whether to directly create a test database pool using the provided settings. Please note that the pool should be first created when the template database
@@ -72,7 +72,6 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-
 		if (skip) {
 			getLog().info("Start is skipped.");
 			return;
@@ -80,7 +79,7 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 
 		ProviderConfig config = readConfig();
 		if (config != null) {
-			getLog().warn("Found state file. This means the provider is probably still running. Aborting start");
+			getLog().warn("Found config file. This means the provider is probably still running. You can stop containers via mvn testdatabase-provider:stop. Aborting start.");
 			return;
 		}
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IMAGE=metaloom/testdatabase-provider
-TAG=0.0.1-SNAPSHOT
+TAG=0.1.0-SNAPSHOT
 
 docker run --rm \
  --env "TESTDATABASE_PROVIDER_DATABASE_HOST=localhost" \

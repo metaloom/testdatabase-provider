@@ -4,13 +4,14 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import io.metaloom.test.container.provider.common.ServerEnv;
+import io.metaloom.test.container.provider.common.version.Version;
 
 /**
  * Provider testcontainer which can be used for tests.
  */
 public class DatabaseProviderContainer extends GenericContainer<DatabaseProviderContainer> {
 
-	public static final String DEFAULT_IMAGE = "metaloom/testdatabase-provider:0.0.1-SNAPSHOT";
+	public static final String DEFAULT_IMAGE = "metaloom/testdatabase-provider:" + Version.getPlainVersion();
 
 	public DatabaseProviderContainer() {
 		this(DEFAULT_IMAGE);

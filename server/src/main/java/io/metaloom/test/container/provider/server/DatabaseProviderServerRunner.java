@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import io.metaloom.test.container.provider.DatabasePool;
 import io.metaloom.test.container.provider.common.ServerEnv;
+import io.metaloom.test.container.provider.common.version.Version;
 import io.vertx.core.Vertx;
 
 public class DatabaseProviderServerRunner {
@@ -12,6 +13,7 @@ public class DatabaseProviderServerRunner {
 	private static final Logger log = LoggerFactory.getLogger(DatabaseProviderServerRunner.class);
 
 	public static void main(String[] args) {
+		log.info("Starting Test Database Provider Server [" + Version.getPlainVersion() + "] - [" + Version.getBuildInfo().getBuildtimestamp() + "]");
 		Vertx vertx = Vertx.vertx();
 
 		DatabaseProviderServer provider = new DatabaseProviderServer(vertx);

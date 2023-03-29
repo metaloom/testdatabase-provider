@@ -10,6 +10,7 @@
   <properties>
     <postgres.driver.version>42.2.2</postgres.driver.version>
     <testcontainer.version>1.17.6</testcontainer.version>
+    <testdatabase-provider.version>0.1.0-SNAPSHOT</testdatabase-provider.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -26,7 +27,7 @@
     <dependency>
       <groupId>io.metaloom.test</groupId>
       <artifactId>testdatabase-provider-junit5</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>${testdatabase-provider.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -70,10 +71,15 @@
       </plugin>
 
       <plugin>
-        <groupId>io.metaloom.test</groupId>
-        <artifactId>testdatabase-provider-plugin</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <groupId>io.metaloom.maven</groupId>
+        <artifactId>testdb-maven-plugin</artifactId>
+        <version>${testdatabase-provider.version}</version>
         <executions>
+          <execution>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
           <!-- Startup a postgreSQL container and the provider daemon -->
           <execution>
             <id>start</id>
