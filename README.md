@@ -18,6 +18,17 @@ A dedicated provider daemon will constantly maintain a specified level of free d
 
 The dedicated `testdatabase-provider-plugin` can be used to startup a postgreSQL and provider server container. The provider server can be queried by tests to provide a database.
 
+### Goals
+
+| Goal                                                                                                 | Description                                      | Default Lifecycle Phase |
+| ---------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ----------------------- |
+| [`testdatabase-provider:start`](https://metaloom.github.io/testdatabase-provider/start-mojo.html)    | Create config and start containers               | initialize              |
+| [`testdatabase-provider:pool`](https://metaloom.github.io/testdatabase-provider/pool-mojo.html)      | Create new testdatabase pools                    | process-test-classes    |
+| [`testdatabase-provider:stop`](https://metaloom.github.io/testdatabase-provider/stop-mojo.html)      | Stop and destroy containers                      | post-integration-test   |
+
+
+### Usage
+
 The lifecyle order in this example:
 
 * **initialize** - Startup of postgresql + provider container
@@ -37,6 +48,8 @@ mvn testdatabase-provider:pool@pool
 # Stop the containers
 mvn testdatabase-provider:stop
 ```
+
+### Example
 
 Example configuration:
 

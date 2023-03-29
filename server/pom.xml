@@ -106,6 +106,50 @@
           </execution>
         </executions>
       </plugin>
+
+
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+            <configuration>
+              <buildArgs>
+                <VERSION>${project.version}</VERSION>
+              </buildArgs>
+              <verbose>true</verbose>
+            </configuration>
+          </execution>
+          <execution>
+            <id>push-image</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <images>
+            <image>
+              <name>docker.io/metaloom/testdatabase-provider</name>
+              <build>
+                <dockerFileDir>${project.basedir}</dockerFileDir>
+                <assembly>
+                  <descriptorRef>artifact</descriptorRef>
+                </assembly>
+                <tags>
+                  <tag>${project.version}</tag>
+                </tags>
+              </build>
+            </image>
+          </images>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 </project>
