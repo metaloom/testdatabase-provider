@@ -128,6 +128,24 @@
     </pluginManagement>
     <plugins>
       <plugin>
+        <groupId>com.github.ryancerf</groupId>
+        <artifactId>choss-maven-plugin</artifactId>
+        <version>v0.02</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-docs</goal>
+            </goals>
+            <phase>clean</phase>
+            <configuration>
+              <docsSourceDirectory>${project.basedir}/.github/md</docsSourceDirectory>
+              <docsTargetDirectory>${project.build.directory}/md-out</docsTargetDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
@@ -141,7 +159,7 @@
               <outputDirectory>${project.basedir}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.basedir}/.github</directory>
+                  <directory>${project.build.directory}/md-out</directory>
                   <includes>
                     <include>README.md</include>
                   </includes>
@@ -163,4 +181,10 @@
       </plugin>
     </plugins>
   </build>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </pluginRepository>
+  </pluginRepositories>
 </project>
