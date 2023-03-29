@@ -253,7 +253,7 @@ public DatabaseProviderRule provider = new DatabaseProviderRule("localhost", ser
 public void testDB() {
     System.out.println(provider.db());
 }
-``
+```
 
 ## Releasing 
 
