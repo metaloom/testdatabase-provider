@@ -15,10 +15,12 @@ public class ExampleTest {
 		System.out.println(provider.db());
 	}
 
+	// @@ test_snippet
 	@Test
 	public void testDB2() throws InterruptedException {
 		Thread.sleep(2000);
 		System.out.println(provider.db());
 		Thread.sleep(2000);
 	}
+	// @@ test_snippet
 }

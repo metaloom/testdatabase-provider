@@ -23,6 +23,8 @@
       <version>${postgres.driver.version}</version>
     </dependency>
 
+  <!-- 
+  // @@ xml_snippet  -->
     <!-- Test -->
     <dependency>
       <groupId>io.metaloom.test</groupId>
@@ -36,6 +38,7 @@
       <version>1.2.10</version>
       <scope>test</scope>
     </dependency>
+    <!-- // @@ xml_snippet -->
   </dependencies>
 
   <build>

@@ -131,6 +131,7 @@
         <groupId>com.github.ryancerf</groupId>
         <artifactId>choss-maven-plugin</artifactId>
         <version>v0.02</version>
+        <inherited>false</inherited>
         <executions>
           <execution>
             <goals>
@@ -148,6 +149,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
+        <inherited>false</inherited>
         <executions>
           <execution>
             <id>readme-md</id>
