@@ -1,17 +1,18 @@
 package io.metaloom.maven.provider;
 
-import static io.metaloom.maven.provider.AbstractProviderMojo.PROVIDER_CONTAINER_IMAGE_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.PROVIDER_CREATE_POOL_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.PROVIDER_HOST_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.PROVIDER_LIMITS_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.PROVIDER_PORT_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.PROVIDER_START_CONTAINER_PROP_KEY;
-
 import org.apache.maven.plugins.annotations.Parameter;
 
 import io.metaloom.test.container.provider.container.DatabaseProviderContainer;
 
 public class ProviderMavenConfiguration {
+
+	public static final String PROVIDER_CONFIG_PROP_KEY = "maven.testdb.provider";
+	public static final String PROVIDER_HOST_PROP_KEY = "maven.testdb.provider.host";
+	public static final String PROVIDER_PORT_PROP_KEY = "maven.testdb.provider.port";
+	public static final String PROVIDER_LIMITS_PROP_KEY = "maven.testdb.provider.limits";
+	public static final String PROVIDER_CREATE_POOL_PROP_KEY = "maven.testdb.createPool";
+	public static final String PROVIDER_CONTAINER_IMAGE_PROP_KEY = "maven.testdb.provider.container_image";
+	public static final String PROVIDER_START_CONTAINER_PROP_KEY = "maven.testdb.provider.start_container";
 
 	/**
 	 * Default limits to be used for new pools.
@@ -54,8 +55,16 @@ public class ProviderMavenConfiguration {
 		return host;
 	}
 
+	public void setHost(String host) {
+		this.host = host;
+	}
+
 	public Integer getPort() {
 		return port;
+	}
+
+	public void setPort(Integer port) {
+		this.port = port;
 	}
 
 	public String getContainerImage() {

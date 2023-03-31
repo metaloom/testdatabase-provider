@@ -1,11 +1,11 @@
 package io.metaloom.maven.provider;
 
-import static io.metaloom.maven.provider.AbstractProviderMojo.POSTGRESQL_DB_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.POSTGRESQL_HOST_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.POSTGRESQL_JDBCURL_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.POSTGRESQL_PASSWORD_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.POSTGRESQL_PORT_PROP_KEY;
-import static io.metaloom.maven.provider.AbstractProviderMojo.POSTGRESQL_USERNAME_PROP_KEY;
+import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_DB_PROP_KEY;
+import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_HOST_PROP_KEY;
+import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_JDBCURL_PROP_KEY;
+import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_PASSWORD_PROP_KEY;
+import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_PORT_PROP_KEY;
+import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_USERNAME_PROP_KEY;
 import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.readConfig;
 import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.writeConfig;
 
@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.testcontainers.containers.Network;
@@ -28,30 +27,23 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 
 	public static final String PROVIDER_SKIP_PROP_KEY = "maven.testdb.skip";
 	public static final String PROVIDER_POOLS_PROPS_KEY = "maven.testdb.pools";
-
-	public static final String POSTGRESQL_CONFIG_PROP_KEY = "maven.testdb.postgresql";
-	public static final String POSTGRESQL_PORT_PROP_KEY = "maven.testdb.postgresql.port";
-	public static final String POSTGRESQL_USERNAME_PROP_KEY = "maven.testdb.postgresql.username";
-	public static final String POSTGRESQL_PASSWORD_PROP_KEY = "maven.testdb.postgresql.password";
-	public static final String POSTGRESQL_DB_PROP_KEY = "maven.testdb.postgresql.database";
-	public static final String POSTGRESQL_JDBCURL_PROP_KEY = "maven.testdb.postgresql.jdbcurl";
-	public static final String POSTGRESQL_HOST_PROP_KEY = "maven.testdb.postgresql.host";
-
-	public static final String PROVIDER_REUSE_CONTAINERS_PROP_KEY = "maven.testdb.reuseContainers";
-
-	public static final String PROVIDER_CONFIG_PROP_KEY = "maven.testdb.provider";
-
-	public static final String PROVIDER_HOST_PROP_KEY = "maven.testdb.provider.host";
-	public static final String PROVIDER_PORT_PROP_KEY = "maven.testdb.provider.port";
-	public static final String PROVIDER_LIMITS_PROP_KEY = "maven.testdb.provider.limits";
-	public static final String PROVIDER_CONTAINER_IMAGE_PROP_KEY = "maven.testdb.provider.container_image";
-
-	public static final String PROVIDER_CREATE_POOL_PROP_KEY = "maven.testdb.createPool";
-
-	public static final String PROVIDER_START_CONTAINER_PROP_KEY = "maven.testdb.provider.start_container";
+	public static final String PROVIDER_REUSE_CONTAINERS_PROP_KEY = "maven.testdb.reuse_containers";
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	protected MavenProject project;
+
+	/**
+	 * Parameters for the database settings. The settings can be used to configure the started postgresql container or for the use of an external database
+	 * connection. The settings will be used when choosing to create a default test database pool during the execution of this goal.
+	 */
+	@Parameter(property = PostgresqlMavenConfiguration.POSTGRESQL_CONFIG_PROP_KEY, alias = "postgresql")
+	public PostgresqlMavenConfiguration postgresqlMavenConfig;
+
+	/**
+	 * Parameters for the testdatabase provider daemon.
+	 */
+	@Parameter(property = ProviderMavenConfiguration.PROVIDER_CONFIG_PROP_KEY, alias = "provider")
+	public ProviderMavenConfiguration providerMavenConfig;
 
 	/**
 	 * Whether the plugin execution should be skipped
@@ -67,43 +59,44 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 
 	public static final String TEST_DATABASE_NETWORK_ALIAS = "testdb";
 
-	public PostgreSQLPoolContainer startPostgres(boolean reuseContainers, PostgresqlMavenConfiguration postgresMavenSettings) throws MojoExecutionException {
+	public PostgreSQLPoolContainer startPostgres(boolean reuseContainers)
+		throws MojoExecutionException {
 		Network network = Network.builder().build();
 		getLog().info("Starting postgreSQL container using network " + network.getId());
-		if (postgresMavenSettings.getPort() != null) {
+		if (postgresqlMavenConfig.getPort() != null) {
 			throw new MojoExecutionException(
 				"The port can't be configured when a container should be provided. The mapped port will be randomized and set to the "
-					+ POSTGRESQL_PORT_PROP_KEY + " property.");
+					+ PostgresqlMavenConfiguration.POSTGRESQL_PORT_PROP_KEY + " property.");
 		}
 
 		@SuppressWarnings("resource")
-		PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(postgresMavenSettings.getContainerImage(), postgresMavenSettings.getTmpfsSizeMB());
+		PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(postgresqlMavenConfig.getContainerImage(), postgresqlMavenConfig.getTmpfsSizeMB());
 		if (reuseContainers) {
 			db.withReuse(true);
 		}
 		db.withNetwork(network)
 			.withNetworkAliases(TEST_DATABASE_NETWORK_ALIAS);
-		if (postgresMavenSettings.getPassword() != null) {
-			db.withPassword(postgresMavenSettings.getPassword());
+		if (postgresqlMavenConfig.getPassword() != null) {
+			db.withPassword(postgresqlMavenConfig.getPassword());
 		}
-		if (postgresMavenSettings.getUsername() != null) {
-			db.withPassword(postgresMavenSettings.getUsername());
+		if (postgresqlMavenConfig.getUsername() != null) {
+			db.withPassword(postgresqlMavenConfig.getUsername());
 		}
-		if (postgresMavenSettings.getDatabase() != null) {
-			db.withDatabaseName(postgresMavenSettings.getDatabase());
+		if (postgresqlMavenConfig.getDatabase() != null) {
+			db.withDatabaseName(postgresqlMavenConfig.getDatabase());
 		}
 
 		db.start();
 		updateConfig(state -> {
-			PostgresqlConfig postgresqlState = state.getPostgresql();
-			postgresqlState.setInternalHost(TEST_DATABASE_NETWORK_ALIAS);
-			postgresqlState.setInternalPort(PostgreSQLContainer.POSTGRESQL_PORT);
-			postgresqlState.setHost(db.getHost());
-			postgresqlState.setPort(db.getPort());
-			postgresqlState.setUsername(db.getUsername());
-			postgresqlState.setPassword(db.getPassword());
-			postgresqlState.setDatabaseName(db.getDatabaseName());
-			postgresqlState.setContainerId(db.getContainerId());
+			PostgresqlConfig postgresqlConfig = state.getPostgresql();
+			postgresqlConfig.setInternalHost(TEST_DATABASE_NETWORK_ALIAS);
+			postgresqlConfig.setInternalPort(PostgreSQLContainer.POSTGRESQL_PORT);
+			postgresqlConfig.setHost(db.getHost());
+			postgresqlConfig.setPort(db.getPort());
+			postgresqlConfig.setUsername(db.getUsername());
+			postgresqlConfig.setPassword(db.getPassword());
+			postgresqlConfig.setDatabaseName(db.getDatabaseName());
+			postgresqlConfig.setContainerId(db.getContainerId());
 		});
 
 		// Provide the properties so those can be used in maven
@@ -128,17 +121,16 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		return db;
 	}
 
-	public DatabaseProviderContainer startProvider(boolean reuseContainers, PostgreSQLPoolContainer db, ProviderMavenConfiguration providerMavenConfig,
-		PostgresqlMavenConfiguration postgresMavenConfig)
+	public DatabaseProviderContainer startProvider(boolean reuseContainers, PostgreSQLPoolContainer db)
 		throws MojoExecutionException {
 		getLog().info("Starting database provider container");
-		String databaseHost = postgresMavenConfig == null ? null : postgresMavenConfig.getHost();
-		Integer databasePort = postgresMavenConfig == null ? null : postgresMavenConfig.getPort();
-		String internalDatabaseHost = postgresMavenConfig == null ? null : postgresMavenConfig.getInternalHost();
+		String databaseHost = postgresqlMavenConfig == null ? null : postgresqlMavenConfig.getHost();
+		Integer databasePort = postgresqlMavenConfig == null ? null : postgresqlMavenConfig.getPort();
+		String internalDatabaseHost = postgresqlMavenConfig == null ? null : postgresqlMavenConfig.getInternalHost();
 		if (internalDatabaseHost == null) {
 			internalDatabaseHost = databaseHost;
 		}
-		Integer internalDatabasePort = postgresMavenConfig == null ? null : postgresMavenConfig.getInternalPort();
+		Integer internalDatabasePort = postgresqlMavenConfig == null ? null : postgresqlMavenConfig.getInternalPort();
 		if (internalDatabasePort == null) {
 			getLog().debug("Using regular database port for internal connections since no internal port has been specified.");
 			internalDatabasePort = databasePort;
@@ -157,7 +149,7 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		}
 
 		@SuppressWarnings("resource")
-		DatabaseProviderContainer providerContainer = new DatabaseProviderContainer(providerMavenConfig.getContainerImage());
+		DatabaseProviderContainer providerContainer = new DatabaseProviderContainer(postgresqlMavenConfig.getContainerImage());
 		if (reuseContainers) {
 			providerContainer.withReuse(true);
 		}
@@ -175,19 +167,19 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		}
 
 		if (providerMavenConfig.isCreatePool()) {
-			if (db == null && postgresMavenConfig == null) {
+			if (db == null && postgresqlMavenConfig == null) {
 				throw new MojoExecutionException(
 					"Unable to setup default pool. Please either set postgresql settings or enable the startup of the postgreSQL container");
 			}
 
-			if (db == null && postgresMavenConfig != null && !postgresMavenConfig.hasConnectionSettings()) {
+			if (db == null && postgresqlMavenConfig != null && !postgresqlMavenConfig.hasConnectionSettings()) {
 				throw new MojoExecutionException(
 					"Unable to setup default pool. Please either set all needed postgresql settings (host, port, username, password, db) or enable the startup of the postgreSQL container");
 			}
 			getLog().info("Setting default pool connection settings. This will create and start a default pool during startup.");
-			String username = postgresMavenConfig.getUsername() != null ? postgresMavenConfig.getUsername() : db.getUsername();
-			String password = postgresMavenConfig.getPassword() != null ? postgresMavenConfig.getPassword() : db.getPassword();
-			String database = postgresMavenConfig.getDatabase() != null ? postgresMavenConfig.getDatabase() : db.getDatabaseName();
+			String username = postgresqlMavenConfig.getUsername() != null ? postgresqlMavenConfig.getUsername() : db.getUsername();
+			String password = postgresqlMavenConfig.getPassword() != null ? postgresqlMavenConfig.getPassword() : db.getPassword();
+			String database = postgresqlMavenConfig.getDatabase() != null ? postgresqlMavenConfig.getDatabase() : db.getDatabaseName();
 			providerContainer.withDefaultPoolDatabase(databaseHost, databasePort, internalDatabaseHost, internalDatabasePort, username, password,
 				database);
 		}
@@ -208,6 +200,49 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 			config.setProviderContainerId(providerContainer.getContainerId());
 		});
 		return providerContainer;
+	}
+
+	protected void updateProviderConfig(DatabaseProviderContainer providerContainer, PostgreSQLPoolContainer dbContainer) {
+		updateConfig(config -> {
+			PostgresqlConfig postgresqlConfig = config.getPostgresql();
+			if (dbContainer != null) {
+				postgresqlConfig.setInternalHost(TEST_DATABASE_NETWORK_ALIAS);
+				postgresqlConfig.setInternalPort(PostgreSQLContainer.POSTGRESQL_PORT);
+			} else {
+				postgresqlConfig.setHost(postgresqlMavenConfig.getHost());
+				postgresqlConfig.setPort(postgresqlMavenConfig.getPort());
+				postgresqlConfig.setInternalHost(postgresqlMavenConfig.getInternalHost());
+				postgresqlConfig.setInternalPort(postgresqlMavenConfig.getInternalPort());
+				postgresqlConfig.setUsername(postgresqlMavenConfig.getUsername());
+				postgresqlConfig.setPassword(postgresqlMavenConfig.getPassword());
+				postgresqlConfig.setDatabaseName(postgresqlMavenConfig.getDatabase());
+			}
+
+			// Provide the properties so those can be used in maven
+			setProjectProp(POSTGRESQL_DB_PROP_KEY, postgresqlConfig.getDatabaseName());
+			setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, postgresqlConfig.jdbcUrl(""));
+			setProjectProp(POSTGRESQL_HOST_PROP_KEY, postgresqlConfig.getHost());
+			setProjectProp(POSTGRESQL_PORT_PROP_KEY, postgresqlConfig.getPort());
+			setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, postgresqlConfig.getUsername());
+			setProjectProp(POSTGRESQL_PASSWORD_PROP_KEY, postgresqlConfig.getPassword());
+
+			if (providerMavenConfig == null) {
+				providerMavenConfig = new ProviderMavenConfiguration();
+			}
+
+			if (providerContainer != null) {
+				config.setProviderHost(providerContainer.getHost());
+				config.setProviderPort(providerContainer.getPort());
+				config.setProviderContainerId(providerContainer.getContainerId());
+				providerMavenConfig.setHost(config.getProviderHost());
+				providerMavenConfig.setPort(config.getProviderPort());
+			} else {
+				config.setProviderHost(providerMavenConfig.getHost());
+				config.setProviderPort(providerMavenConfig.getPort());
+			}
+
+		});
+
 	}
 
 	public void updateConfig(Consumer<ProviderConfig> updateHandler) {

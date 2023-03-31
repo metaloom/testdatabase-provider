@@ -23,38 +23,15 @@
 							<goal>clean</goal>
 						</goals>
 					</execution>
-					<!-- Startup a postgreSQL container and the provider daemon -->
-					<execution>
-						<id>setup-config</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>start</goal>
-						</goals>
-						<configuration>
-							<provider>
-								<startContainer>false</startContainer>
-								<host>localhost</host>
-								<port>7543</port>
-							</provider>
-							<postgresql>
-								<startContainer>false</startContainer>
-								<username>sa</username>
-								<password>sa</password>
-								<database>test</database>
-								<port>15432</port>
-								<host>localhost</host>
-							</postgresql>
-						</configuration>
-					</execution>
 					<!-- Setup a new testdatabase pool now that flyway has setup the
 					tables -->
 					<execution>
 						<id>pool</id>
 						<phase>process-test-classes</phase>
 						<goals>
+							<goal>start</goal>
 							<goal>pool</goal>
 						</goals>
-
 						<configuration>
 							<pools>
 								<pool>
@@ -69,8 +46,6 @@
 							</pools>
 						</configuration>
 					</execution>
-
-					<!-- TODO remove the previously setup pool -->
 					<execution>
 						<id>stop</id>
 						<phase>post-integration-test</phase>
@@ -79,8 +54,24 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<provider>
+						<startContainer>false</startContainer>
+						<host>localhost</host>
+						<port>7543</port>
+					</provider>
+					<postgresql>
+						<startContainer>false</startContainer>
+						<username>sa</username>
+						<password>sa</password>
+						<database>test</database>
+						<host>localhost</host>
+						<port>15432</port>
+						<internalHost>postgresql</internalHost>
+						<internalPort>5432</internalPort>
+					</postgresql>
+				</configuration>
 			</plugin>
-
 		</plugins>
 
 	</build>

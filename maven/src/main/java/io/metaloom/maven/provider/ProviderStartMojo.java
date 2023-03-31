@@ -10,6 +10,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
 import io.metaloom.test.container.provider.common.config.ProviderConfig;
+import io.metaloom.test.container.provider.container.DatabaseProviderContainer;
 
 /**
  * The start operation will provide the needed testdatabase provider daemon and optionally also a database which will automatically be configured to work in
@@ -17,19 +18,6 @@ import io.metaloom.test.container.provider.common.config.ProviderConfig;
  */
 @Mojo(name = "start", defaultPhase = LifecyclePhase.INITIALIZE)
 public class ProviderStartMojo extends AbstractProviderMojo {
-
-	/**
-	 * Parameters for the database settings. The settings can be used to configure the started postgresql container or for the use of an external database
-	 * connection. The settings will be used when choosing to create a default test database pool during the execution of this goal.
-	 */
-	@Parameter(property = POSTGRESQL_CONFIG_PROP_KEY)
-	private PostgresqlMavenConfiguration postgresql;
-
-	/**
-	 * Parameters for the testdatabase provider daemon.
-	 */
-	@Parameter(property = PROVIDER_CONFIG_PROP_KEY)
-	private ProviderMavenConfiguration provider;
 
 	/**
 	 * Whether to re-use the started docker containers. If not enabled the container will be shut down when the maven command terminates. The settings
@@ -54,38 +42,34 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 		}
 
 		PostgreSQLPoolContainer dbContainer = null;
-		if (postgresql != null) {
-			if (postgresql.isStartContainer()) {
-				if (postgresql.getPort() != null) {
-					getLog().warn("Ignoring port setting. When starting a container the mapped port will be randomized");
+		if (postgresqlMavenConfig != null) {
+			if (postgresqlMavenConfig.isStartContainer()) {
+				if (postgresqlMavenConfig.getPort() != null) {
+					getLog().warn("Ignoring port setting. When starting a container the mapped port will be randomized.");
 				}
-				if (postgresql.getHost() != null) {
+				if (postgresqlMavenConfig.getHost() != null) {
 					getLog().warn("Ignoring hostname setting. When starting a container the used host can't be selected.");
 				}
-				dbContainer = startPostgres(reuseContainers, postgresql);
-			} else {
-				// Provide the properties so those can be used in maven
-				setProjectProp(POSTGRESQL_DB_PROP_KEY, postgresql.getDatabase());
-				setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, postgresql.getJdbcUrl());
-				setProjectProp(POSTGRESQL_HOST_PROP_KEY, postgresql.getHost());
-				setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, postgresql.getUsername());
-				setProjectProp(POSTGRESQL_PASSWORD_PROP_KEY, postgresql.getPassword());
-				setProjectProp(POSTGRESQL_PORT_PROP_KEY, postgresql.getPort());
+				dbContainer = startPostgres(reuseContainers);
 			}
 		} else {
 			getLog().info("No postgreSQL settings found. Not starting database container.");
 		}
 
-		if (provider != null && provider.isStartContainer()) {
-			startProvider(reuseContainers, dbContainer, provider, postgresql);
-		} else {
-			getLog().info("Not starting testdatabase provider. Using " + provider.getHost() + ":" + provider.getPort() + " instead.");
+		DatabaseProviderContainer providerContainer = null;
+		if (providerMavenConfig != null && providerMavenConfig.isStartContainer()) {
+			providerContainer = startProvider(reuseContainers, dbContainer);
+		} else if (providerMavenConfig != null) {
+			getLog().info(
+				"Not starting testdatabase provider. Using " + providerMavenConfig.getHost() + ":" + providerMavenConfig.getPort() + " instead.");
 			updateConfig(config -> {
-				config.setProviderHost(provider.getHost());
-				config.setProviderPort(provider.getPort());
+				config.setProviderHost(providerMavenConfig.getHost());
+				config.setProviderPort(providerMavenConfig.getPort());
 			});
+		} else {
+			throw new MojoExecutionException("No provider config specified. Unable to execute goal without config.");
 		}
-
+		updateProviderConfig(providerContainer, dbContainer);
 	}
 
 }

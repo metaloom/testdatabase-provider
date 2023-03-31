@@ -91,7 +91,6 @@ Example configuration:
 			<goals>
 				<goal>pool</goal>
 			</goals>
-
 			<configuration>
 				<pools>
 					<pool>

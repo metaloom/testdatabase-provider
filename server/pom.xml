@@ -136,7 +136,7 @@
         <configuration>
           <images>
             <image>
-              <name>docker.io/metaloom/testdatabase-provider</name>
+              <name>metaloom/testdatabase-provider</name>
               <build>
                 <dockerFileDir>${project.basedir}</dockerFileDir>
                 <assembly>
