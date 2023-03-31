@@ -74,7 +74,6 @@ public class TestDatabaseProvider {
 	 * 
 	 * @param name
 	 * @throws SQLException
-	 * @throws IOException
 	 */
 	public static void createPostgreSQLDatabase(String name) throws SQLException {
 		ProviderConfig config = config();

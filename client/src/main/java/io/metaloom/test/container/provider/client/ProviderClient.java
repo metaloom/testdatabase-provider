@@ -33,6 +33,7 @@ public class ProviderClient {
 	 * Connect the test to the database provider. The provider will assign a test database which can be used by the caller.
 	 * 
 	 * @param testcaseName
+	 * @param testRef
 	 * @return
 	 */
 	public CompletableFuture<ClientAllocation> link(String poolName, String testRef) {
@@ -45,6 +46,12 @@ public class ProviderClient {
 		return listener.allocation();
 	}
 
+	/**
+	 * List all pools that have been created.
+	 * 
+	 * @return
+	 * @throws URISyntaxException
+	 */
 	public CompletableFuture<DatabasePoolListResponse> listPools() throws URISyntaxException {
 		HttpRequest request = HttpRequest.newBuilder()
 			.uri(uri("/pools"))
@@ -58,9 +65,17 @@ public class ProviderClient {
 			.thenApply(body -> {
 				return JSON.fromString(body, DatabasePoolListResponse.class);
 			});
-
 	}
 
+	/**
+	 * Load the pool with the given id.
+	 * 
+	 * @param id
+	 * @return
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws URISyntaxException
+	 */
 	public CompletableFuture<DatabasePoolResponse> loadPool(String id) throws IOException, InterruptedException, URISyntaxException {
 		HttpRequest request = HttpRequest.newBuilder()
 			.uri(uri("/pools/" + id))
