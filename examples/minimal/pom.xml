@@ -1,83 +1,83 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>testdatabase-provider-minimal-example</artifactId>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>testdatabase-provider-minimal-example</artifactId>
 
-	<parent>
-		<groupId>io.metaloom.test.example</groupId>
-		<artifactId>testdatabase-provider-examples</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
+  <parent>
+    <groupId>io.metaloom.test.example</groupId>
+    <artifactId>testdatabase-provider-examples</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
 
-	<name>Testdatabase Provider :: Minimal Example</name>
+  <name>Testdatabase Provider :: Minimal Example</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>io.metaloom.test</groupId>
-			<artifactId>testdatabase-provider-junit5</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.metaloom.test</groupId>
-			<artifactId>testdatabase-provider-junit4</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>testdatabase-provider-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>testdatabase-provider-junit4</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-	<build>
-		<plugins>
-			<!-- SNIPPET START plugin-section  -->
-			<plugin>
-				<groupId>io.metaloom.maven</groupId>
-				<artifactId>testdb-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>cleanup</id>
-						<goals>
-							<goal>clean</goal>
-						</goals>
-					</execution>
-					<!-- Startup a postgreSQL container and the provider daemon -->
-					<execution>
-						<?m2e ignore?>
-						<id>setup</id>
-						<goals>
-							<goal>start</goal>
-						</goals>
-					</execution>
-					<!-- Setup a new testdatabase pool now that flyway has setup the
-					tables -->
-					<execution>
-						<?m2e ignore?>
-						<id>pool</id>
-						<phase>process-test-classes</phase>
-						<goals>
-							<goal>pool</goal>
-						</goals>
-						<configuration>
-							<pools>
-								<pool>
-									<id>dummy</id>
-									<templateName>postgres</templateName>
-									<limits>
-										<minimum>10</minimum>
-										<maximum>30</maximum>
-										<increment>5</increment>
-									</limits>
-								</pool>
-							</pools>
-						</configuration>
-					</execution>
-					<execution>
-						<id>stop</id>
-						<goals>
-							<goal>stop</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- SNIPPET END plugin-section  -->
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <!-- SNIPPET START plugin-section  -->
+      <plugin>
+        <groupId>io.metaloom.maven</groupId>
+        <artifactId>testdb-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>cleanup</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+          <!-- Startup a postgreSQL container and the provider daemon -->
+          <execution>
+            <?m2e ignore?>
+            <id>setup</id>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <!-- Setup a new testdatabase pool now that flyway has setup the
+          tables -->
+          <execution>
+            <?m2e ignore?>
+            <id>pool</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>pool</goal>
+            </goals>
+            <configuration>
+              <pools>
+                <pool>
+                  <id>dummy</id>
+                  <templateName>postgres</templateName>
+                  <limits>
+                    <minimum>10</minimum>
+                    <maximum>30</maximum>
+                    <increment>5</increment>
+                  </limits>
+                </pool>
+              </pools>
+            </configuration>
+          </execution>
+          <execution>
+            <id>stop</id>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- SNIPPET END plugin-section  -->
+    </plugins>
+  </build>
 </project>

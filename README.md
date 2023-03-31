@@ -66,53 +66,53 @@ Example configuration:
 
 ```xml
 <plugin>
-	<groupId>io.metaloom.maven</groupId>
-	<artifactId>testdb-maven-plugin</artifactId>
-	<executions>
-		<execution>
-			<id>cleanup</id>
-			<goals>
-				<goal>clean</goal>
-			</goals>
-		</execution>
-		<!-- Startup a postgreSQL container and the provider daemon -->
-		<execution>
-			<?m2e ignore?>
-			<id>setup</id>
-			<goals>
-				<goal>start</goal>
-			</goals>
-		</execution>
-		<!-- Setup a new testdatabase pool now that flyway has setup the
-		tables -->
-		<execution>
-			<?m2e ignore?>
-			<id>pool</id>
-			<phase>process-test-classes</phase>
-			<goals>
-				<goal>pool</goal>
-			</goals>
-			<configuration>
-				<pools>
-					<pool>
-						<id>dummy</id>
-						<templateName>postgres</templateName>
-						<limits>
-							<minimum>10</minimum>
-							<maximum>30</maximum>
-							<increment>5</increment>
-						</limits>
-					</pool>
-				</pools>
-			</configuration>
-		</execution>
-		<execution>
-			<id>stop</id>
-			<goals>
-				<goal>stop</goal>
-			</goals>
-		</execution>
-	</executions>
+  <groupId>io.metaloom.maven</groupId>
+  <artifactId>testdb-maven-plugin</artifactId>
+  <executions>
+    <execution>
+      <id>cleanup</id>
+      <goals>
+        <goal>clean</goal>
+      </goals>
+    </execution>
+    <!-- Startup a postgreSQL container and the provider daemon -->
+    <execution>
+      <?m2e ignore?>
+      <id>setup</id>
+      <goals>
+        <goal>start</goal>
+      </goals>
+    </execution>
+    <!-- Setup a new testdatabase pool now that flyway has setup the
+    tables -->
+    <execution>
+      <?m2e ignore?>
+      <id>pool</id>
+      <phase>process-test-classes</phase>
+      <goals>
+        <goal>pool</goal>
+      </goals>
+      <configuration>
+        <pools>
+          <pool>
+            <id>dummy</id>
+            <templateName>postgres</templateName>
+            <limits>
+              <minimum>10</minimum>
+              <maximum>30</maximum>
+              <increment>5</increment>
+            </limits>
+          </pool>
+        </pools>
+      </configuration>
+    </execution>
+    <execution>
+      <id>stop</id>
+      <goals>
+        <goal>stop</goal>
+      </goals>
+    </execution>
+  </executions>
 </plugin>
 ```
 

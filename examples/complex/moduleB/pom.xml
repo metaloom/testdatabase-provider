@@ -1,21 +1,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>testdatabase-provider-complex-example-moduleb</artifactId>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>testdatabase-provider-complex-example-moduleb</artifactId>
 
-	<parent>
-		<groupId>io.metaloom.test.example</groupId>
-		<artifactId>testdatabase-provider-complex-example</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-	</parent>
+  <parent>
+    <groupId>io.metaloom.test.example</groupId>
+    <artifactId>testdatabase-provider-complex-example</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
 
-	<name>Testdatabase Provider :: Example :: Complex - Module B</name>
+  <name>Testdatabase Provider :: Example :: Complex - Module B</name>
 
-	<build>
-		<plugins>
+  <build>
+    <plugins>
 
-		</plugins>
+    </plugins>
 
-	</build>
+  </build>
 </project>

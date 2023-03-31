@@ -1,76 +1,76 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>io.metaloom.test.example</groupId>
-	<artifactId>testdatabase-provider-examples</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+  <groupId>io.metaloom.test.example</groupId>
+  <artifactId>testdatabase-provider-examples</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
 
-	<properties>
-		<postgres.driver.version>42.2.2</postgres.driver.version>
-		<testcontainer.version>1.17.6</testcontainer.version>
-		<testdatabase-provider.version>0.1.1</testdatabase-provider.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+  <properties>
+    <postgres.driver.version>42.2.2</postgres.driver.version>
+    <testcontainer.version>1.17.6</testcontainer.version>
+    <testdatabase-provider.version>0.1.1</testdatabase-provider.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-	<name>Testdatabase Provider :: Examples</name>
+  <name>Testdatabase Provider :: Examples</name>
   <packaging>pom</packaging>
 
-	<modules>
-		<module>minimal</module>
-		<module>complex</module>
-		<module>dedicated</module>
-	</modules>
+  <modules>
+    <module>minimal</module>
+    <module>complex</module>
+    <module>dedicated</module>
+  </modules>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.postgresql</groupId>
-				<artifactId>postgresql</artifactId>
-				<version>${postgres.driver.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.metaloom.test</groupId>
-				<artifactId>testdatabase-provider-junit5</artifactId>
-				<version>${testdatabase-provider.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>io.metaloom.test</groupId>
-				<artifactId>testdatabase-provider-junit4</artifactId>
-				<version>${testdatabase-provider.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-classic</artifactId>
-				<version>1.2.10</version>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgres.driver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.metaloom.test</groupId>
+        <artifactId>testdatabase-provider-junit5</artifactId>
+        <version>${testdatabase-provider.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.metaloom.test</groupId>
+        <artifactId>testdatabase-provider-junit4</artifactId>
+        <version>${testdatabase-provider.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.10</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>io.metaloom.maven</groupId>
-					<artifactId>testdb-maven-plugin</artifactId>
-					<version>0.1.1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.flywaydb</groupId>
-					<artifactId>flyway-maven-plugin</artifactId>
-					<version>9.12.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.11.0</version>
-					<configuration>
-						<release>17</release>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>io.metaloom.maven</groupId>
+          <artifactId>testdb-maven-plugin</artifactId>
+          <version>0.1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.flywaydb</groupId>
+          <artifactId>flyway-maven-plugin</artifactId>
+          <version>9.12.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.11.0</version>
+          <configuration>
+            <release>17</release>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
 </project>
