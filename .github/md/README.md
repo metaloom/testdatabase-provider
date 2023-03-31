@@ -60,7 +60,7 @@ mvn testdb:pool@pool
 mvn testdb:stop
 ```
 
-## [Minimal Example](minimal)
+## [Minimal Example](tree/master/examples/minimal)
 
 This example shows how to use the provider with its bare minimum default configuration.
 
@@ -70,11 +70,11 @@ Example configuration:
 %{snippet|id=plugin-section|file=./examples/minimal/pom.xml}
 ```
 
-## [Complex Example](complex)
+## [Complex Example](tree/master/examples/complex)
 
 This example shows how to use the testdatabase provider in a multi-module maven project.
 
-## [Dedicated Example](dedicated)
+## [Dedicated Example](tree/master/examples/dedicated)
 
 This example demonstrates how the testprovider can be used without automatically starting containers. Instead an external running PostgreSQL and testcontainer server will be queried to provide the pooled testdatabases.
 
