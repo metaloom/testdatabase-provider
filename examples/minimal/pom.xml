@@ -18,6 +18,11 @@
 			<artifactId>testdatabase-provider-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>io.metaloom.test</groupId>
+			<artifactId>testdatabase-provider-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

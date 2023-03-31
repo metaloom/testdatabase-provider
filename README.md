@@ -162,16 +162,15 @@ Various variables may be specified during startup that reference the testdatabas
 </dependency>
 ```
 
-
 A test can acquire a database using the `DatabaseProviderExtension` extension.
 
 ```java
 @RegisterExtension
-static DatabaseProviderExtension provider = new DatabaseProviderExtension();
+public static ProviderExtension ext = ProviderExtension.create("dummy");
 
 @Test
-public void testDB() {
-    System.out.println(provider.db());
+public void testDB() throws Exception {
+	System.out.println(ext.db());
 }
 ```
 
@@ -186,18 +185,16 @@ public void testDB() {
 </dependency>
 ```
 
+
 ```java
 @Rule
-public DatabaseProviderRule provider = new DatabaseProviderRule("localhost", server.getPort());
+public DatabaseProviderRule provider = DatabaseProviderRule.create("dummy");
 
 @Test
-public void testDB() {
-    System.out.println(provider.db());
+public void testDB() throws Exception {
+	System.out.println(provider.db());
 }
 ```
-
-```java
-Error during retrieving content skip as ignoreDownloadError activated.```
 
 ## Releasing 
 

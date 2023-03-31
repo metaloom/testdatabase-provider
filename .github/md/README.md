@@ -115,17 +115,10 @@ Various variables may be specified during startup that reference the testdatabas
 </dependency>
 ```
 
-
 A test can acquire a database using the `DatabaseProviderExtension` extension.
 
 ```java
-@RegisterExtension
-static DatabaseProviderExtension provider = new DatabaseProviderExtension();
-
-@Test
-public void testDB() {
-    System.out.println(provider.db());
-}
+%{snippet|id=test_snippet|file=./examples/minimal/src/test/java/io/metaloom/example/ExampleJunit5Test.java}
 ```
 
 ## Test - Junit 4 
@@ -139,18 +132,9 @@ public void testDB() {
 </dependency>
 ```
 
-```java
-@Rule
-public DatabaseProviderRule provider = new DatabaseProviderRule("localhost", server.getPort());
-
-@Test
-public void testDB() {
-    System.out.println(provider.db());
-}
-```
 
 ```java
-%{snippet|id=test_snippet|file=./example/src/test/java/io/metaloom/test/ExampleTest.java}
+%{snippet|id=test_snippet|file=./examples/minimal/src/test/java/io/metaloom/example/ExampleJunit4Test.java}
 ```
 
 ## Releasing 
