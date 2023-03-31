@@ -10,7 +10,7 @@
   <properties>
     <postgres.driver.version>42.2.2</postgres.driver.version>
     <testcontainer.version>1.17.6</testcontainer.version>
-    <testdatabase-provider.version>0.1.0-SNAPSHOT</testdatabase-provider.version>
+    <testdatabase-provider.version>0.1.0</testdatabase-provider.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -165,4 +165,3 @@
     </plugins>
   </build>
 </project>
-  
