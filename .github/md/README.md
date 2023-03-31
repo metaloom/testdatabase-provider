@@ -1,13 +1,3 @@
-
-```java
- @@snip [test_snippet](./example/src/test/java/io/metaloom/test/ExampleTest.java)
-```
-
-```xml
- @@snip [xml_snippet](./example/pom.xml)
-```
-
-
 # Test Database Provider - ${project.version}
 
 This project provides tools to quickly allocate test databases for Java based projects.
@@ -74,117 +64,7 @@ mvn testdb:stop
 Example configuration:
 
 ```xml
-…
-<plugin>
-<groupId>org.flywaydb</groupId>
-<artifactId>flyway-maven-plugin</artifactId>
-<version>9.12.0</version>
-<executions>
-    <execution>
-    <?m2e ignore?>
-    <phase>generate-sources</phase>
-    <goals>
-        <goal>migrate</goal>
-    </goals>
-    </execution>
-</executions>
-<configuration>
-    <!-- The flyway plugin uses the properties which have been provided by the testdatabase--plugin. -->
-    <url>${maven.testdatabase-provider.postgresql.jdbcurl}</url>
-    <user>${maven.testdatabase-provider.postgresql.username}</user>
-    <password>${maven.testdatabase-provider.postgresql.password}</password>
-    <locations>
-    <location>filesystem:src/main/flyway</location>
-    </locations>
-</configuration>
-<dependencies>
-    <dependency>
-    <groupId>org.postgresql</groupId>
-    <artifactId>postgresql</artifactId>
-    <version>${postgres.driver.version}</version>
-    </dependency>
-</dependencies>
-</plugin>
-
-<plugin>
-<groupId>io.metaloom.maven</groupId>
-<artifactId>testdb-maven-plugin</artifactId>
-<version>0.0.1-SNAPSHOT</version>
-<executions>
-    <!-- Start the provider daemon and needed database containers -->
-    <execution>
-        <id>start</id>
-        <phase>initialize</phase>
-        <goals>
-            <goal>start</goal>
-            <configuration>
-                <skip>false</skip>
-                <defaultLimits>
-                <minimum>10</minimum>
-                <maximum>20</maximum>
-                <increment>5</increment>
-                </defaultLimits>
-                <postgresql>
-                    <containerImage>postgres:13.2</containerImage>
-                    <startContainer>true</startContainer>
-                    <tmpfsSizeMB>256</tmpfsSizeMB>
-                    <username>sa</username>
-                    <password>sa</password>
-                    <database>test</database>
-                    <!--
-                    Port and host are only used when providing
-                    an external database
-                    <port>5432</port>
-                    <host>localhost</host>
-                    -->
-                </postgresql>
-                <createPool>false</createPool>
-                <startProvider>true</startProvider>
-                <reuseContainers>true</reuseContainers>
-            </configuration>
-        </goals>
-    </execution>
-    <!-- Now flyway has populated the database and we can setup our test database pool -->
-    <execution>
-        <id>pool</id>
-        <phase>process-test-classes</phase>
-        <goals>
-            <goal>pool</goal>
-        </goals>
-        <configuration>
-            <pools>
-                <pool>
-                    <id>dummy</id>
-                    <!-- The connection details can be omitted when the start goal provides a database container -->
-                    <!--
-                    <host>${maven.testdatabase-provider.postgresql.host}</host>
-                    <port>${maven.testdatabase-provider.postgresql.port}</port>
-                    <username>${maven.testdatabase-provider.postgresql.username}</username>
-                    <password>${maven.testdatabase-provider.postgresql.password}</password>
-                    <database>${maven.testdatabase-provider.postgresql.database}</database>
-                    -->
-                    <templateName>test</templateName>
-                    <limits>
-                    <minimum>10</minimum>
-                    <maximum>30</maximum>
-                    <increment>5</increment>
-                    </limits>
-                </pool>
-            </pools>
-        </configuration>
-    </execution>
-
-    <!-- Finally we stop the started containers -->
-    <execution>
-        <id>stop</id>
-        <phase>post-integration-test</phase>
-        <goals>
-            <goal>stop</goal>
-        </goals>
-    </execution>
-</executions>
-</plugin>
-…
+%{snippet|id=plugin-section|file=./example/pom.xml}
 ```
 
 ## Pitfalls
@@ -263,6 +143,10 @@ public DatabaseProviderRule provider = new DatabaseProviderRule("localhost", ser
 public void testDB() {
     System.out.println(provider.db());
 }
+```
+
+```java
+%{snippet|id=test_snippet|file=./example/src/test/java/io/metaloom/test/ExampleTest.java}
 ```
 
 ## Releasing 

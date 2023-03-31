@@ -23,8 +23,6 @@
       <version>${postgres.driver.version}</version>
     </dependency>
 
-  <!-- 
-  // @@ xml_snippet  -->
     <!-- Test -->
     <dependency>
       <groupId>io.metaloom.test</groupId>
@@ -38,7 +36,6 @@
       <version>1.2.10</version>
       <scope>test</scope>
     </dependency>
-    <!-- // @@ xml_snippet -->
   </dependencies>
 
   <build>
@@ -73,6 +70,7 @@
         </dependencies>
       </plugin>
 
+      <!-- SNIPPET START plugin-section  -->
       <plugin>
         <groupId>io.metaloom.maven</groupId>
         <artifactId>testdb-maven-plugin</artifactId>
@@ -155,6 +153,7 @@
           </execution>
         </executions>
       </plugin>
+      <!-- SNIPPET END plugin-section -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

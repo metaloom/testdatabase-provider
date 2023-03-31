@@ -128,27 +128,9 @@
     </pluginManagement>
     <plugins>
       <plugin>
-        <groupId>com.github.ryancerf</groupId>
-        <artifactId>choss-maven-plugin</artifactId>
-        <version>v0.02</version>
-        <inherited>false</inherited>
-        <executions>
-          <execution>
-            <goals>
-              <goal>build-docs</goal>
-            </goals>
-            <phase>clean</phase>
-            <configuration>
-              <docsSourceDirectory>${project.basedir}/.github/md</docsSourceDirectory>
-              <docsTargetDirectory>${project.build.directory}/md-out</docsTargetDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
         <inherited>false</inherited>
         <executions>
           <execution>
@@ -161,7 +143,7 @@
               <outputDirectory>${project.basedir}</outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/md-out</directory>
+                  <directory>${project.basedir}/.github/md</directory>
                   <includes>
                     <include>README.md</include>
                   </includes>
@@ -169,11 +151,20 @@
                 </resource>
               </resources>
               <encoding>UTF-8</encoding>
+              <mavenFilteringHints>
+                <mavenFilteringHint>snippetFilter</mavenFilteringHint>
+              </mavenFilteringHints>
             </configuration>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>io.metaloom.maven</groupId>
+            <artifactId>snippet-resource-filter</artifactId>
+            <version>0.1.0</version>
+          </dependency>
+        </dependencies>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

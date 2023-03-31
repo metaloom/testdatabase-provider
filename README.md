@@ -1,159 +1,3 @@
-
-```java
-@Test
-public void testDB2() throws InterruptedException {
-	Thread.sleep(2000);
-	System.out.println(provider.db());
-	Thread.sleep(2000);
-}
-```
-
-```xml
-    <!-- Test -->
-    <dependency>
-      <groupId>io.metaloom.test</groupId>
-      <artifactId>testdatabase-provider-junit5</artifactId>
-      <version>${testdatabase-provider.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.2.10</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- // @@ xml_snippet -->
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.flywaydb</groupId>
-        <artifactId>flyway-maven-plugin</artifactId>
-        <version>9.12.0</version>
-        <executions>
-          <execution>
-            <?m2e ignore?>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>migrate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <url>${maven.testdatabase-provider.postgresql.jdbcurl}</url>
-          <user>${maven.testdatabase-provider.postgresql.username}</user>
-          <password>${maven.testdatabase-provider.postgresql.password}</password>
-          <locations>
-            <location>filesystem:src/main/flyway</location>
-          </locations>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.2.2</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-
-      <plugin>
-        <groupId>io.metaloom.maven</groupId>
-        <artifactId>testdb-maven-plugin</artifactId>
-        <version>${testdatabase-provider.version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-          </execution>
-          <!-- Startup a postgreSQL container and the provider daemon -->
-          <execution>
-            <id>start</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-            <configuration>
-              <skip>false</skip>
-              <defaultLimits>
-                <minimum>10</minimum>
-                <maximum>20</maximum>
-                <increment>5</increment>
-              </defaultLimits>
-              <postgresql>
-                <containerImage>postgres:13.2</containerImage>
-                <startContainer>true</startContainer>
-                <tmpfsSizeMB>256</tmpfsSizeMB>
-                <username>sa</username>
-                <password>sa</password>
-                <database>test</database>
-                <!--
-                Port and host are only used when providing
-                an external database
-                <port>5432</port>
-                <host>localhost</host>
-                -->
-              </postgresql>
-              <createPool>false</createPool>
-              <startProvider>true</startProvider>
-              <reuseContainers>true</reuseContainers>
-            </configuration>
-          </execution>
-          <!-- Setup a new testdatabase pool now that flyway has setup the
-          tables -->
-          <execution>
-            <id>pool</id>
-            <phase>process-test-classes</phase>
-            <goals>
-              <goal>pool</goal>
-            </goals>
-
-            <configuration>
-              <pools>
-                <pool>
-                  <id>dummy</id>
-                  <host>${maven.testdatabase-provider.postgresql.host}</host>
-                  <port>${maven.testdatabase-provider.postgresql.port}</port>
-                  <username>${maven.testdatabase-provider.postgresql.username}</username>
-                  <password>${maven.testdatabase-provider.postgresql.password}</password>
-                  <database>${maven.testdatabase-provider.postgresql.database}</database>
-                  <templateName>test</templateName>
-                  <limits>
-                    <minimum>10</minimum>
-                    <maximum>30</maximum>
-                    <increment>5</increment>
-                  </limits>
-                </pool>
-              </pools>
-            </configuration>
-          </execution>
-
-          <!-- Stop the previously started containers -->
-          <execution>
-            <id>stop</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <release>17</release>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-</project>
-  
-```
-
-
 # Test Database Provider - 0.1.0-SNAPSHOT
 
 This project provides tools to quickly allocate test databases for Java based projects.
@@ -220,117 +64,88 @@ mvn testdb:stop
 Example configuration:
 
 ```xml
-…
 <plugin>
-<groupId>org.flywaydb</groupId>
-<artifactId>flyway-maven-plugin</artifactId>
-<version>9.12.0</version>
-<executions>
+  <groupId>io.metaloom.maven</groupId>
+  <artifactId>testdb-maven-plugin</artifactId>
+  <version>${testdatabase-provider.version}</version>
+  <executions>
     <execution>
-    <?m2e ignore?>
-    <phase>generate-sources</phase>
-    <goals>
-        <goal>migrate</goal>
-    </goals>
+      <goals>
+        <goal>clean</goal>
+      </goals>
     </execution>
-</executions>
-<configuration>
-    <!-- The flyway plugin uses the properties which have been provided by the testdatabase--plugin. -->
-    <url>${maven.testdatabase-provider.postgresql.jdbcurl}</url>
-    <user>${maven.testdatabase-provider.postgresql.username}</user>
-    <password>${maven.testdatabase-provider.postgresql.password}</password>
-    <locations>
-    <location>filesystem:src/main/flyway</location>
-    </locations>
-</configuration>
-<dependencies>
-    <dependency>
-    <groupId>org.postgresql</groupId>
-    <artifactId>postgresql</artifactId>
-    <version>42.2.2</version>
-    </dependency>
-</dependencies>
-</plugin>
+    <!-- Startup a postgreSQL container and the provider daemon -->
+    <execution>
+      <id>start</id>
+      <phase>initialize</phase>
+      <goals>
+        <goal>start</goal>
+      </goals>
+      <configuration>
+        <skip>false</skip>
+        <defaultLimits>
+          <minimum>10</minimum>
+          <maximum>20</maximum>
+          <increment>5</increment>
+        </defaultLimits>
+        <postgresql>
+          <containerImage>postgres:13.2</containerImage>
+          <startContainer>true</startContainer>
+          <tmpfsSizeMB>256</tmpfsSizeMB>
+          <username>sa</username>
+          <password>sa</password>
+          <database>test</database>
+          <!--
+          Port and host are only used when providing
+          an external database
+          <port>5432</port>
+          <host>localhost</host>
+          -->
+        </postgresql>
+        <createPool>false</createPool>
+        <startProvider>true</startProvider>
+        <reuseContainers>true</reuseContainers>
+      </configuration>
+    </execution>
+    <!-- Setup a new testdatabase pool now that flyway has setup the
+    tables -->
+    <execution>
+      <id>pool</id>
+      <phase>process-test-classes</phase>
+      <goals>
+        <goal>pool</goal>
+      </goals>
 
-<plugin>
-<groupId>io.metaloom.maven</groupId>
-<artifactId>testdb-maven-plugin</artifactId>
-<version>0.0.1-SNAPSHOT</version>
-<executions>
-    <!-- Start the provider daemon and needed database containers -->
-    <execution>
-        <id>start</id>
-        <phase>initialize</phase>
-        <goals>
-            <goal>start</goal>
-            <configuration>
-                <skip>false</skip>
-                <defaultLimits>
-                <minimum>10</minimum>
-                <maximum>20</maximum>
-                <increment>5</increment>
-                </defaultLimits>
-                <postgresql>
-                    <containerImage>postgres:13.2</containerImage>
-                    <startContainer>true</startContainer>
-                    <tmpfsSizeMB>256</tmpfsSizeMB>
-                    <username>sa</username>
-                    <password>sa</password>
-                    <database>test</database>
-                    <!--
-                    Port and host are only used when providing
-                    an external database
-                    <port>5432</port>
-                    <host>localhost</host>
-                    -->
-                </postgresql>
-                <createPool>false</createPool>
-                <startProvider>true</startProvider>
-                <reuseContainers>true</reuseContainers>
-            </configuration>
-        </goals>
-    </execution>
-    <!-- Now flyway has populated the database and we can setup our test database pool -->
-    <execution>
-        <id>pool</id>
-        <phase>process-test-classes</phase>
-        <goals>
-            <goal>pool</goal>
-        </goals>
-        <configuration>
-            <pools>
-                <pool>
-                    <id>dummy</id>
-                    <!-- The connection details can be omitted when the start goal provides a database container -->
-                    <!--
-                    <host>${maven.testdatabase-provider.postgresql.host}</host>
-                    <port>${maven.testdatabase-provider.postgresql.port}</port>
-                    <username>${maven.testdatabase-provider.postgresql.username}</username>
-                    <password>${maven.testdatabase-provider.postgresql.password}</password>
-                    <database>${maven.testdatabase-provider.postgresql.database}</database>
-                    -->
-                    <templateName>test</templateName>
-                    <limits>
-                    <minimum>10</minimum>
-                    <maximum>30</maximum>
-                    <increment>5</increment>
-                    </limits>
-                </pool>
-            </pools>
-        </configuration>
+      <configuration>
+        <pools>
+          <pool>
+            <id>dummy</id>
+            <host>${maven.testdatabase-provider.postgresql.host}</host>
+            <port>${maven.testdatabase-provider.postgresql.port}</port>
+            <username>${maven.testdatabase-provider.postgresql.username}</username>
+            <password>${maven.testdatabase-provider.postgresql.password}</password>
+            <database>${maven.testdatabase-provider.postgresql.database}</database>
+            <templateName>test</templateName>
+            <limits>
+              <minimum>10</minimum>
+              <maximum>30</maximum>
+              <increment>5</increment>
+            </limits>
+          </pool>
+        </pools>
+      </configuration>
     </execution>
 
-    <!-- Finally we stop the started containers -->
+    <!-- Stop the previously started containers -->
     <execution>
-        <id>stop</id>
-        <phase>post-integration-test</phase>
-        <goals>
-            <goal>stop</goal>
-        </goals>
+      <id>stop</id>
+      <phase>post-integration-test</phase>
+      <goals>
+        <goal>stop</goal>
+      </goals>
     </execution>
-</executions>
+  </executions>
 </plugin>
-…
 ```
 
 ## Pitfalls
@@ -408,6 +223,15 @@ public DatabaseProviderRule provider = new DatabaseProviderRule("localhost", ser
 @Test
 public void testDB() {
     System.out.println(provider.db());
+}
+```
+
+```java
+@Test
+public void testDB2() throws InterruptedException {
+	Thread.sleep(2000);
+	System.out.println(provider.db());
+	Thread.sleep(2000);
 }
 ```
 
