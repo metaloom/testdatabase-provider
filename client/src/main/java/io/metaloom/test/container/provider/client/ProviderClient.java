@@ -32,7 +32,7 @@ public class ProviderClient {
 	/**
 	 * Connect the test to the database provider. The provider will assign a test database which can be used by the caller.
 	 * 
-	 * @param testcaseName
+	 * @param poolName
 	 * @param testRef
 	 * @return
 	 */
