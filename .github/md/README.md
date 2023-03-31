@@ -34,7 +34,7 @@ The dedicated `testdb-maven-plugin` can be used to startup a postgreSQL and prov
 | [`testdb:start`](https://metaloom.github.io/testdatabase-provider/start-mojo.html)    | Create config and start containers               | initialize              |
 | [`testdb:pool`](https://metaloom.github.io/testdatabase-provider/pool-mojo.html)      | Create new testdatabase pools                    | process-test-classes    |
 | [`testdb:stop`](https://metaloom.github.io/testdatabase-provider/stop-mojo.html)      | Stop and destroy containers                      | post-integration-test   |
-| [`testdb:clean`](https://metaloom.github.io/testdatabase-provider/clean-mojo.html)    | Stop and destroy containers                      | clean                   |
+| [`testdb:clean`](https://metaloom.github.io/testdatabase-provider/clean-mojo.html)    | Stop and destroy containers                      | pre-clean               |
 
 
 ### Usage
@@ -104,7 +104,7 @@ Various variables may be specified during startup that reference the testdatabas
 * `TESTDATABASE_PROVIDER_POOL_INCREMENT` - Default increment for newly created pools. The server will create new databases whenever the minium threshold is hot. The increment setting can be used to create multiple new databases in one step.
 
 
-## Test - Junit 5
+## Test - JUnit 5
 
 ```xml
 <dependency>
@@ -121,7 +121,7 @@ A test can acquire a database using the `DatabaseProviderExtension` extension.
 %{snippet|id=test_snippet|file=./examples/minimal/src/test/java/io/metaloom/example/ExampleJunit5Test.java}
 ```
 
-## Test - Junit 4 
+## Test - JUnit 4 
 
 ```xml
 <dependency>
@@ -132,6 +132,7 @@ A test can acquire a database using the `DatabaseProviderExtension` extension.
 </dependency>
 ```
 
+With JUnit 4 the pool can be queried using the `DatabaseProviderRule` test rule.
 
 ```java
 %{snippet|id=test_snippet|file=./examples/minimal/src/test/java/io/metaloom/example/ExampleJunit4Test.java}

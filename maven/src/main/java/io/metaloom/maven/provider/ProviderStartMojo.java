@@ -51,6 +51,8 @@ public class ProviderStartMojo extends AbstractProviderMojo {
 					getLog().warn("Ignoring hostname setting. When starting a container the used host can't be selected.");
 				}
 				dbContainer = startPostgres(reuseContainers);
+			} else {
+				getLog().info("Not starting postgreSQL container");
 			}
 		} else {
 			getLog().info("No postgreSQL settings found. Not starting database container.");

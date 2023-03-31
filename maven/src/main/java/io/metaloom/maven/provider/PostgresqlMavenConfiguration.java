@@ -27,7 +27,7 @@ public class PostgresqlMavenConfiguration {
 	 * maven.provider.db.password will automatically be set and can be uses by other plugins after the execution of the plugin goal.
 	 */
 	@Parameter(property = POSTGRESQL_START_CONTAINER_PROP_KEY, required = false, defaultValue = "true")
-	private boolean startContainer;
+	private boolean startContainer = true;
 
 	/**
 	 * Container image to be used to startup the postgreSQL.

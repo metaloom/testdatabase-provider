@@ -59,7 +59,7 @@
 							<pools>
 								<pool>
 									<id>dummy</id>
-									<templateName>test</templateName>
+									<templateName>postgres</templateName>
 									<limits>
 										<minimum>10</minimum>
 										<maximum>30</maximum>

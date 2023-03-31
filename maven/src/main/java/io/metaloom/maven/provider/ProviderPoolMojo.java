@@ -26,6 +26,9 @@ import io.metaloom.test.container.provider.model.DatabasePoolSettings;
 @Mojo(name = "pool", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES)
 public class ProviderPoolMojo extends AbstractProviderMojo {
 
+	/**
+	 * List of pool definitions which should be setup by the goal.
+	 */
 	@Parameter(property = PROVIDER_POOLS_PROPS_KEY)
 	private List<PoolMavenConfiguration> pools;
 

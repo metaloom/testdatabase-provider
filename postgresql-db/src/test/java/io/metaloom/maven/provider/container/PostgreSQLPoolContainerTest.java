@@ -10,7 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 public class PostgreSQLPoolContainerTest {
 
 	@Container
-	private static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(128);
+	private static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer().withTmpFs(128);
 
 	@Test
 	public void testSetup() {

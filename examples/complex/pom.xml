@@ -61,11 +61,15 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
-							<defaultLimits>
-								<minimum>10</minimum>
-								<maximum>20</maximum>
-								<increment>5</increment>
-							</defaultLimits>
+							<provider>
+								<limits>
+									<minimum>10</minimum>
+									<maximum>20</maximum>
+									<increment>5</increment>
+								</limits>
+								<createPool>false</createPool>
+								<startProvider>true</startProvider>
+							</provider>
 							<postgresql>
 								<containerImage>postgres:13.2</containerImage>
 								<startContainer>true</startContainer>
@@ -80,8 +84,6 @@
 								<host>localhost</host>
                 -->
 							</postgresql>
-							<createPool>false</createPool>
-							<startProvider>true</startProvider>
 							<reuseContainers>true</reuseContainers>
 						</configuration>
 					</execution>
@@ -98,11 +100,11 @@
 							<pools>
 								<pool>
 									<id>dummy</id>
-									<host>${maven.testdatabase-provider.postgresql.host}</host>
-									<port>${maven.testdatabase-provider.postgresql.port}</port>
-									<username>${maven.testdatabase-provider.postgresql.username}</username>
-									<password>${maven.testdatabase-provider.postgresql.password}</password>
-									<database>${maven.testdatabase-provider.postgresql.database}</database>
+									<host>${maven.testdb.postgresql.host}</host>
+									<port>${maven.testdb.postgresql.port}</port>
+									<username>${maven.testdb.postgresql.username}</username>
+									<password>${maven.testdb.postgresql.password}</password>
+									<database>${maven.testdb.postgresql.database}</database>
 									<templateName>test</templateName>
 									<limits>
 										<minimum>10</minimum>

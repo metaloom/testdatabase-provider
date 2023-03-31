@@ -15,7 +15,7 @@ import io.vertx.core.Vertx;
 public class DatabasePoolManagerTest {
 
 	@Container
-	public static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(128);
+	public static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer().withTmpFs(128);
 
 	@Test
 	public void testPool() {

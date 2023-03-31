@@ -37,13 +37,13 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 	 * connection. The settings will be used when choosing to create a default test database pool during the execution of this goal.
 	 */
 	@Parameter(property = PostgresqlMavenConfiguration.POSTGRESQL_CONFIG_PROP_KEY, alias = "postgresql")
-	public PostgresqlMavenConfiguration postgresqlMavenConfig;
+	protected PostgresqlMavenConfiguration postgresqlMavenConfig = new PostgresqlMavenConfiguration();
 
 	/**
 	 * Parameters for the testdatabase provider daemon.
 	 */
 	@Parameter(property = ProviderMavenConfiguration.PROVIDER_CONFIG_PROP_KEY, alias = "provider")
-	public ProviderMavenConfiguration providerMavenConfig;
+	protected ProviderMavenConfiguration providerMavenConfig = new ProviderMavenConfiguration();
 
 	/**
 	 * Whether the plugin execution should be skipped
@@ -70,7 +70,16 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		}
 
 		@SuppressWarnings("resource")
-		PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(postgresqlMavenConfig.getContainerImage(), postgresqlMavenConfig.getTmpfsSizeMB());
+		String imageName = postgresqlMavenConfig.getContainerImage();
+		PostgreSQLPoolContainer db = null;
+		if (imageName == null) {
+			db = new PostgreSQLPoolContainer();
+		} else {
+			db = new PostgreSQLPoolContainer(imageName);
+		}
+		if (postgresqlMavenConfig.getTmpfsSizeMB() != 0) {
+			db.withTmpFs(postgresqlMavenConfig.getTmpfsSizeMB());
+		}
 		if (reuseContainers) {
 			db.withReuse(true);
 		}
@@ -87,16 +96,17 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		}
 
 		db.start();
+		final PostgreSQLPoolContainer finDB = db;
 		updateConfig(state -> {
 			PostgresqlConfig postgresqlConfig = state.getPostgresql();
 			postgresqlConfig.setInternalHost(TEST_DATABASE_NETWORK_ALIAS);
 			postgresqlConfig.setInternalPort(PostgreSQLContainer.POSTGRESQL_PORT);
-			postgresqlConfig.setHost(db.getHost());
-			postgresqlConfig.setPort(db.getPort());
-			postgresqlConfig.setUsername(db.getUsername());
-			postgresqlConfig.setPassword(db.getPassword());
-			postgresqlConfig.setDatabaseName(db.getDatabaseName());
-			postgresqlConfig.setContainerId(db.getContainerId());
+			postgresqlConfig.setHost(finDB.getHost());
+			postgresqlConfig.setPort(finDB.getPort());
+			postgresqlConfig.setUsername(finDB.getUsername());
+			postgresqlConfig.setPassword(finDB.getPassword());
+			postgresqlConfig.setDatabaseName(finDB.getDatabaseName());
+			postgresqlConfig.setContainerId(finDB.getContainerId());
 		});
 
 		// Provide the properties so those can be used in maven
@@ -148,8 +158,13 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 			internalDatabasePort = PostgreSQLContainer.POSTGRESQL_PORT;
 		}
 
-		@SuppressWarnings("resource")
-		DatabaseProviderContainer providerContainer = new DatabaseProviderContainer(postgresqlMavenConfig.getContainerImage());
+		DatabaseProviderContainer providerContainer = null;
+		String customImage = postgresqlMavenConfig.getContainerImage();
+		if (customImage != null) {
+			providerContainer = new DatabaseProviderContainer(customImage);
+		} else {
+			providerContainer = new DatabaseProviderContainer();
+		}
 		if (reuseContainers) {
 			providerContainer.withReuse(true);
 		}
@@ -192,12 +207,13 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 
 		final String intHost = internalDatabaseHost;
 		final Integer intPort = internalDatabasePort;
+		final DatabaseProviderContainer finProviderContainer = providerContainer;
 		updateConfig(config -> {
-			config.setProviderHost(providerContainer.getHost());
-			config.setProviderPort(providerContainer.getPort());
+			config.setProviderHost(finProviderContainer.getHost());
+			config.setProviderPort(finProviderContainer.getPort());
 			config.getPostgresql().setInternalHost(intHost);
 			config.getPostgresql().setInternalPort(intPort);
-			config.setProviderContainerId(providerContainer.getContainerId());
+			config.setProviderContainerId(finProviderContainer.getContainerId());
 		});
 		return providerContainer;
 	}
@@ -208,6 +224,7 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 			if (dbContainer != null) {
 				postgresqlConfig.setInternalHost(TEST_DATABASE_NETWORK_ALIAS);
 				postgresqlConfig.setInternalPort(PostgreSQLContainer.POSTGRESQL_PORT);
+				postgresqlConfig.setContainerId(dbContainer.getContainerId());
 			} else {
 				postgresqlConfig.setHost(postgresqlMavenConfig.getHost());
 				postgresqlConfig.setPort(postgresqlMavenConfig.getPort());

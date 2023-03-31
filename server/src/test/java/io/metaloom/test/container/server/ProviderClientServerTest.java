@@ -28,7 +28,7 @@ import io.vertx.core.json.Json;
 public class ProviderClientServerTest {
 
 	@Container
-	public static PostgreSQLPoolContainer db = new PostgreSQLPoolContainer(128);
+	public static PostgreSQLPoolContainer db = new PostgreSQLPoolContainer().withTmpFs(128);
 
 	private static ProviderClient client;
 	private static DatabaseProviderServer server;

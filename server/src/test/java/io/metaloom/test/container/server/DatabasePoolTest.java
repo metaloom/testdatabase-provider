@@ -26,7 +26,7 @@ public class DatabasePoolTest {
 	public static final Vertx vertx = Vertx.vertx();
 
 	@Container
-	public static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer(512);
+	public static PostgreSQLPoolContainer container = new PostgreSQLPoolContainer().withTmpFs(128);
 
 	DatabasePool pool;
 

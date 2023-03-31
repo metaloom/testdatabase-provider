@@ -17,22 +17,28 @@ public class PostgreSQLPoolContainer extends PostgreSQLContainer<PostgreSQLPoolC
 	public static final String DEFAULT_DATABASE_NAME = "postgres";
 
 	public PostgreSQLPoolContainer() {
-		this(0);
+		this(DEFAULT_IMAGE);
 	}
 
-	public PostgreSQLPoolContainer(int liveTmpFsSizeInMB) {
-		this(DEFAULT_IMAGE, liveTmpFsSizeInMB);
-	}
-
-	public PostgreSQLPoolContainer(String imageName, int liveTmpFsSizeInMB) {
+	public PostgreSQLPoolContainer(String imageName) {
 		super(DockerImageName.parse(imageName).asCompatibleSubstituteFor(DEFAULT_IMAGE));
 		withDatabaseName(DEFAULT_DATABASE_NAME);
 		withUsername(DEFAULT_USERNAME);
 		withPassword(DEFAULT_PASSWORD);
+	}
+
+	/**
+	 * Enable the usage of a tmpFs to store the actual database data.
+	 * 
+	 * @param liveTmpFsSizeInMB
+	 * @return
+	 */
+	public PostgreSQLPoolContainer withTmpFs(int liveTmpFsSizeInMB) {
 		if (liveTmpFsSizeInMB != 0) {
 			withEnv("PGDATA", "/live/pgdata");
 			withTmpFs(tmpFs(liveTmpFsSizeInMB));
 		}
+		return this;
 	}
 
 	private Map<String, String> tmpFs(int liveSizeMB) {
