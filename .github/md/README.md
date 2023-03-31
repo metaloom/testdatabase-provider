@@ -41,10 +41,11 @@ The dedicated `testdb-maven-plugin` can be used to startup a postgreSQL and prov
 
 The lifecyle order in this example:
 
+* **pre-clean** - Stopping of any still running containers
 * **initialize** - Startup of postgresql + provider container
 * **generate-sources** - Flyway setup of database
 * **process-test-classes** - Setup of a testdatabase pool
-* **post-integration-test** - Removal of started containers
+* **prepare-package** - Removal of started containers
 
 Maven Commands:
 

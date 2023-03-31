@@ -106,6 +106,7 @@ Example configuration:
 			</configuration>
 		</execution>
 		<execution>
+			<id>stop</id>
 			<goals>
 				<goal>stop</goal>
 			</goals>

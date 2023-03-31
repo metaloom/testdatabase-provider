@@ -18,7 +18,7 @@ import io.metaloom.test.container.provider.common.config.ProviderConfigHelper;
 /**
  * The stop operation will terminate previously started databases and the testdatabase provider daemon container.
  */
-@Mojo(name = "stop", defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
+@Mojo(name = "stop", defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class ProviderStopMojo extends AbstractProviderMojo {
 
 	@Override
