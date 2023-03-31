@@ -10,7 +10,7 @@ import io.metaloom.test.container.server.AbstractProviderServerTest;
 public class DatabaseProviderRuleTest extends AbstractProviderServerTest {
 
 	@Rule
-	public DatabaseProviderRule provider = new DatabaseProviderRule("localhost", server.getPort());
+	public DatabaseProviderRule provider = DatabaseProviderRule.create("default");
 
 	@Test
 	public void testA() {

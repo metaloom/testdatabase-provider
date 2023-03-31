@@ -1,5 +1,7 @@
 package io.metaloom.test.provider.junit4;
 
+import java.io.IOException;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -8,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import io.metaloom.test.container.provider.client.ClientAllocation;
 import io.metaloom.test.container.provider.client.ProviderClient;
-import io.metaloom.test.container.provider.common.ClientEnv;
+import io.metaloom.test.container.provider.client.TestDatabaseProvider;
 import io.metaloom.test.container.provider.model.DatabaseAllocationResponse;
 
 public class DatabaseProviderRule implements TestRule {
@@ -17,13 +19,15 @@ public class DatabaseProviderRule implements TestRule {
 
 	private ProviderClient client;
 	private ClientAllocation allocation;
+	private String poolId;
 
-	public DatabaseProviderRule(String host, int port) {
-		this.client = new ProviderClient(host, port);
+	public DatabaseProviderRule(ProviderClient client, String poolId) {
+		this.client = client;
+		this.poolId = poolId;
 	}
 
-	public DatabaseProviderRule() {
-		this(ClientEnv.getProviderHost(), ClientEnv.getProviderPort());
+	public DatabaseProviderRule(String host, int port, String poolId) {
+		this(new ProviderClient(host, port), poolId);
 	}
 
 	@Override
@@ -53,7 +57,8 @@ public class DatabaseProviderRule implements TestRule {
 		String testClass = description.getClassName();
 		String testRef = testClass + "_" + testName;
 		try {
-			allocation = client.link("default", testRef).get();
+			log.debug("Linking test {}. Requesting DB from {}", testRef, poolId);
+			allocation = client.link(poolId, testRef).get();
 		} catch (Exception e) {
 			log.error("Error while linking test {}", testRef, e);
 			throw new RuntimeException(e);
@@ -62,6 +67,21 @@ public class DatabaseProviderRule implements TestRule {
 
 	public DatabaseAllocationResponse db() {
 		return allocation == null ? null : allocation.response();
+	}
+
+	/**
+	 * Create a new extension which connects to the provider server.
+	 * 
+	 * @param poolId
+	 * @return
+	 */
+	public static DatabaseProviderRule create(String poolId) {
+		try {
+			ProviderClient client = TestDatabaseProvider.client();
+			return new DatabaseProviderRule(client, poolId);
+		} catch (IOException e) {
+			throw new RuntimeException("Error while preparing client to connect to provider", e);
+		}
 	}
 
 }

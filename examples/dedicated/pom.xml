@@ -12,6 +12,19 @@
 
 	<name>Testdatabase Provider :: Dedicated Example</name>
 
+	<dependencies>
+		<dependency>
+			<groupId>io.metaloom.test</groupId>
+			<artifactId>testdatabase-provider-junit5</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.metaloom.test</groupId>
+			<artifactId>testdatabase-provider-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -26,6 +39,7 @@
 					<!-- Setup a new testdatabase pool now that flyway has setup the
 					tables -->
 					<execution>
+						<?m2e ignore?>
 						<id>pool</id>
 						<phase>process-test-classes</phase>
 						<goals>
@@ -48,6 +62,7 @@
 					</execution>
 					<execution>
 						<id>stop</id>
+						<?m2e ignore?>
 						<phase>post-integration-test</phase>
 						<goals>
 							<goal>stop</goal>

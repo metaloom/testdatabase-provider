@@ -13,7 +13,7 @@ import io.metaloom.test.container.server.AbstractProviderServerTest;
 public class DatabaseProviderExtensionTest extends AbstractProviderServerTest {
 
 	@RegisterExtension
-	public static DatabaseProviderExtension ext = new DatabaseProviderExtension("localhost", server.getPort());
+	public static ProviderExtension ext = ProviderExtension.create("default");
 
 	@Test
 	public void testDB() throws Exception {

@@ -36,6 +36,11 @@
 				<version>${testdatabase-provider.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>io.metaloom.test</groupId>
+				<artifactId>testdatabase-provider-junit4</artifactId>
+				<version>${testdatabase-provider.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
 				<version>1.2.10</version>

@@ -6,6 +6,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.metaloom.test.container.provider.common.ClientEnv;
 import io.metaloom.test.container.provider.common.config.PostgresqlConfig;
 import io.metaloom.test.container.provider.common.config.ProviderConfig;
 import io.metaloom.test.container.provider.common.config.ProviderConfigHelper;
@@ -14,6 +18,8 @@ import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 
 public class TestDatabaseProvider {
+
+	private static final Logger log = LoggerFactory.getLogger(TestDatabaseProvider.class);
 
 	/**
 	 * Return the REST client for the given host and port.
@@ -33,10 +39,17 @@ public class TestDatabaseProvider {
 	 * @throws IOException
 	 */
 	public static ProviderClient client() throws IOException {
+		String host = ClientEnv.getProviderHost();
+		Integer port = ClientEnv.getProviderPort();
+		if (host == null || port == null) {
+			log.debug("Client host,port environment variables for provider not found");
+		} else {
+			return new ProviderClient(host, port);
+		}
 		ProviderConfig config = config();
 		requireConfig(config);
-		String host = config.getProviderHost();
-		int port = config.getProviderPort();
+		host = config.getProviderHost();
+		port = config.getProviderPort();
 		return client(host, port);
 	}
 

@@ -6,8 +6,11 @@ public final class ClientEnv {
 
 	public static final String TESTDATABASE_PROVIDER_PORT_KEY = "TESTDATABASE_PROVIDER_PORT";
 
-	public static int getProviderPort() {
+	public static Integer getProviderPort() {
 		String portStr = System.getenv(ClientEnv.TESTDATABASE_PROVIDER_PORT_KEY);
+		if (portStr == null) {
+			return null;
+		}
 		return Integer.parseInt(portStr);
 	}
 

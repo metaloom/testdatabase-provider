@@ -12,6 +12,13 @@
 
 	<name>Testdatabase Provider :: Minimal Example</name>
 
+	<dependencies>
+		<dependency>
+			<groupId>io.metaloom.test</groupId>
+			<artifactId>testdatabase-provider-junit5</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
