@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.metaloom.test</groupId>
   <artifactId>testdatabase-provider</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
 
   <packaging>pom</packaging>
   <parent>
@@ -161,7 +161,7 @@
           <dependency>
             <groupId>io.metaloom.maven</groupId>
             <artifactId>snippet-resource-filter</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
           </dependency>
         </dependencies>
       </plugin>
