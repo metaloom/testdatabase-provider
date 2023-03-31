@@ -60,7 +60,9 @@ mvn testdb:pool@pool
 mvn testdb:stop
 ```
 
-### Example
+## [Minimal Example](minimal)
+
+This example shows how to use the provider with its bare minimum default configuration.
 
 Example configuration:
 
@@ -116,6 +118,49 @@ Example configuration:
 </plugin>
 ```
 
+## [Complex Example](complex)
+
+This example shows how to use the testdatabase provider in a multi-module maven project.
+
+## [Dedicated Example](dedicated)
+
+This example demonstrates how the testprovider can be used without automatically starting containers. Instead an external running PostgreSQL and testcontainer server will be queried to provide the pooled testdatabases.
+
+```bash
+# Startup the standalone database + provider
+cd examples/dedicated
+docker-compose  up -d
+
+# Run tests - a pool will be configured and tests executed
+mvn clean package
+```
+
+The `start` goal of the plugin will create the `target/testdatabase-provider.json` file with the provided settings and enable the JUnit plugin to communicate with the provider server.
+
+The `configuration` section contains thus all needed information to setup the testdatabase pool.
+
+```xml
+<configuration>
+  <provider>
+    <startContainer>false</startContainer>
+    <host>localhost</host>
+    <port>7543</port>
+  </provider>
+  <postgresql>
+    <startContainer>false</startContainer>
+    <username>sa</username>
+    <password>sa</password>
+    <database>test</database>
+    <host>localhost</host>
+    <port>15432</port>
+    <internalHost>postgresql</internalHost>
+    <internalPort>5432</internalPort>
+  </postgresql>
+</configuration>
+```
+
+The use of this setup may also be suitable when running tests in a test environment which can be configured to allow access to additional containerized services (e.g. Jenkins CI Worker using `PodTemplate` in a K8S worker setup).
+
 ## Pitfalls
 
 The `reuseContainers` setting will ensure that the started containers are not being removed once the maven process terminates. This is especially useful when providing test databases for your IDE test execution.
@@ -126,6 +171,7 @@ This feature requires the file `~/.testcontainers.properties` to contain the `te
 ```bash
 testcontainers.reuse.enable=true
 ```
+
 ## Standalone
 
 The provider server container can also be setup as a standlone container.
@@ -137,7 +183,7 @@ docker run --rm \
 
 ## Provider Server Environment variables
 
-Various variables may be specified during startup that reference the testdatabase being used. When the `TESTDATABASE_PROVIDER_POOL_TEMPLATE_NAME` variable has been specified a `default`database pool will be setup during startup of the provider container. Please note that this is not mandatory as the REST API can be called after startup to CRUD new test database pools.
+Various variables may be specified during startup that reference the testdatabase being used. When the `TESTDATABASE_PROVIDER_POOL_TEMPLATE_NAME` variable has been specified a `default` database pool will be setup during startup of the provider container. Please note that this is not mandatory as the REST API can be called after startup to CRUD new test database pools.
 
 * `TESTDATABASE_PROVIDER_DATABASE_HOST` -  Host setting which will be passed along to tests that requested a database.
 * `TESTDATABASE_PROVIDER_DATABASE_PORT` - Port setting which will be passed along to tests that requested a database.
@@ -145,15 +191,15 @@ Various variables may be specified during startup that reference the testdatabas
 * `TESTDATABASE_PROVIDER_DATABASE_INTERNAL_PORT` - Port setting which will be used by the provider server to managed the pooled databases.
 * `TESTDATABASE_PROVIDER_DATABASE_USERNAME` - Connection details for database.
 * `TESTDATABASE_PROVIDER_DATABASE_PASSWORD` - Connection details for database.
-* `TESTDATABASE_PROVIDER_DATABASE_DBNAME_KEY` - Name of the database which will be selected when invoking admin operations (e.g. DROP DATABASE, CREATE DATABASE)
+* `TESTDATABASE_PROVIDER_DATABASE_DBNAME_KEY` - Name of the database which will be selected when invoking admin operations (e.g. DROP DATABASE, CREATE DATABASE). This DB will not be used as a template for new databases.
 * `TESTDATABASE_PROVIDER_POOL_TEMPLATE_NAME` - Name of the database which should be used by the `default` pool. When omitted no `default` pool will be created.
 
 * `TESTDATABASE_PROVIDER_POOL_MINIMUM` - Default minimum for newly created pools.
 * `TESTDATABASE_PROVIDER_POOL_MAXIMUM` - Default maximum for newly created pools.
 * `TESTDATABASE_PROVIDER_POOL_INCREMENT` - Default increment for newly created pools. The server will create new databases whenever the minium threshold is hot. The increment setting can be used to create multiple new databases in one step.
 
-
 ## Test - JUnit 5
+
 
 ```xml
 <dependency>
@@ -164,7 +210,7 @@ Various variables may be specified during startup that reference the testdatabas
 </dependency>
 ```
 
-A test can acquire a database using the `DatabaseProviderExtension` extension.
+A test can acquire a database from the pool via the `DatabaseProviderExtension` extension.
 
 ```java
 @RegisterExtension
@@ -212,5 +258,8 @@ mvn clean
 mvn clean deploy -Drelease
 
 # Update gh-pages branch
-# TODO
+mvn clean site
+cd ../testdatabase-provider-gh-pages
+./update.sh
+# Commit + push
 ```

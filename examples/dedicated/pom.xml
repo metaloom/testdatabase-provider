@@ -69,6 +69,7 @@
             </goals>
           </execution>
         </executions>
+        <!-- SNIPPET START config-section  -->
         <configuration>
           <provider>
             <startContainer>false</startContainer>
@@ -86,6 +87,7 @@
             <internalPort>5432</internalPort>
           </postgresql>
         </configuration>
+        <!-- SNIPPET END config-section  -->
       </plugin>
     </plugins>
 
