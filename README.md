@@ -1,4 +1,4 @@
-# Test Database Provider - 0.1.1-SNAPSHOT
+# Test Database Provider - 0.1.1
 
 This project provides tools to quickly allocate test databases for Java based projects.
 Depending on the test database size and complexity it may be much faster to not have to prepare a new database for every testcase.
@@ -22,7 +22,7 @@ The dedicated `testdb-maven-plugin` can be used to startup a postgreSQL and prov
 <plugin>
     <groupId>io.metaloom.maven</groupId>
     <artifactId>testdb-maven-plugin</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.1</version>
 </plugin>
 ```
 
@@ -41,10 +41,11 @@ The dedicated `testdb-maven-plugin` can be used to startup a postgreSQL and prov
 
 The lifecyle order in this example:
 
+* **pre-clean** - Stopping of any still running containers
 * **initialize** - Startup of postgresql + provider container
 * **generate-sources** - Flyway setup of database
 * **process-test-classes** - Setup of a testdatabase pool
-* **post-integration-test** - Removal of started containers
+* **prepare-package** - Removal of started containers
 
 Maven Commands:
 
@@ -131,7 +132,7 @@ The provider server container can also be setup as a standlone container.
 
 ```bash
 docker run --rm \
-  metaloom/testdatabase-provider:0.1.1-SNAPSHOT
+  metaloom/testdatabase-provider:0.1.1
 ```
 
 ## Provider Server Environment variables
@@ -158,7 +159,7 @@ Various variables may be specified during startup that reference the testdatabas
 <dependency>
   <groupId>io.metaloom.test</groupId>
   <artifactId>testdatabase-provider-junit5</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.1</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -181,7 +182,7 @@ public void testDB() throws Exception {
 <dependency>
   <groupId>io.metaloom.test</groupId>
   <artifactId>testdatabase-provider-junit4</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.1</version>
   <scope>test</scope>
 </dependency>
 ```

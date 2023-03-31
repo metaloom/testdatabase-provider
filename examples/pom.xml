@@ -10,7 +10,7 @@
 	<properties>
 		<postgres.driver.version>42.2.2</postgres.driver.version>
 		<testcontainer.version>1.17.6</testcontainer.version>
-		<testdatabase-provider.version>0.1.1-SNAPSHOT</testdatabase-provider.version>
+		<testdatabase-provider.version>0.1.1</testdatabase-provider.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -54,7 +54,7 @@
 				<plugin>
 					<groupId>io.metaloom.maven</groupId>
 					<artifactId>testdb-maven-plugin</artifactId>
-					<version>0.1.1-SNAPSHOT</version>
+					<version>0.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.flywaydb</groupId>
