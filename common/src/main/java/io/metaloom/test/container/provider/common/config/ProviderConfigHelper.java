@@ -70,7 +70,6 @@ public final class ProviderConfigHelper {
 	 * Attempt to locate the config file by looking into parent directories if needed.
 	 * 
 	 * @return
-	 * @throws IOException
 	 */
 	public static ProviderConfig readConfig() {
 		try {
