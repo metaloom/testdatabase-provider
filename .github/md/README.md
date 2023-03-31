@@ -146,7 +146,7 @@ With JUnit 4 the pool can be queried using the `DatabaseProviderRule` test rule.
 mvn versions:set -DgenerateBackupPoms=false
 
 # Update readme
-mvn post-clean
+mvn clean
 
 # Invoke release
 mvn clean deploy -Drelease

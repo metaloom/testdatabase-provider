@@ -206,7 +206,7 @@ public void testDB() throws Exception {
 mvn versions:set -DgenerateBackupPoms=false
 
 # Update readme
-mvn post-clean
+mvn clean
 
 # Invoke release
 mvn clean deploy -Drelease
