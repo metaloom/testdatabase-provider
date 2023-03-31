@@ -33,6 +33,8 @@
 						<configuration>
 							<provider>
 								<startContainer>false</startContainer>
+								<host>localhost</host>
+								<port>7543</port>
 							</provider>
 							<postgresql>
 								<startContainer>false</startContainer>

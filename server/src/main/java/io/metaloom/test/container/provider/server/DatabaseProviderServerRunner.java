@@ -24,19 +24,34 @@ public class DatabaseProviderServerRunner {
 		int increment = ServerEnv.getPoolIncrement();
 		provider.getManager().setDefaults(minimum, maximum, increment);
 
-		String databaseName = ServerEnv.getDatabaseName();
-		if (databaseName != null) {
+		String templateDatabaseName = ServerEnv.getDatabaseTemplateName();
+		if (templateDatabaseName != null) {
 			String host = ServerEnv.getDatabaseHost();
 			Integer port = ServerEnv.getDatabasePort();
 			String username = ServerEnv.getDatabaseUsername();
 			String password = ServerEnv.getDatabasePassword();
-			log.info("Creating default pool for database " + host + ":" + port + "/" + databaseName);
-			DatabasePool pool = provider.getManager()
-				.createPool("default", host, port, host, port, username, password, databaseName, databaseName);
-			pool.setLimits(minimum, maximum, increment);
-			pool.setTemplateDatabaseName(databaseName);
-			pool.start();
-		}
+			String adminDB = ServerEnv.getDatabaseName();
+			requireEnv(host, ServerEnv.TESTDATABASE_PROVIDER_DATABASE_HOST_KEY, templateDatabaseName);
+			requireEnv(port, ServerEnv.TESTDATABASE_PROVIDER_DATABASE_PORT_KEY, templateDatabaseName);
+			requireEnv(username, ServerEnv.TESTDATABASE_PROVIDER_DATABASE_USERNAME_KEY, templateDatabaseName);
+			requireEnv(password, ServerEnv.TESTDATABASE_PROVIDER_DATABASE_PASSWORD_KEY, templateDatabaseName);
+			requireEnv(adminDB, ServerEnv.TESTDATABASE_PROVIDER_DATABASE_DBNAME_KEY, templateDatabaseName);
 
+			log.info("Creating default pool for database " + host + ":" + port + "/" + templateDatabaseName + " using admin db " + adminDB);
+			DatabasePool pool = provider.getManager()
+				.createPool("default", host, port, host, port, username, password, adminDB, templateDatabaseName);
+			pool.setLimits(minimum, maximum, increment);
+			pool.setTemplateDatabaseName(templateDatabaseName);
+			pool.start();
+		} else {
+			log.debug("Skipping creation of default pool since no template db was specified via "
+				+ ServerEnv.TESTDATABASE_PROVIDER_DATABASE_TEMPLATE_DBNAME_KEY);
+		}
+	}
+
+	private static void requireEnv(Object value, String env, String templateDatabaseName) {
+		if (value == null) {
+			throw new ServerError("The env " + env + " must be set when a pool should be created for " + templateDatabaseName);
+		}
 	}
 }

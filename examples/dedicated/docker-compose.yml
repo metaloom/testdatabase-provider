@@ -17,7 +17,7 @@ services:
         hostname: 'provider'
         image: 'metaloom/testdatabase-provider:0.1.0'
         ports:
-            - '18080:8080/tcp'
+            - '7543:8080/tcp'
         environment:
          # Admin DB
          - TESTDATABASE_PROVIDER_DATABASE_DBNAME_KEY=test
