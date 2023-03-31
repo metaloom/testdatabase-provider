@@ -3,7 +3,6 @@ package io.metaloom.maven.provider;
 import static io.metaloom.test.container.provider.common.config.ProviderConfigHelper.readConfig;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -27,14 +26,8 @@ import io.metaloom.test.container.provider.model.DatabasePoolSettings;
 @Mojo(name = "pool", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES)
 public class ProviderPoolMojo extends AbstractProviderMojo {
 
-	/**
-	 * Whether the plugin execution should be skipped
-	 */
-	@Parameter(property = "maven.testdatabase-provider.skip", defaultValue = "false")
-	private boolean skip;
-
-	@Parameter(property = "maven.testdatabase-provider.pools")
-	private List<PoolConfiguration> pools;
+	@Parameter(property = PROVIDER_POOLS_PROPS_KEY)
+	private List<PoolMavenConfiguration> pools;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -54,7 +47,7 @@ public class ProviderPoolMojo extends AbstractProviderMojo {
 				int port = config.getProviderPort();
 
 				ProviderClient client = new ProviderClient(host, port);
-				for (PoolConfiguration pool : pools) {
+				for (PoolMavenConfiguration pool : pools) {
 					if (pool.getId() == null) {
 						throw new MojoExecutionException("Pool id is missing for " + pool);
 					}

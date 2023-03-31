@@ -7,7 +7,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 import org.testcontainers.DockerClientFactory;
 
 import com.github.dockerjava.api.DockerClient;
@@ -21,12 +20,6 @@ import io.metaloom.test.container.provider.common.config.ProviderConfigHelper;
  */
 @Mojo(name = "stop", defaultPhase = LifecyclePhase.POST_INTEGRATION_TEST)
 public class ProviderStopMojo extends AbstractProviderMojo {
-
-	/**
-	 * Whether the plugin execution should be skipped
-	 */
-	@Parameter(property = "maven.testdatabase-provider.skip", defaultValue = "false")
-	private boolean skip;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {

@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>testdatabase-provider-dedicated-example</artifactId>
+
+	<parent>
+		<groupId>io.metaloom.test.example</groupId>
+		<artifactId>testdatabase-provider-examples</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<name>Testdatabase Provider :: Dedicated Example</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>io.metaloom.maven</groupId>
+				<artifactId>testdb-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+					<!-- Startup a postgreSQL container and the provider daemon -->
+					<execution>
+						<id>setup-config</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+						<configuration>
+							<provider>
+								<startContainer>false</startContainer>
+							</provider>
+							<postgresql>
+								<startContainer>false</startContainer>
+								<username>sa</username>
+								<password>sa</password>
+								<database>test</database>
+								<port>15432</port>
+								<host>localhost</host>
+							</postgresql>
+						</configuration>
+					</execution>
+					<!-- Setup a new testdatabase pool now that flyway has setup the
+					tables -->
+					<execution>
+						<id>pool</id>
+						<phase>process-test-classes</phase>
+						<goals>
+							<goal>pool</goal>
+						</goals>
+
+						<configuration>
+							<pools>
+								<pool>
+									<id>dummy</id>
+									<templateName>test</templateName>
+									<limits>
+										<minimum>10</minimum>
+										<maximum>30</maximum>
+										<increment>5</increment>
+									</limits>
+								</pool>
+							</pools>
+						</configuration>
+					</execution>
+
+					<!-- TODO remove the previously setup pool -->
+					<execution>
+						<id>stop</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+</project>

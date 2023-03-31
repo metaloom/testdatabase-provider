@@ -2,7 +2,7 @@ package io.metaloom.maven.provider;
 
 import org.apache.maven.plugins.annotations.Parameter;
 
-public class PoolConfiguration {
+public class PoolMavenConfiguration {
 
 	/**
 	 * Id of the pool. Tests can reference this pool by id to get the desired databases.

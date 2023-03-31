@@ -1,4 +1,4 @@
-# Test Database Provider - 0.1.0
+# Test Database Provider - 0.1.1-SNAPSHOT
 
 This project provides tools to quickly allocate test databases for Java based projects.
 Depending on the test database size and complexity it may be much faster to not have to prepare a new database for every testcase.
@@ -22,7 +22,7 @@ The dedicated `testdb-maven-plugin` can be used to startup a postgreSQL and prov
 <plugin>
     <groupId>io.metaloom.maven</groupId>
     <artifactId>testdb-maven-plugin</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
 </plugin>
 ```
 
@@ -65,86 +65,53 @@ Example configuration:
 
 ```xml
 <plugin>
-  <groupId>io.metaloom.maven</groupId>
-  <artifactId>testdb-maven-plugin</artifactId>
-  <version>${testdatabase-provider.version}</version>
-  <executions>
-    <execution>
-      <goals>
-        <goal>clean</goal>
-      </goals>
-    </execution>
-    <!-- Startup a postgreSQL container and the provider daemon -->
-    <execution>
-      <id>start</id>
-      <phase>initialize</phase>
-      <goals>
-        <goal>start</goal>
-      </goals>
-      <configuration>
-        <skip>false</skip>
-        <defaultLimits>
-          <minimum>10</minimum>
-          <maximum>20</maximum>
-          <increment>5</increment>
-        </defaultLimits>
-        <postgresql>
-          <containerImage>postgres:13.2</containerImage>
-          <startContainer>true</startContainer>
-          <tmpfsSizeMB>256</tmpfsSizeMB>
-          <username>sa</username>
-          <password>sa</password>
-          <database>test</database>
-          <!--
-          Port and host are only used when providing
-          an external database
-          <port>5432</port>
-          <host>localhost</host>
-          -->
-        </postgresql>
-        <createPool>false</createPool>
-        <startProvider>true</startProvider>
-        <reuseContainers>true</reuseContainers>
-      </configuration>
-    </execution>
-    <!-- Setup a new testdatabase pool now that flyway has setup the
-    tables -->
-    <execution>
-      <id>pool</id>
-      <phase>process-test-classes</phase>
-      <goals>
-        <goal>pool</goal>
-      </goals>
+	<groupId>io.metaloom.maven</groupId>
+	<artifactId>testdb-maven-plugin</artifactId>
+	<executions>
+		<execution>
+			<id>cleanup</id>
+			<goals>
+				<goal>clean</goal>
+			</goals>
+		</execution>
+		<!-- Startup a postgreSQL container and the provider daemon -->
+		<execution>
+			<?m2e ignore?>
+			<id>setup</id>
+			<goals>
+				<goal>start</goal>
+			</goals>
+		</execution>
+		<!-- Setup a new testdatabase pool now that flyway has setup the
+		tables -->
+		<execution>
+			<?m2e ignore?>
+			<id>pool</id>
+			<phase>process-test-classes</phase>
+			<goals>
+				<goal>pool</goal>
+			</goals>
 
-      <configuration>
-        <pools>
-          <pool>
-            <id>dummy</id>
-            <host>${maven.testdatabase-provider.postgresql.host}</host>
-            <port>${maven.testdatabase-provider.postgresql.port}</port>
-            <username>${maven.testdatabase-provider.postgresql.username}</username>
-            <password>${maven.testdatabase-provider.postgresql.password}</password>
-            <database>${maven.testdatabase-provider.postgresql.database}</database>
-            <templateName>test</templateName>
-            <limits>
-              <minimum>10</minimum>
-              <maximum>30</maximum>
-              <increment>5</increment>
-            </limits>
-          </pool>
-        </pools>
-      </configuration>
-    </execution>
-
-    <!-- Stop the previously started containers -->
-    <execution>
-      <id>stop</id>
-      <phase>post-integration-test</phase>
-      <goals>
-        <goal>stop</goal>
-      </goals>
-    </execution>
-  </executions>
+			<configuration>
+				<pools>
+					<pool>
+						<id>dummy</id>
+						<templateName>test</templateName>
+						<limits>
+							<minimum>10</minimum>
+							<maximum>30</maximum>
+							<increment>5</increment>
+						</limits>
+					</pool>
+				</pools>
+			</configuration>
+		</execution>
+		<execution>
+			<goals>
+				<goal>stop</goal>
+			</goals>
+		</execution>
+	</executions>
 </plugin>
 ```
 
@@ -152,15 +119,19 @@ Example configuration:
 
 The `reuseContainers` setting will ensure that the started containers are not being removed once the maven process terminates. This is especially useful when providing test databases for your IDE test execution.
 
-This feature requires the file `~/.testcontainers.properties` to contain the line `testcontainers.reuse.enable=true`. See [reusable containers](https://www.testcontainers.org/features/reuse/) for more information.
+This feature requires the file `~/.testcontainers.properties` to contain the `testcontainers.reuse.enable` setting. See [reusable containers](https://www.testcontainers.org/features/reuse/) for more information.
 
+.testcontainers.properties
+```bash
+testcontainers.reuse.enable=true
+```
 ## Standalone
 
 The provider server container can also be setup as a standlone container.
 
 ```bash
 docker run --rm \
-  metaloom/testdatabase-provider:0.1.0
+  metaloom/testdatabase-provider:0.1.1-SNAPSHOT
 ```
 
 ## Provider Server Environment variables
@@ -187,7 +158,7 @@ Various variables may be specified during startup that reference the testdatabas
 <dependency>
   <groupId>io.metaloom.test</groupId>
   <artifactId>testdatabase-provider-junit5</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1-SNAPSHOT</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -211,7 +182,7 @@ public void testDB() {
 <dependency>
   <groupId>io.metaloom.test</groupId>
   <artifactId>testdatabase-provider-junit4</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1-SNAPSHOT</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -227,13 +198,7 @@ public void testDB() {
 ```
 
 ```java
-@Test
-public void testDB2() throws InterruptedException {
-	Thread.sleep(2000);
-	System.out.println(provider.db());
-	Thread.sleep(2000);
-}
-```
+Error during retrieving content skip as ignoreDownloadError activated.```
 
 ## Releasing 
 

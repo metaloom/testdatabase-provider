@@ -64,15 +64,19 @@ mvn testdb:stop
 Example configuration:
 
 ```xml
-%{snippet|id=plugin-section|file=./example/pom.xml}
+%{snippet|id=plugin-section|file=./examples/minimal/pom.xml}
 ```
 
 ## Pitfalls
 
 The `reuseContainers` setting will ensure that the started containers are not being removed once the maven process terminates. This is especially useful when providing test databases for your IDE test execution.
 
-This feature requires the file `~/.testcontainers.properties` to contain the line `testcontainers.reuse.enable=true`. See [reusable containers](https://www.testcontainers.org/features/reuse/) for more information.
+This feature requires the file `~/.testcontainers.properties` to contain the `testcontainers.reuse.enable` setting. See [reusable containers](https://www.testcontainers.org/features/reuse/) for more information.
 
+.testcontainers.properties
+```bash
+testcontainers.reuse.enable=true
+```
 ## Standalone
 
 The provider server container can also be setup as a standlone container.

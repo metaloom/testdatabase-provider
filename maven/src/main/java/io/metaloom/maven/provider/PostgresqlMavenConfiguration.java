@@ -4,7 +4,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
 
-public class PostgresqlSettings {
+public class PostgresqlMavenConfiguration {
 
 	/**
 	 * Whether a postgreSQL server should be started automatically. The properties maven.provider.db.url, maven.provider.db.username and
