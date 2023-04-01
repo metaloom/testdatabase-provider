@@ -65,4 +65,10 @@ public class DatabasePoolResponse extends AbstractDatabasePoolModel {
 		this.created = creationDate;
 	}
 
+	@Override
+	public String toString() {
+		return "pool: " + getId() + " " + getCreated() + ", started: " + isStarted() + ", level: " + getLevel() + ", already allocated: "
+			+ getAllocationLevel();
+	}
+
 }

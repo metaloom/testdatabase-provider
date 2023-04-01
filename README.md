@@ -71,13 +71,15 @@ Example configuration:
   <groupId>io.metaloom.maven</groupId>
   <artifactId>testdb-maven-plugin</artifactId>
   <executions>
+    <!-- 1. Ensure we don't have any remaining containers running by
+    invoking clean -->
     <execution>
       <id>cleanup</id>
       <goals>
         <goal>clean</goal>
       </goals>
     </execution>
-    <!-- Startup a postgreSQL container and the provider daemon -->
+    <!-- 2. Startup a postgreSQL container and the provider daemon -->
     <execution>
       <?m2e ignore?>
       <id>setup</id>
@@ -85,8 +87,8 @@ Example configuration:
         <goal>start</goal>
       </goals>
     </execution>
-    <!-- Setup a new testdatabase pool now that flyway has setup the
-    tables -->
+    <!-- 4. Now setup a new testdatabase pool - flyway has setup the
+    tables by now -->
     <execution>
       <?m2e ignore?>
       <id>pool</id>
@@ -108,6 +110,7 @@ Example configuration:
         </pools>
       </configuration>
     </execution>
+    <!-- Tests have been executed. We can stop the containers -->
     <execution>
       <id>stop</id>
       <goals>
@@ -200,7 +203,6 @@ Various variables may be specified during startup that reference the testdatabas
 
 ## Test - JUnit 5
 
-
 ```xml
 <dependency>
   <groupId>io.metaloom.test</groupId>
@@ -243,6 +245,36 @@ public DatabaseProviderRule provider = DatabaseProviderRule.create("dummy");
 public void testDB() throws Exception {
 	System.out.println(provider.db());
 }
+```
+
+## Database Changes
+
+Database Pools can be updated/recreated by updating the pool definition via REST. The `TestDatabaseProvider` provides easy access to common tasks like re-creating a database in order to update the template for the pool.
+
+*examples/minimal/src/test/java/io/metaloom/example/PoolSetupAction.java*
+```java
+String templateDBName = "test3";
+
+// 1. Replace the old database with an empty one.
+// The settings will be taken from the database settings
+// which were defined in the testdb-maven-plugin section of your pom.xml
+TestDatabaseProvider.dropCreatePostgreSQLDatabase(templateDBName);
+
+// 2. Now setup your tables using the flyway migration.
+ProviderConfig config = TestDatabaseProvider.config();
+String url = config.getPostgresql().jdbcUrl(templateDBName);
+String user = config.getPostgresql().getUsername();
+String password = config.getPostgresql().getPassword();
+Flyway flyway = Flyway.configure().dataSource(url, user, password).load();
+MigrateResult result = flyway.migrate();
+
+System.out.println(result.success ? "Flyway migration OK" : "Flyway migration Failed");
+
+// 3. Now recreate the dummy pool. The pool will provide the new databases for our tests.
+DatabasePoolResponse response = TestDatabaseProvider.createPool("dummy", templateDBName);
+System.out.println("\nPool Created: " + response.toString());
+
+// 5. Now run your unit tests and happy testing
 ```
 
 ## Releasing 

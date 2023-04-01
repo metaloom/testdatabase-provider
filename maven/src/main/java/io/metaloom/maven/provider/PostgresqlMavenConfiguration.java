@@ -81,8 +81,8 @@ public class PostgresqlMavenConfiguration {
 	/**
 	 * Size in MB of the tmpfs filesystem to be used for the database container. Use 0 to disable tmpfs.
 	 */
-	@Parameter(property = POSTGRESQL_TMPFS_SIZE_PROP_KEY, required = false, defaultValue = "128")
-	private int tmpfsSizeMB = 128;
+	@Parameter(property = POSTGRESQL_TMPFS_SIZE_PROP_KEY, required = false, defaultValue = "0")
+	private int tmpfsSizeMB = 0;
 
 	public boolean isStartContainer() {
 		return startContainer;

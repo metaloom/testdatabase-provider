@@ -136,7 +136,6 @@ Various variables may be specified during startup that reference the testdatabas
 
 ## Test - JUnit 5
 
-
 ```xml
 <dependency>
   <groupId>io.metaloom.test</groupId>
@@ -167,6 +166,15 @@ With JUnit 4 the pool can be queried using the `DatabaseProviderRule` test rule.
 
 ```java
 %{snippet|id=test_snippet|file=./examples/minimal/src/test/java/io/metaloom/example/ExampleJunit4Test.java}
+```
+
+## Database Changes
+
+Database Pools can be updated/recreated by updating the pool definition via REST. The `TestDatabaseProvider` provides easy access to common tasks like re-creating a database in order to update the template for the pool.
+
+*examples/minimal/src/test/java/io/metaloom/example/PoolSetupAction.java*
+```java
+%{snippet|id=pool_setup|file=./examples/minimal/src/test/java/io/metaloom/example/PoolSetupAction.java}
 ```
 
 ## Releasing 

@@ -30,6 +30,16 @@
       <artifactId>postgresql</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -52,7 +62,7 @@
           <user>${maven.testdb.postgresql.username}</user>
           <password>${maven.testdb.postgresql.password}</password>
           <locations>
-            <location>filesystem:src/main/flyway</location>
+            <location>filesystem:src/main/resources/db/migration</location>
           </locations>
         </configuration>
         <dependencies>
