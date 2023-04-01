@@ -11,6 +11,7 @@
   </parent>
 
   <name>Testdatabase Provider :: Example :: Complex - Module A</name>
+  <description>This module contains the database setup and pool creation.</description>
 
   <build>
     <plugins>
@@ -41,6 +42,36 @@
             <version>${postgres.driver.version}</version>
           </dependency>
         </dependencies>
+      </plugin>
+
+      <plugin>
+        <groupId>io.metaloom.maven</groupId>
+        <artifactId>testdb-maven-plugin</artifactId>
+        <executions>
+          <!-- Setup a new testdatabase pool now that flyway has setup the
+          tables -->
+          <execution>
+            <?m2e ignore?>
+            <id>pool</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>pool</goal>
+            </goals>
+            <configuration>
+              <pools>
+                <pool>
+                  <id>dummy</id>
+                  <templateName>test</templateName>
+                  <limits>
+                    <minimum>10</minimum>
+                    <maximum>30</maximum>
+                    <increment>5</increment>
+                  </limits>
+                </pool>
+              </pools>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

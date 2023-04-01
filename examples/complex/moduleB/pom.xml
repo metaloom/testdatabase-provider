@@ -11,11 +11,22 @@
   </parent>
 
   <name>Testdatabase Provider :: Example :: Complex - Module B</name>
+  <description>This module contains the actual tests which utiilize the
+    previously setup database</description>
 
-  <build>
-    <plugins>
+  <dependencies>
+    <!-- Junit 5 or.. -->
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>testdatabase-provider-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
 
-    </plugins>
-
-  </build>
+    <!-- JUnit 4 -->
+    <dependency>
+      <groupId>io.metaloom.test</groupId>
+      <artifactId>testdatabase-provider-junit4</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>

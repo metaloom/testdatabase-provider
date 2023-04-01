@@ -7,6 +7,7 @@ import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
 public class PostgresqlMavenConfiguration {
 
 	public static final String POSTGRESQL_CONFIG_PROP_KEY = "maven.testdb.postgresql";
+	public static final String POSTGRESQL_CONTAINER_ID_PROP_KEY = "maven.testdb.postgresql.container_id";
 	public static final String POSTGRESQL_DB_PROP_KEY = "maven.testdb.postgresql.database";
 	public static final String POSTGRESQL_USERNAME_PROP_KEY = "maven.testdb.postgresql.username";
 	public static final String POSTGRESQL_PASSWORD_PROP_KEY = "maven.testdb.postgresql.password";

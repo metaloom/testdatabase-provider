@@ -1,5 +1,6 @@
 package io.metaloom.maven.provider;
 
+import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_CONTAINER_ID_PROP_KEY;
 import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_DB_PROP_KEY;
 import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_HOST_PROP_KEY;
 import static io.metaloom.maven.provider.PostgresqlMavenConfiguration.POSTGRESQL_JDBCURL_PROP_KEY;
@@ -110,24 +111,20 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		});
 
 		// Provide the properties so those can be used in maven
-		getLog().debug("Container DB Name:" + db.getJdbcUrl());
 		setProjectProp(POSTGRESQL_DB_PROP_KEY, db.getDatabaseName());
-
-		getLog().debug("Container JDBCUrl:" + db.getJdbcUrl());
 		setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, db.getJdbcUrl());
-
-		getLog().debug("Container Host:" + db.getHost());
-		setProjectProp(POSTGRESQL_HOST_PROP_KEY, db.getJdbcUrl());
-
-		getLog().debug("Container Username:" + db.getUsername());
-		setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, db.getUsername());
-
-		getLog().debug("Container Password:" + db.getPassword());
+		setProjectProp(POSTGRESQL_HOST_PROP_KEY, db.getHost());
 		setProjectProp(POSTGRESQL_PASSWORD_PROP_KEY, db.getPassword());
-
-		getLog().debug("Container Port:" + db.getPort());
+		setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, db.getUsername());
 		setProjectProp(POSTGRESQL_PORT_PROP_KEY, db.getPort());
+		setProjectProp(POSTGRESQL_CONTAINER_ID_PROP_KEY, db.getContainerId());
 
+		getLog().info("Started PostgreSQL container " + db.getContainerId());
+		getLog().info("DB Name:" + db.getDatabaseName());
+		getLog().info("JDBCUrl:" + db.getJdbcUrl());
+		getLog().info("Host: " + db.getHost() + ":" + db.getPort());
+		getLog().info("Username:" + db.getUsername());
+		getLog().debug("Password:" + db.getPassword());
 		return db;
 	}
 
@@ -215,6 +212,10 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 			config.getPostgresql().setInternalPort(intPort);
 			config.setProviderContainerId(finProviderContainer.getContainerId());
 		});
+
+		getLog().info("Started Provider container " + providerContainer.getContainerId());
+		getLog().info("Host: " + providerContainer.getHost() + ":" + providerContainer.getPort());
+
 		return providerContainer;
 	}
 

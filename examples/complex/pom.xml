@@ -67,7 +67,7 @@
                   <increment>5</increment>
                 </limits>
                 <createPool>false</createPool>
-                <startProvider>true</startProvider>
+                <startContainer>true</startContainer>
               </provider>
               <postgresql>
                 <containerImage>postgres:13.2</containerImage>
@@ -86,35 +86,6 @@
               <reuseContainers>true</reuseContainers>
             </configuration>
           </execution>
-          <!-- Setup a new testdatabase pool now that flyway has setup the
-          tables -->
-          <execution>
-            <id>pool</id>
-            <phase>process-test-classes</phase>
-            <goals>
-              <goal>pool</goal>
-            </goals>
-
-            <configuration>
-              <pools>
-                <pool>
-                  <id>dummy</id>
-                  <host>${maven.testdb.postgresql.host}</host>
-                  <port>${maven.testdb.postgresql.port}</port>
-                  <username>${maven.testdb.postgresql.username}</username>
-                  <password>${maven.testdb.postgresql.password}</password>
-                  <database>${maven.testdb.postgresql.database}</database>
-                  <templateName>test</templateName>
-                  <limits>
-                    <minimum>10</minimum>
-                    <maximum>30</maximum>
-                    <increment>5</increment>
-                  </limits>
-                </pool>
-              </pools>
-            </configuration>
-          </execution>
-
           <!-- Stop the previously started containers -->
           <execution>
             <id>stop</id>
