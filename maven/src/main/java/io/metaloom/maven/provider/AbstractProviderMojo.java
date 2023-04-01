@@ -12,8 +12,10 @@ import static io.metaloom.test.container.provider.common.config.ProviderConfigHe
 
 import java.util.function.Consumer;
 
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.testcontainers.containers.Network;
@@ -32,6 +34,9 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project}", required = true, readonly = true)
 	protected MavenProject project;
+
+	@Component
+	private MavenSession mavenSession;
 
 	/**
 	 * Parameters for the database settings. The settings can be used to configure the started postgresql container or for the use of an external database
@@ -54,7 +59,11 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 
 	public void setProjectProp(String key, Object value) {
 		if (value != null) {
+			if (value instanceof Integer num) {
+				value = String.valueOf(num);
+			}
 			project.getProperties().put(key, value);
+			mavenSession.getUserProperties().put(key, value);
 		}
 	}
 
@@ -114,17 +123,17 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		setProjectProp(POSTGRESQL_DB_PROP_KEY, db.getDatabaseName());
 		setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, db.getJdbcUrl());
 		setProjectProp(POSTGRESQL_HOST_PROP_KEY, db.getHost());
-		setProjectProp(POSTGRESQL_PASSWORD_PROP_KEY, db.getPassword());
 		setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, db.getUsername());
+		setProjectProp(POSTGRESQL_PASSWORD_PROP_KEY, db.getPassword());
 		setProjectProp(POSTGRESQL_PORT_PROP_KEY, db.getPort());
 		setProjectProp(POSTGRESQL_CONTAINER_ID_PROP_KEY, db.getContainerId());
 
 		getLog().info("Started PostgreSQL container " + db.getContainerId());
-		getLog().info("DB Name:" + db.getDatabaseName());
-		getLog().info("JDBCUrl:" + db.getJdbcUrl());
 		getLog().info("Host: " + db.getHost() + ":" + db.getPort());
-		getLog().info("Username:" + db.getUsername());
-		getLog().debug("Password:" + db.getPassword());
+		getLog().info("JDBCUrl: " + db.getJdbcUrl());
+		getLog().info("DB Name: " + db.getDatabaseName());
+		getLog().info("Username: " + db.getUsername());
+		getLog().info("Password: " + db.getPassword());
 		return db;
 	}
 
@@ -156,7 +165,7 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 		}
 
 		DatabaseProviderContainer providerContainer = null;
-		String customImage = postgresqlMavenConfig.getContainerImage();
+		String customImage = providerMavenConfig.getContainerImage();
 		if (customImage != null) {
 			providerContainer = new DatabaseProviderContainer(customImage);
 		} else {
@@ -238,7 +247,7 @@ public abstract class AbstractProviderMojo extends AbstractMojo {
 
 			// Provide the properties so those can be used in maven
 			setProjectProp(POSTGRESQL_DB_PROP_KEY, postgresqlConfig.getDatabaseName());
-			setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, postgresqlConfig.jdbcUrl(""));
+			setProjectProp(POSTGRESQL_JDBCURL_PROP_KEY, postgresqlConfig.jdbcUrl(postgresqlConfig.getDatabaseName()));
 			setProjectProp(POSTGRESQL_HOST_PROP_KEY, postgresqlConfig.getHost());
 			setProjectProp(POSTGRESQL_PORT_PROP_KEY, postgresqlConfig.getPort());
 			setProjectProp(POSTGRESQL_USERNAME_PROP_KEY, postgresqlConfig.getUsername());

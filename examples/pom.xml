@@ -71,6 +71,26 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>io.metaloom.maven</groupId>
+        <artifactId>testdb-maven-plugin</artifactId>
+        <executions>
+          <!-- 1. Ensure we don't have any remaining containers running by
+          invoking clean -->
+          <execution>
+            <!-- Important - Don't inherit clean or stop otherwise your
+            containers will be stopped when submodules inherit the execution -->
+            <inherited>false</inherited>
+            <id>cleanup</id>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
 </project>

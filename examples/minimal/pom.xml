@@ -13,32 +13,70 @@
   <name>Testdatabase Provider :: Minimal Example</name>
 
   <dependencies>
+    <!-- Use can use JUnit 5 or... -->
     <dependency>
       <groupId>io.metaloom.test</groupId>
       <artifactId>testdatabase-provider-junit5</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- JUnit 4 API -->
     <dependency>
       <groupId>io.metaloom.test</groupId>
       <artifactId>testdatabase-provider-junit4</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-maven-plugin</artifactId>
+        <executions>
+          <!-- 3. Execute flyway on the DB to prepare the tables-->
+          <execution>
+            <?m2e ignore?>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>migrate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <url>${maven.testdb.postgresql.jdbcurl}</url>
+          <user>${maven.testdb.postgresql.username}</user>
+          <password>${maven.testdb.postgresql.password}</password>
+          <locations>
+            <location>filesystem:src/main/flyway</location>
+          </locations>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.driver.version}</version>
+          </dependency>
+        </dependencies>
+      </plugin>
       <!-- SNIPPET START plugin-section  -->
       <plugin>
         <groupId>io.metaloom.maven</groupId>
         <artifactId>testdb-maven-plugin</artifactId>
         <executions>
+          <!-- 1. Ensure we don't have any remaining containers running by
+          invoking clean -->
           <execution>
             <id>cleanup</id>
             <goals>
               <goal>clean</goal>
             </goals>
           </execution>
-          <!-- Startup a postgreSQL container and the provider daemon -->
+          <!-- 2. Startup a postgreSQL container and the provider daemon -->
           <execution>
             <?m2e ignore?>
             <id>setup</id>
@@ -46,8 +84,8 @@
               <goal>start</goal>
             </goals>
           </execution>
-          <!-- Setup a new testdatabase pool now that flyway has setup the
-          tables -->
+          <!-- 4. Now setup a new testdatabase pool - flyway has setup the
+          tables by now -->
           <execution>
             <?m2e ignore?>
             <id>pool</id>
@@ -69,6 +107,7 @@
               </pools>
             </configuration>
           </execution>
+          <!-- Tests have been executed. We can stop the containers -->
           <execution>
             <id>stop</id>
             <goals>

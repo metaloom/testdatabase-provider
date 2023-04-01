@@ -1,0 +1,10 @@
+DROP SCHEMA IF EXISTS helloworld CASCADE;
+
+CREATE SCHEMA helloworld;
+
+CREATE TABLE helloworld.test (
+  id INT NOT NULL GENERATED ALWAYS AS IDENTITY,
+  cd INT,
+  
+  CONSTRAINT pk_test PRIMARY KEY (id) 
+);

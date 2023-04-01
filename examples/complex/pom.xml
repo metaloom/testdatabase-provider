@@ -46,12 +46,16 @@
         <artifactId>testdb-maven-plugin</artifactId>
         <executions>
           <execution>
+            <?m2e ignore?>
+            <inherited>false</inherited>
+            <id>clean</id>
             <goals>
               <goal>clean</goal>
             </goals>
           </execution>
           <!-- Startup a postgreSQL container and the provider daemon -->
           <execution>
+            <inherited>false</inherited>
             <?m2e ignore?>
             <id>start</id>
             <phase>initialize</phase>
@@ -87,13 +91,16 @@
             </configuration>
           </execution>
           <!-- Stop the previously started containers -->
+          <!--
           <execution>
+            <inherited>false</inherited>
             <id>stop</id>
             <phase>post-integration-test</phase>
             <goals>
               <goal>stop</goal>
             </goals>
           </execution>
+          -->
         </executions>
       </plugin>
       <!-- SNIPPET END plugin-section -->
