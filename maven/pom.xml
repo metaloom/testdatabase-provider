@@ -8,7 +8,7 @@
   <parent>
     <groupId>io.metaloom.test</groupId>
     <artifactId>testdatabase-provider</artifactId>
-    <version>0.1.3</version>
+    <version>0.1.4-SNAPSHOT</version>
   </parent>
   <packaging>maven-plugin</packaging>
 
