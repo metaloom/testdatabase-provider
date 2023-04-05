@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.metaloom.test.container.provider.common.ServerEnv;
+import io.metaloom.test.container.provider.server.ServerConfiguration;
 import io.metaloom.test.container.provider.server.ServerError;
 import io.vertx.core.Vertx;
 
@@ -38,7 +39,9 @@ public class DatabasePool {
 
 	private int increment = ServerEnv.DEFAULT_POOL_INCREMENT;
 
-	private Vertx vertx;
+	private final Vertx vertx;
+
+	private final ServerConfiguration config;
 
 	private Long maintainPoolTimerId;
 
@@ -50,6 +53,7 @@ public class DatabasePool {
 	 * Create a new database pool with the specified levels.
 	 * 
 	 * @param vertx
+	 * @param config
 	 * @param id
 	 * @param host
 	 * @param port
@@ -59,9 +63,11 @@ public class DatabasePool {
 	 * @param password
 	 * @param adminDB
 	 */
-	public DatabasePool(Vertx vertx, String id, String host, int port, String internalHost, int internalPort, String username, String password,
+	protected DatabasePool(Vertx vertx, ServerConfiguration config, String id, String host, int port, String internalHost, int internalPort,
+		String username, String password,
 		String adminDB) {
 		this.vertx = vertx;
+		this.config = config;
 		this.id = id;
 		this.settings = new DatabaseSettings(host, port, internalHost, internalPort, username, password, adminDB);
 		this.creationDate = LocalDateTime.now();
@@ -119,7 +125,11 @@ public class DatabasePool {
 					.toString()
 					.substring(0, 4);
 				log.debug("Creating " + newName + " from " + templateName);
-				Database database = SQLUtils.copyDatabase(settings, templateName, newName);
+				DatabaseJsonCommentModel comment = new DatabaseJsonCommentModel();
+				comment.setOrigin(templateName);
+				comment.setPoolId(id());
+				comment.setCreationDate(LocalDateTime.now());
+				Database database = SQLUtils.copyDatabase(settings, templateName, newName, comment);
 				databases.push(database);
 			}
 		}
@@ -162,8 +172,9 @@ public class DatabasePool {
 		return templateName;
 	}
 
-	public void setTemplateDatabaseName(String databaseName) {
+	public DatabasePool setTemplateDatabaseName(String databaseName) {
 		this.templateName = databaseName;
+		return this;
 	}
 
 	public DatabaseSettings settings() {
@@ -212,24 +223,6 @@ public class DatabasePool {
 		}
 	}
 
-	/**
-	 * Set the pool limits.
-	 * 
-	 * @param minimum
-	 *            Minimum amount of databases to allocate
-	 * @param maximum
-	 *            Maximum amount of databases to allocate
-	 * @param increment
-	 *            Incremental for new database being allocated at once
-	 * @return
-	 */
-	public DatabasePool setLimits(int minimum, int maximum, int increment) {
-		setMinimum(minimum);
-		setMaximum(maximum);
-		setIncrement(increment);
-		return this;
-	}
-
 	public void setMinimum(int minimum) {
 		this.minimum = minimum;
 	}
@@ -240,6 +233,20 @@ public class DatabasePool {
 
 	public void setIncrement(int increment) {
 		this.increment = increment;
+	}
+
+	public boolean hasDatabase(String databaseName) {
+		for (Database database : databases) {
+			if (database.name().equals(databaseName)) {
+				log.debug("Found database {} in pool {}" + databaseName, id());
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void addDatabase(Database db) {
+		databases.add(db);
 	}
 
 }

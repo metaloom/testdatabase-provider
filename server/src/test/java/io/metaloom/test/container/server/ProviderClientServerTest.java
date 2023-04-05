@@ -12,6 +12,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
+import io.metaloom.test.container.provider.DatabasePoolManager;
 import io.metaloom.test.container.provider.client.ClientAllocation;
 import io.metaloom.test.container.provider.client.ProviderClient;
 import io.metaloom.test.container.provider.model.DatabasePoolConnection;
@@ -20,6 +21,8 @@ import io.metaloom.test.container.provider.model.DatabasePoolRequest;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 import io.metaloom.test.container.provider.model.DatabasePoolSettings;
 import io.metaloom.test.container.provider.server.DatabaseProviderServer;
+import io.metaloom.test.container.provider.server.ServerApi;
+import io.metaloom.test.container.provider.server.ServerConfiguration;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.Json;
@@ -36,7 +39,9 @@ public class ProviderClientServerTest {
 	@BeforeAll
 	public static void setup() throws Exception {
 		Vertx vertx = Vertx.vertx();
-		server = new DatabaseProviderServer(vertx);
+		DatabasePoolManager manager = new DatabasePoolManager(vertx, null);
+		ServerApi  api = new ServerApi(manager);
+		server = new DatabaseProviderServer(vertx, ServerConfiguration.create(0), manager, api);
 		HttpServer httpServer = server.start().toCompletionStage().toCompletableFuture().get();
 		client = new ProviderClient("localhost", httpServer.actualPort());
 	}

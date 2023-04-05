@@ -4,23 +4,29 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
-import io.metaloom.test.container.provider.common.ServerEnv;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import io.metaloom.test.container.provider.server.ServerConfiguration;
 import io.vertx.core.Vertx;
 
+@Singleton
 public class DatabasePoolManager {
 
 	private Vertx vertx;
 
 	private Map<String, DatabasePool> pools = new HashMap<>();
 
-	private int defaultMinimum = ServerEnv.DEFAULT_POOL_MINIMUM;
-	private int defaultMaximum = ServerEnv.DEFAULT_POOL_MAXIMUM;
-	private int defaultIncrement = ServerEnv.DEFAULT_POOL_INCREMENT;
+	private ServerConfiguration config;
 
-	public DatabasePoolManager(Vertx vertx) {
+	@Inject
+	public DatabasePoolManager(Vertx vertx, ServerConfiguration config) {
 		this.vertx = vertx;
+		this.config = config;
 	}
 
 	public Collection<DatabasePool> getPools() {
@@ -58,25 +64,40 @@ public class DatabasePoolManager {
 
 	public DatabasePool createPool(String id, String host, int port, String internalHost, int internalPort, String username, String password,
 		String adminDB) {
-		DatabasePool pool = new DatabasePool(vertx, id, host, port, internalHost, internalPort, username, password, adminDB);
-		pool.setLimits(defaultMinimum, defaultMaximum, defaultIncrement);
+		DatabasePool pool = new DatabasePool(vertx, config, id, host, port, internalHost, internalPort, username, password, adminDB);
 		pools.put(id, pool);
 		return pool;
 	}
 
 	public DatabasePool createPool(String id, String host, int port, String internalHost, int internalPort, String username, String password,
 		String adminDB, String templateName) {
-		DatabasePool pool = new DatabasePool(vertx, id, host, port, internalHost, internalPort, username, password, adminDB);
-		pool.setLimits(defaultMinimum, defaultMaximum, defaultIncrement);
+		DatabasePool pool = new DatabasePool(vertx, config, id, host, port, internalHost, internalPort, username, password, adminDB);
 		pool.setTemplateDatabaseName(templateName);
 		pools.put(id, pool);
 		return pool;
 	}
 
-	public void setDefaults(int minimum, int maximum, int increment) {
-		this.defaultMinimum = minimum;
-		this.defaultMaximum = maximum;
-		this.defaultIncrement = increment;
+	public int loadFromDB() throws SQLException {
+		int importedDBs = 0;
+		for (Database db : SQLUtils.listDatabasesWithComment(config.databaseSettings())) {
+			String databaseName = db.name();
+			DatabaseJsonCommentModel comment = db.comment();
+			if (comment != null) {
+				String poolId = comment.getPoolId();
+				String templateName = comment.getOrigin();
+				DatabasePool pool = getPool(poolId);
+				if (pool == null) {
+					pool = createPool(poolId, config.host(), config.port(), config.host(), config.port(), config.username(), config.password(),
+						config.adminDB(), templateName);
+				}
+				if (!pool.hasDatabase(databaseName)) {
+					pool.addDatabase(db);
+					importedDBs++;
+				}
+			}
+			System.out.println(db.name() + "  " + (db.comment() != null ? db.comment().getPoolId() : ""));
+		}
+		return importedDBs;
 	}
 
 }

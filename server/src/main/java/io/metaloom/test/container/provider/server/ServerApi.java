@@ -3,6 +3,9 @@ package io.metaloom.test.container.provider.server;
 import java.sql.SQLException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +25,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.sockjs.SockJSSocket;
 
+@Singleton
 public class ServerApi {
 
 	private static final Logger log = LoggerFactory.getLogger(ServerApi.class);
-	private DatabasePoolManager manager;
 
+	private final DatabasePoolManager manager;
+
+	@Inject
 	public ServerApi(DatabasePoolManager manager) {
 		this.manager = manager;
 	}

@@ -3,6 +3,7 @@ package io.metaloom.test.container.server;
 import org.junit.jupiter.api.Test;
 
 import io.metaloom.test.container.provider.DatabasePool;
+import io.metaloom.test.container.provider.DatabasePoolFactory;
 import io.metaloom.test.container.provider.model.DatabasePoolResponse;
 import io.metaloom.test.container.provider.server.ModelHelper;
 import io.vertx.core.json.JsonObject;
@@ -19,7 +20,8 @@ public class ModelHelperTest {
 
 	@Test
 	public void testPoolModel() {
-		DatabasePool pool = new DatabasePool(null, "dummy", "localhost", 42, "localhost-int", 42, "user", "pw", "admin-db");
+		DatabasePoolFactory factory = new DatabasePoolFactory(null, null);
+		DatabasePool pool = factory.createPool("dummy", "localhost", 42, "localhost-int", 42, "user", "pw", "admin-db");
 		DatabasePoolResponse model = ModelHelper.toModel(pool);
 		JsonObject json = JsonObject.mapFrom(model);
 		System.out.println(json.encodePrettily());

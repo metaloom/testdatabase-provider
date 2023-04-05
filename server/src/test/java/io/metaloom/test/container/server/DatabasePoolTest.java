@@ -17,6 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import io.metaloom.maven.provider.container.PostgreSQLPoolContainer;
 import io.metaloom.test.container.provider.DatabaseAllocation;
 import io.metaloom.test.container.provider.DatabasePool;
+import io.metaloom.test.container.provider.DatabasePoolFactory;
 import io.metaloom.test.container.provider.SQLUtils;
 import io.vertx.core.Vertx;
 
@@ -32,10 +33,10 @@ public class DatabasePoolTest {
 
 	@BeforeEach
 	public void setup() throws SQLException {
-		this.pool = new DatabasePool(vertx, "dummy", container.getHost(), container.getPort(), container.getHost(), container.getPort(),
+		DatabasePoolFactory factory = new DatabasePoolFactory(vertx, null);
+		this.pool = factory.createPool("dummy", container.getHost(), container.getPort(), container.getHost(), container.getPort(),
 			container.getUsername(), container.getPassword(),
 			container.getDatabaseName());
-		pool.setLimits(40, 200, 15);
 		String databaseName = TestSQLHelper.setupTable(pool.settings().jdbcUrl(), pool.settings().username(), pool.settings().password());
 		pool.setTemplateDatabaseName(databaseName);
 	}

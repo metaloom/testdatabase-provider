@@ -10,6 +10,7 @@ public final class ServerEnv {
 	public static final int DEFAULT_POOL_MINIMUM = 10;
 	public static final int DEFAULT_POOL_MAXIMUM = 20;
 	public static final int DEFAULT_POOL_INCREMENT = 5;
+	private static final int DEFAULT_HTTP_PORT = 8080;
 
 	public static final String TESTDATABASE_PROVIDER_DATABASE_HOST_KEY = "TESTDATABASE_PROVIDER_DATABASE_HOST";
 
@@ -32,6 +33,9 @@ public final class ServerEnv {
 	public static final String TESTDATABASE_PROVIDER_POOL_INCREMENT_KEY = "TESTDATABASE_PROVIDER_POOL_INCREMENT";
 
 	public static final String TESTDATABASE_PROVIDER_DATABASE_TEMPLATE_DBNAME_KEY = "TESTDATABASE_PROVIDER_POOL_TEMPLATE_NAME";
+
+	private static final String TESTDATABASE_PROVIDER_HTTP_PORT_KEY = "TESTDATABASE_PROVIDER_HTTP_PORT";
+
 
 	public static int getPoolMinimum() {
 		String minimumStr = getEnv(ServerEnv.TESTDATABASE_PROVIDER_POOL_MINIMUM_KEY);
@@ -105,5 +109,13 @@ public final class ServerEnv {
 
 	private static String getEnv(String key) {
 		return System.getenv(key);
+	}
+
+	public static int getHttpPort() {
+		String portStr = getEnv(ServerEnv.TESTDATABASE_PROVIDER_HTTP_PORT_KEY);
+		if (portStr == null) {
+			return DEFAULT_HTTP_PORT;
+		}
+		return Integer.parseInt(portStr);
 	}
 }

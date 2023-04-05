@@ -1,5 +1,7 @@
 package io.metaloom.test.container.provider.server;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,53 +20,59 @@ public class DatabaseProviderServer {
 
 	public static final Logger log = LoggerFactory.getLogger(DatabaseProviderServer.class);
 
-	private Vertx vertx;
+	private final Vertx vertx;
 
-	private DatabasePoolManager manager;
+	private final ServerConfiguration config;
+
+	private final DatabasePoolManager manager;
+
+	private final ServerApi api;
 
 	private HttpServer server;
 
-	public DatabaseProviderServer(Vertx vertx) {
+	@Inject
+	public DatabaseProviderServer(Vertx vertx, ServerConfiguration config, DatabasePoolManager manager, ServerApi api) {
 		this.vertx = vertx;
-		this.manager = new DatabasePoolManager(vertx);
+		this.config = config;
+		this.manager = manager;
+		this.api = api;
 	}
 
 	public Future<HttpServer> start() {
 		HttpServerOptions options = new HttpServerOptions();
-		options.setPort(8080);
+		options.setPort(config.httpPort());
 		options.setHost("0.0.0.0");
 		this.server = vertx.createHttpServer(options);
 
 		Router router = Router.router(vertx);
-		ServerApi api = new ServerApi(manager);
 
 		SockJSHandlerOptions sockOptions = new SockJSHandlerOptions().setHeartbeatInterval(500);
 
 		SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sockOptions);
 		Router sockRouter = sockJSHandler.socketHandler(api::websocketHandler);
 		router.route("/connect/*")
-				.subRouter(sockRouter);
+			.subRouter(sockRouter);
 		router.route()
-				.handler(BodyHandler.create());
+			.handler(BodyHandler.create());
 		router.route("/pools")
-				.method(HttpMethod.GET)
-				.handler(api::listPoolsHandler);
+			.method(HttpMethod.GET)
+			.handler(api::listPoolsHandler);
 		router.route("/pools/:id")
-				.method(HttpMethod.GET)
-				.handler(api::loadPoolHandler);
+			.method(HttpMethod.GET)
+			.handler(api::loadPoolHandler);
 		router.route("/pools/:id")
-				.method(HttpMethod.DELETE)
-				.handler(api::poolDeleteHandler);
+			.method(HttpMethod.DELETE)
+			.handler(api::poolDeleteHandler);
 		router.route("/pools/:id")
-				.method(HttpMethod.POST)
-				.handler(api::upsertPoolHandler);
+			.method(HttpMethod.POST)
+			.handler(api::upsertPoolHandler);
 		router.route()
-				.failureHandler(api::failureHandler);
+			.failureHandler(api::failureHandler);
 		server.requestHandler(router);
 		return server.listen()
-				.onSuccess(s -> {
-					log.info("Server started. Listening on port {}", s.actualPort());
-				});
+			.onSuccess(s -> {
+				log.info("Server started. Listening on port {}", s.actualPort());
+			});
 	}
 
 	public Future<Void> stop() {
