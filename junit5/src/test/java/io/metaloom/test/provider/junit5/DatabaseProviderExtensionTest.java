@@ -5,11 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.metaloom.test.container.server.AbstractProviderServerTest;
 
-@Testcontainers
 public class DatabaseProviderExtensionTest extends AbstractProviderServerTest {
 
 	@RegisterExtension
