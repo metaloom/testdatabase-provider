@@ -81,7 +81,7 @@
             <username>sa</username>
             <password>sa</password>
             <database>test</database>
-            <host>localhost</host>
+            <host>saturn</host>
             <port>15432</port>
             <internalHost>postgresql</internalHost>
             <internalPort>5432</internalPort>

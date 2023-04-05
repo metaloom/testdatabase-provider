@@ -69,6 +69,10 @@ public class DatabaseProviderRule implements TestRule {
 		return allocation == null ? null : allocation.response();
 	}
 
+	public static DatabaseProviderRule create(String host, int port, String poolId) {
+		return new DatabaseProviderRule(host, port, poolId);
+	}
+
 	/**
 	 * Create a new extension which connects to the provider server.
 	 * 

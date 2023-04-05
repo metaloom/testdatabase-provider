@@ -31,11 +31,6 @@
       <artifactId>testdatabase-provider-postgresql-db</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.eclipse.jdt</groupId>
-      <artifactId>org.eclipse.jdt.annotation</artifactId>
-    </dependency>
-
 
     <!-- Maven-->
     <dependency>

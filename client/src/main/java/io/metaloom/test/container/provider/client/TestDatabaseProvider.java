@@ -21,6 +21,8 @@ public class TestDatabaseProvider {
 
 	private static final Logger log = LoggerFactory.getLogger(TestDatabaseProvider.class);
 
+	private static ProviderConfig localConfig = null;
+
 	/**
 	 * Return the REST client for the given host and port.
 	 * 
@@ -59,7 +61,11 @@ public class TestDatabaseProvider {
 	 * @return
 	 */
 	public static ProviderConfig config() {
-		return ProviderConfigHelper.readConfig();
+		if (localConfig != null) {
+			return localConfig;
+		} else {
+			return ProviderConfigHelper.readConfig();
+		}
 	}
 
 	/**
@@ -126,6 +132,15 @@ public class TestDatabaseProvider {
 				"Unable to locate provider configuration file in filesystem. Started search here: " + ProviderConfigHelper.currentConfigPath());
 		}
 
+	}
+
+	/**
+	 * Set a local provider config which will supersede any other config (e.g. ENV, config file).
+	 * 
+	 * @param config
+	 */
+	public static void localConfig(ProviderConfig config) {
+		TestDatabaseProvider.localConfig = config;
 	}
 
 }
