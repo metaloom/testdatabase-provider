@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.metaloom.test</groupId>
   <artifactId>testdatabase-provider</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 
   <packaging>pom</packaging>
   <parent>
@@ -188,10 +188,4 @@
       </plugin>
     </plugins>
   </build>
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </pluginRepository>
-  </pluginRepositories>
 </project>
