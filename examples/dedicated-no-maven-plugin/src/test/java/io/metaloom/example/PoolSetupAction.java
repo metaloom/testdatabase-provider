@@ -14,8 +14,12 @@ public class PoolSetupAction {
 
 	public static void main(String[] args) throws Exception {
 
+
+		// 1. Set a local configuration that points to
+		// the provider and database
+		// SNIPPET START localconfig
 		ProviderConfig config = new ProviderConfig();
-		config.setProviderHost("saturn");
+		config.setProviderHost("localhost");
 		config.setProviderPort(7543);
 		config.getPostgresql().setPassword("sa");
 		config.getPostgresql().setUsername("sa");
@@ -23,16 +27,15 @@ public class PoolSetupAction {
 		config.getPostgresql().setHost("saturn");
 		config.getPostgresql().setPort(15432);
 		TestDatabaseProvider.localConfig(config);
+		// SNIPPET END localconfig
 
-		// SNIPPET START pool_setup
-		String templateDBName = "test3";
-
-		// 1. Replace the old database with an empty one.
+		// 2. Replace the old database with an empty one.
 		// The settings will be taken from the database settings
 		// which were defined in the testdb-maven-plugin section of your pom.xml
+		String templateDBName = "template-database";
 		TestDatabaseProvider.dropCreatePostgreSQLDatabase(templateDBName);
 
-		// 2. Now setup your tables using the flyway migration.
+		// 3. Now setup your tables using the flyway migration.
 		String url = config.getPostgresql().jdbcUrl(templateDBName);
 		String user = config.getPostgresql().getUsername();
 		String password = config.getPostgresql().getPassword();
@@ -41,11 +44,10 @@ public class PoolSetupAction {
 
 		System.out.println(result.success ? "Flyway migration OK" : "Flyway migration Failed");
 
-		// 3. Now recreate the dummy pool. The pool will provide the new databases for our tests.
+		// 4. Now recreate the dummy pool. The pool will provide the new databases for our tests.
 		DatabasePoolResponse response = TestDatabaseProvider.createPool("dummy", templateDBName);
 		System.out.println("\nPool Created: " + response.toString());
 
 		// 5. Now run your unit tests and happy testing
-		// SNIPPET END pool_setup
 	}
 }

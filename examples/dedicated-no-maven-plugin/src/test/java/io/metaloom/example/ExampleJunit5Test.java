@@ -7,8 +7,10 @@ import io.metaloom.test.provider.junit5.ProviderExtension;
 
 public class ExampleJunit5Test {
 
+	// SNIPPET START provider
 	@RegisterExtension
-	public static ProviderExtension ext = ProviderExtension.create("saturn", 7543, "dummy");
+	public static ProviderExtension ext = ProviderExtension.create("localhost", 7543, "dummy");
+	// SNIPPET END provider
 
 	@Test
 	public void testDB() throws Exception {

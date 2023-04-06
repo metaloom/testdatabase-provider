@@ -97,6 +97,20 @@ The `configuration` section contains thus all needed information to setup the te
 
 The use of this setup may also be suitable when running tests in a test environment which can be configured to allow access to additional containerized services (e.g. Jenkins CI Worker using `PodTemplate` in a K8S worker setup).
 
+## [Dedicated (Without Maven Plugin) Example](examples/dedicated-no-maven-plugin)
+
+```java
+%{snippet|id=localconfig|file=./examples/dedicated-no-maven-plugin/src/test/java/io/metaloom/example/PoolSetupAction.java}
+```
+
+```java
+// Junit 4
+%{snippet|id=provider|file=./examples/dedicated-no-maven-plugin/src/test/java/io/metaloom/example/ExampleJunit4Test.java}
+
+// Junit 5
+%{snippet|id=provider|file=./examples/dedicated-no-maven-plugin/src/test/java/io/metaloom/example/ExampleJunit5Test.java}
+```
+
 ## Pitfalls
 
 The `reuseContainers` setting will ensure that the started containers are not being removed once the maven process terminates. This is especially useful when providing test databases for your IDE test execution.

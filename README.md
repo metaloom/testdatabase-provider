@@ -164,6 +164,29 @@ The `configuration` section contains thus all needed information to setup the te
 
 The use of this setup may also be suitable when running tests in a test environment which can be configured to allow access to additional containerized services (e.g. Jenkins CI Worker using `PodTemplate` in a K8S worker setup).
 
+## [Dedicated (Without Maven Plugin) Example](examples/dedicated-no-maven-plugin)
+
+```java
+ProviderConfig config = new ProviderConfig();
+config.setProviderHost("localhost");
+config.setProviderPort(7543);
+config.getPostgresql().setPassword("sa");
+config.getPostgresql().setUsername("sa");
+config.getPostgresql().setDatabaseName("test");
+config.getPostgresql().setHost("saturn");
+config.getPostgresql().setPort(15432);
+TestDatabaseProvider.localConfig(config);
+```
+
+```java
+// Junit 4
+@Rule
+public DatabaseProviderRule provider = DatabaseProviderRule.create("localhost", 7543, "dummy");
+// Junit 5
+@RegisterExtension
+public static ProviderExtension ext = ProviderExtension.create("localhost", 7543, "dummy");
+```
+
 ## Pitfalls
 
 The `reuseContainers` setting will ensure that the started containers are not being removed once the maven process terminates. This is especially useful when providing test databases for your IDE test execution.
