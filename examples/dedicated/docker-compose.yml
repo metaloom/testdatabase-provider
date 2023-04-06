@@ -15,7 +15,7 @@ services:
     provider:
         container_name: 'testprovider-provider'
         hostname: 'provider'
-        image: 'metaloom/testdatabase-provider:0.1.3'
+        image: 'metaloom/testdatabase-provider:0.1.4'
         ports:
             - '7543:8080/tcp'
         environment:
