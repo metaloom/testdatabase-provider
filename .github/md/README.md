@@ -12,6 +12,10 @@ A dedicated provider daemon will constantly maintain a specified level of free d
 
 > Currently **only** PostgreSQL is supported.
 
+## Recommendation
+
+This testdb provider is aims to solve test performance issues in larger projects. For smaller projects it makes more sense to just use a testcontainer to provide a database for your tests. It is easier to setup and less complicated. For larger projects it may be suitable to setup a tmpfs backed database that can very quickly allocate database copies.
+
 ## Maven
 
 [Plugin Documentation](https://metaloom.github.io/testdatabase-provider/)
@@ -99,15 +103,20 @@ The use of this setup may also be suitable when running tests in a test environm
 
 ## [Dedicated (Without Maven Plugin) Example](examples/dedicated-no-maven-plugin)
 
+It is also possible to setup a dedicated provider and database and reference the service without the use of the maven plugin.
+In this case the provider connection details must be specified in code. The `TestDatabaseProvider#localConfig` method can be used to set a provider configuration which supersedes any configuration file or environment variables.
+
 ```java
 %{snippet|id=localconfig|file=./examples/dedicated-no-maven-plugin/src/test/java/io/metaloom/example/PoolSetupAction.java}
 ```
 
+Additionally the JUnit rules/extensions can reference the server as well.
+
 ```java
-// Junit 4
+// JUnit 4
 %{snippet|id=provider|file=./examples/dedicated-no-maven-plugin/src/test/java/io/metaloom/example/ExampleJunit4Test.java}
 
-// Junit 5
+// JUnit 5
 %{snippet|id=provider|file=./examples/dedicated-no-maven-plugin/src/test/java/io/metaloom/example/ExampleJunit5Test.java}
 ```
 
