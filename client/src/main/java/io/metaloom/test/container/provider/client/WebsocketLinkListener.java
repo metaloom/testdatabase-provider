@@ -69,19 +69,22 @@ public class WebsocketLinkListener implements WebSocket.Listener {
 
 	@Override
 	public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
-		System.out.println("onText received " + data);
 		return WebSocket.Listener.super.onText(webSocket, data, last);
 	}
 
 	@Override
 	public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
-		log.debug("Got pong");
+		if (log.isTraceEnabled()) {
+			log.trace("Got pong");
+		}
 		return WebSocket.Listener.super.onPong(webSocket, message);
 	}
 
 	@Override
 	public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
-		log.debug("Got ping");
+		if (log.isTraceEnabled()) {
+			log.trace("Got ping");
+		}
 		return WebSocket.Listener.super.onPing(webSocket, message);
 	}
 
