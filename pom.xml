@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.metaloom.test</groupId>
   <artifactId>testdatabase-provider</artifactId>
@@ -38,11 +38,11 @@
   </developers>
 
   <properties>
-    <vertx.version>4.4.0</vertx.version>
-    <postgres.driver.version>42.2.2</postgres.driver.version>
-    <testcontainer.version>1.17.6</testcontainer.version>
+    <vertx.version>4.5.10</vertx.version>
+    <postgres.driver.version>42.7.4</postgres.driver.version>
+    <testcontainer.version>1.20.2</testcontainer.version>
     <provider.build.timestamp>${maven.build.timestamp}</provider.build.timestamp>
-    <dagger.version>2.45</dagger.version>
+    <dagger.version>2.52</dagger.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -130,7 +130,7 @@
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.42.0</version>
+          <version>0.45.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
