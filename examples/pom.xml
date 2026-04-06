@@ -22,6 +22,7 @@
     <module>complex</module>
     <module>dedicated</module>
     <module>dedicated-no-maven-plugin</module>
+    <module>dedicated-podman-no-maven-plugin</module>
   </modules>
 
   <dependencyManagement>

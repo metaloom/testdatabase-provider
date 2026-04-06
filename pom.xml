@@ -52,6 +52,7 @@
     <module>client</module>
     <module>junit4</module>
     <module>junit5</module>
+    <module>junit6</module>
     <module>server</module>
     <module>maven</module>
   </modules>
